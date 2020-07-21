@@ -26,14 +26,50 @@ class Person:
                         "диплом в 15 лет", "Могу оказать первую мед помощ", "Перечитал все книги о властелине колец"]
         self.humanTrait = ["Параноик", "Зануда", "Конфликтный", "Настойчивый", "Жизнерадосний", "Скучний", "Понимающий",
                            "ЧСВ", "Чудесен", "Нимфоманка", "Пацифист"]
-        self.health = ["Безплоден", "Потерял левую руку", "Слепота", "Совершенно здоров", "Псориаз", "Туберкульоз",
-                       "Биполярка", "Альц Геймер", "Парализован ниже пояса", "Отсутствие обояния", "Сахарный диабет",
-                       "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм"]
+
+
         self.phobia = ["Арахнофобия", "Без фобий", "Клаустрофобия", "Ортофобия(боязнь птиц и их перьев)", "Кинофобия",
                        "Фобофобия(боязнь чужих фобий)", "Боязнь демонов", "Боязнь числа 4", "Боязнь призраков",
                        "Боязнь шерсти", "Боязнь темноты", "Боязнь высоты", "Боязнь быть одному"]
 
-        print(len(self.job))
+
+        random_health = random.randint(1, 101)
+        if random_health < 40:
+            self.health = "Совершенно здоров"
+        elif random_health < 44:
+            self.health = "Безплоден"
+        elif random_health < 48:
+            self.health = "Потерял левую руку"
+        elif random_health < 52:
+            self.health = "Слепота"
+        elif random_health < 56:
+            self.health = "Псориаз"
+        elif random_health < 60:
+            self.health = "Туберкульоз"
+        elif random_health < 64:
+            self.health = "Биполярка"
+        elif random_health < 68:
+            self.health = "Альц Геймер"
+        elif random_health < 72:
+            self.health = "Парализован ниже пояса"
+        elif random_health < 76:
+            self.health = "Отсутствие обояния"
+        elif random_health < 80:
+            self.health = "Сахарный диабет"
+        elif random_health < 84:
+            self.health = "Алергия"
+        elif random_health < 88:
+            self.health = "Астма"
+        elif random_health < 92:
+            self.health = "Алкоголизм"
+        elif random_health < 96:
+            self.health = "Тремор"
+        else:
+            self.health = "Дальтонизм"
+
+
+
+
 
 Person()
 class Body:
