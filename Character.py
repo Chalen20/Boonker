@@ -14,7 +14,7 @@ class Person:
                     "Судья", "Имунолог", "Вирусолог"]
         self.hobby = ["Животноводство", "Парусний спорт", "Рибалка", "Бадминон", "Кепминг", "Футбол",
                       "Реставрация поверхностей", "Готовка", "Астрономия", "Радиосвязь", "Оригами", "Стенд ап"]
-        self.age = persentage("Возрозст = ", 18, 90)
+        self.age = "Возрост = "+str(random.randint(18, 91)) + "лет"
 
         # ///////bio////////    #
         if random.randint(0, 2) == 0:
@@ -23,9 +23,9 @@ class Person:
             self.biological = "Женщина"
 
         if random.randint(0, 11) > 7:
-            self.childFree = "childFree"
+            self.childFree = "Чайлд фри"
         else:
-            self.childFree = "NeChildFree"
+            self.childFree = "Не чайлд фри"
         self.dopInfo = ["Знал президента", "Переспал(ла) с порнозвездой", "Проходил курси психолога",
                         "Проходил курси сексолога", "Воевал в Сирии", "Обокрал деда", "Обокрал банк", "Получил красный"
                         "диплом в 15 лет", "Могу оказать первую мед помощ", "Перечитал все книги о властелине колец"]
@@ -84,7 +84,7 @@ class Person:
         print("Доп инфа = " + random_dop_info)
         print("Человеческая черта = " + random_human_trait)
         print("Фобия = " + random_phobia)
-        print("Биологическая характеристика = " + str(self.age)+"__" + self.biological+"__" + self.childFree)
+        print("Биологическая характеристика = " + str(self.age)+"  " + self.biological+"  " + self.childFree)
         print("Здоровье = " + self.health)
 
 
