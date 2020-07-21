@@ -1,4 +1,8 @@
 import random
+
+def persentage( text, start, finish):
+    return text + str(random.randint(start, finish)*10)
+
 class Person:
     def __init__(self):
         self.job = ["Педиатр", "Фитнес тренер", "Полицейский", "Физик-ядерщик", "Биолог", "Химик", "Философ", "Блогер",
@@ -9,7 +13,7 @@ class Person:
                     "Судья", "Имунолог", "Вирусолог"]
         self.hobby = ["Животноводство", "Парусний спорт", "Рибалка", "Бадминон", "Кепминг", "Футбол",
                       "Реставрация поверхностей", "Готовка", "Астрономия", "Радиосвязь", "Оригами", "Стенд ап"]
-        self.age = persentage("Возрозст = ", 18, 90)/10
+        self.age = persentage("Возрозст = ", 18, 90)
 
         # ///////bio////////    #
         if random.randint(0, 2) == 0:
@@ -66,10 +70,20 @@ class Person:
             self.health = "Тремор"
         else:
             self.health = "Дальтонизм"
+            # //////////Initiation ////////////////// #
+        random_job = self.job[random.randint(0, len(self.job)-1)]
+        random_hobby = self.hobby[random.randint(0, len(self.hobby)-1)]
+        random_dop_info = self.dopInfo[random.randint(0, len(self.dopInfo)-1)]
+        random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait)-1)]
+        random_phobia = self.phobia[random.randint(0, len(self.phobia)-1)]
 
-
-
-
+        print("Робота = "+random_job)
+        print("Хобби = " + random_hobby)
+        print("Доп инфа = " + random_dop_info)
+        print("Человеческая черта = " + random_human_trait)
+        print("Фобия = " + random_phobia)
+        print("Биологическая характеристика = " + str(self.age)+"__" + self.biological+"__" + self.childFree)
+        print("Здоровье = " + self.health)
 
 Person()
 class Body:
@@ -94,7 +108,7 @@ class Catastrophe:
                             "выхода из бункера и позобновлением инфраструктури",
                             # ////////////////////////////// Новий сценарій////////////////////////////////////////// #
                             "Всемирный потоп": persentage("В последствие глобального потепления вся планета "
-                                                               "покрыта водой, процент суши - ", 0.6, 2)+"Наблюдаються"
+                                                               "покрыта водой, процент суши - ", 0, 2)+"Наблюдаються"
                             "проблеми с очисткой воды, продолжением рода и обеспечением пищи после выхода из бункера",
                             # ////////////////////////////// Новий сценарій////////////////////////////////////////// #
                             "Зомби-апокалипсис": persentage("Богатая корпорация не удержала испытания вируса под"
@@ -113,12 +127,10 @@ class Catastrophe:
                             " земли",
                             }
 
-
-
         print(self.description)
 
-def persentage( text, start, finish):
-    return text + str(random.randint(start, finish)*10)
+
+
 
 
 
