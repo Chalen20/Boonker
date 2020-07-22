@@ -1,31 +1,32 @@
 import random
 
+
+players_count = 8
+
+
+
 def persentage(text, start, finish):
     return text + str(random.randint(start, finish)*10)
 
-
-
-class Person:
+class Body():
     def __init__(self):
-        self.job = ["Педиатр", "Фитнес тренер", "Полицейский", "Физик-ядерщик", "Биолог", "Химик", "Философ", "Блогер",
-                    "Диетолог", "Психолог", "Сексолог", "Строитель", "Учитель", "Военний", "Пилот", "Художник",
-                    "Татуировщик", "Президент", "Повар", "Бурильщик", "Хакер", "Бариста", "Акушер", "БиоХимик",
-                    "Кондитер", "Хирург", "Инжирен", "Инструктор по выживанию", "Бугалтер", "Ландшафтный дизайнер",
-                    "Животновод", "Режисер", "Порноактер", "Ветеринар", "Матрос", "Водитель", "Космонавт", "Пожарник",
-                    "Судья", "Имунолог", "Вирусолог", "Священник"]
-        self.hobby = ["Животноводство", "Парусний спорт", "Рибалка", "Бадминон", "Кепминг", "Футбол",
-                      "Реставрация поверхностей", "Готовка", "Астрономия", "Радиосвязь", "Оригами", "Стенд ап", "Химия"
-                      , "Решение задач по физике", "Очищение воды", "Просмотр фильмов", "Ориентирование на местности",
-                      "Яой"]
-        self.age = "Возрост - "+str(random.randint(18, 91)) + " лет"
-        self.item = ["Сборник 100 лутшых фильмов", "Удочка и снасти для рыбалки", "Инкубатор и набор яиц для выращивания"
-                     , "Снайперская винтовка и 150 патронов", "Пистолет Макарова и 60 патронов", "Набор наручных часов",
-                     "Покерный набор", "Аптечка первой помощи", "Набор фельшера", "Ноутбук", "5 Кг Кофе", "Грудной ребенок",
-                     "Биноколь", "Генератор", "Канистра бензина", "Набор для рисования", "Средства для очистки воды",
-                     "Средства от насекомых всех видов", "Словарь Даля", "Библия", "Игральные карты", "Самурайский меч",
-                     "Набор семьян", "5 литров вина", "Собака", "Кошка", "Попугай"]
+        # //////////////////////////////////////Body///////////////////////////////////////////// #
+        self.height = random.randint(155, 200)
+        self.weight = random.randint(50, 110)
+        imt = self.weight / (self.height / 100 * self.height / 100)
+        if imt > 39:
+            self.bodyType = "Ожирение"
+        elif imt >= 16:
+            self.bodyType = "Крепкое"
+        else:
+            self.bodyType = "Анарексия"
+        self.body = "Телосложение: " + self.bodyType + ", Рост: " + str(self.height) + " cм" + ", Вес: " + str(
+            self.weight) \
+                    + " кг"
+        print(self.body)
 
-        # ///////bio////////    #
+        # ///////////////////////////////biological/////////////////////////////////////////////////////    #
+        self.age = "Возрост - " + str(random.randint(18, 80)) + " лет"
         if random.randint(0, 2) == 0:
             self.biological = "Мужчина"
         else:
@@ -35,133 +36,180 @@ class Person:
             self.childFree = "Чайлд фри"
         else:
             self.childFree = "Не чайлд фри"
+
+        print("Биологическая характеристика = " + str(self.age) + "  " + self.biological + "  " + self.childFree)
+
+class Person():
+    def __init__(self):
+
+        # //////////////////////////////////////Health///////////////////////////////////////////// #
+        self.health = ["Совершенно здоров", "Совершенно здоров", "Совершенно здоров", "Совершенно здоров",
+                       "Совершенно здоров", "Совершенно здоров", "Совершенно здоров", "Совершенно здоров",
+                       "Совершенно здоров", "Алергия на шерсть", "Безплоден", "Ампутирована рука", "Слепота", "Псориаз"
+                        , "Туберкулез", "Биполярное розстройство", "Альц Геймер", "Парализован ниже пояса", "Отсутствие"
+                        " обояния", "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
+                       "Анальгия(Нечуствительность к боли)", "Безсонница", "Синтром Турета", "Шизофрения", "Грыжа",
+                       "Синдром Мюнхаузена", "Ветрянка", "Епилепсия", ""]
+        print(len(self.health))
+
+        # //////////////////////////////////////Phobia///////////////////////////////////////////// #
+        self.phobia = ["Без фобий", "Без фобий", "Без фобий", "Без фобий", "Без фобий", "Без фобий", "Мусофобия(боязнь крыс)"
+                       "(Боязнь плателиновых мультиков)", "Венустрофобия (Страх красивых щенщин)", "Ергазиофобия (страх"
+                       " оперировать)", "Коулрофобия(Страх клоунов)", "Интернетофобия(Боязнь интернета)"
+                       "Арахнофобия(боязнь пауков)", "Клаустрофобия", "Ортофобия(Боязнь птиц и их оперения)"
+                       , "Кинофобия(боязнь собак)", "Гемофобия(боязнь крови)", "Некрофобия(страх трупов и нежети)",
+                       "Фобофобия(Боязнь чужих фобий)", "Демонофобия(Боязнь демонов)", "Тетрофобия(Боязнь числа 4 )",
+                       "Спектрофобия(Боязнь призраков)", "Аквафобия(Боязнь воды)", "Танатофобия(Боязнь смерти)",
+                       "Акустикофобия(Боязнь громких звуков)", "Боязнь шерсти", "Боязнь темноти", "Акрофобия(Боязнь "
+                       "высоты)", "Аутофобия (Боязнь оставаться наедине)", "Боязнь грязи", "Боязнь костей"]
+        print(len(self.phobia))
+
+        # //////////////////////////////////////job///////////////////////////////////////////// #
+        self.job = ["Педиатр", "Фитнес тренер", "Полицейский", "Физик-ядерщик", "Биолог", "Химик", "Философ", "Блогер",
+                    "Диетолог", "Психолог", "Сексолог", "Строитель", "Учитель", "Военний", "Пилот", "Художник",
+                    "Татуировщик", "Президент", "Повар", "Бурильщик", "Хакер", "Бариста", "Акушер", "БиоХимик",
+                    "Кондитер", "Хирург", "Инжирен", "Инструктор по выживанию", "Бугалтер", "Ландшафтный дизайнер",
+                    "Животновод", "Режисер", "Порноактер", "Ветеринар", "Матрос", "Водитель", "Космонавт", "Пожарник",
+                    "Судья", "Имунолог", "Вирусолог", "Священник"]
+
+        # //////////////////////////////////////Hobby///////////////////////////////////////////// #
+        self.hobby = ["Животноводство", "Парусний спорт", "Рибалка", "Бадминон", "Кепминг", "Футбол",
+                      "Реставрация поверхностей", "Готовка", "Астрономия", "Радиосвязь", "Оригами", "Стенд ап", "Химия"
+                      , "Решение задач по физике", "Очищение воды", "Просмотр фильмов", "Ориентирование на местности",
+                      "Яой", "Копрофилия"]
+
+        # //////////////////////////////////////item///////////////////////////////////////////// #
+        self.item = ["Сборник 100 лутшых фильмов", "Удочка и снасти для рыбалки", "Инкубатор и набор яиц для выращивания"
+                     , "Снайперская винтовка и 150 патронов", "Пистолет Макарова и 60 патронов", "Набор наручных часов",
+                     "Покерный набор", "Аптечка первой помощи", "Набор фельшера", "Ноутбук", "5 Кг Кофе", "Грудной ребенок",
+                     "Биноколь", "Генератор", "Канистра бензина", "Набор для рисования", "Средства для очистки воды",
+                     "Средства от насекомых всех видов", "Словарь Даля", "Библия", "Игральные карты", "Самурайский меч",
+                     "Набор семьян", "5 литров вина", "Собака", "Кошка", "Попугай"]
+
         self.dopInfo = ["Знал президента", "Переспал(ла) с порнозвездой", "Проходил курси психолога",
                         "Проходил курси сексолога", "Воевал в Сирии", "Обокрал деда", "Обокрал банк", "Получил красный"
                         "диплом в 15 лет", "Могу оказать первую мед помощ", "Перечитал все книги о властелине колец"]
+
         self.humanTrait = ["Параноик", "Зануда", "Конфликтный", "Настойчивый", "Жизнерадосний", "Скучний", "Понимающий",
                            "ЧСВ", "Чудесен", "Нимфоманка", "Пацифист"]
 
-            # //////////Initiation ////////////////// #
-        for j in range(9):
+            # ---------------------------------Initiation---------------------------------------------------------
+        for j in range(players_count):
             random_job = self.job[random.randint(0, len(self.job)-1)]
             self.job.remove(random_job)
+
             random_hobby = self.hobby[random.randint(0, len(self.hobby)-1)]
             self.hobby.remove(random_hobby)
+
             random_dop_info = self.dopInfo[random.randint(0, len(self.dopInfo)-1)]
             self.dopInfo.remove(random_dop_info)
+
             random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait)-1)]
             self.humanTrait.remove(random_human_trait)
 
+            random_health_index = random.randint(0, len(self.health) - 1)
+            self.random_health = self.health[random_health_index]
+            self.health.remove(self.random_health)
 
-            # /////////////////////////Health///////////////////////////////////// #
-            random_health = random.randint(1, 101)
-            if random_health < 36:
-                self.health = "Совершенно здоров"
-            elif random_health < 40:
-                self.health = "Алергия на шерсть"
-            elif random_health < 44:
-                self.health = "Безплоден"  # записуємо результат в масів і в кінці сравнюємо чи результат не дорівнює значенню масіву
-            elif random_health < 48:
-                self.health = "Ампутированая рука"
-            elif random_health < 52:
-                self.health = "Слепота"
-            elif random_health < 56:
-                self.health = "Псориаз"
-            elif random_health < 60:
-                self.health = "Туберкульоз"
-            elif random_health < 64:
-                self.health = "Биполярка"
-            elif random_health < 68:
-                self.health = "Альц Геймер"
-            elif random_health < 72:
-                self.health = "Парализован ниже пояса"
-            elif random_health < 76:
-                self.health = "Отсутствие обояния"
-            elif random_health < 80:
-                self.health = "Сахарный диабет"
-            elif random_health < 84:
-                self.health = "Алергия"
-            elif random_health < 88:
-                self.health = "Астма"
-            elif random_health < 92:
-                self.health = "Алкоголизм"
-            elif random_health < 96:
-                self.health = "Тремор"
-            else:
-                self.health = "Дальтонизм"
+            random_phobia_index = random.randint(0, len(self.phobia) - 1)
+            self.random_phobia = self.phobia[random_phobia_index]
+            self.phobia.remove(self.random_phobia)
 
-                # /////////////////////////Phobia///////////////////////////////////// #
 
-            random_phobia = random.randint(1, 101)
-            if random_phobia < 24:
-                self.phobia = "Без фобий"
-            elif random_phobia < 28:
-                self.phobia = "Арахнофобия(Боязнь пауков)"
-            elif random_phobia < 32:
-                self.phobia = "Клаустрофобия"
-            elif random_phobia < 36:
-                self.phobia = "Ортофобия(боязнь птиц и их перьев)"
-            elif random_phobia < 40:
-                self.phobia = "Кинофобия(боязнь собак)"
-            elif random_phobia < 44:
-                self.phobia = "Гемофобия(страх крови)"
-            elif random_phobia < 48:
-                self.phobia = "Некрофобия(Страх трупов и нежети)"
-            elif random_phobia < 52:
-                self.phobia = "Фобофобия(боязнь чужих фобий)"
-            elif random_phobia < 56:
-                self.phobia = "Боязнь демонов"
-            elif random_phobia < 60:
-                self.phobia = "Тетрафобия(боязнь числа 4)"
-            elif random_phobia < 64:
-                self.phobia = "Боязнь призраков"
-            elif random_phobia < 68:
-                self.phobia = "Аквафобия"
-            elif random_phobia < 72:
-                self.phobia = "Танатофобия (Страх смерти)"
-            elif random_phobia < 76:
-                self.phobia = "Акустикофобия(Страх громких звуков)"
-            elif random_phobia < 80:
-                self.phobia = "Боязнь шерсти"
-            elif random_phobia < 84:
-                self.phobia = "Боязнь темноты"
-            elif random_phobia < 88:
-                self.phobia = "Акрофобия(Боязнь высоты)"
-            elif random_phobia < 92:
-                self.phobia = "Боязнь быть одному"
-            elif random_phobia < 96:
-                self.phobia = "Боязнь грязи"
-            else:
-                self.phobia = "Боязнь костей"
+
+            # # /////////////////////////Health///////////////////////////////////// #
+            # random_health = random.randint(1, 101)
+            # if random_health < 36:
+            #     self.health = "Совершенно здоров"
+            # elif random_health < 40:
+            #     self.health = "Алергия на шерсть"
+            # elif random_health < 44:
+            #     self.health = "Безплоден"  # записуємо результат в масів і в кінці сравнюємо чи результат не дорівнює значенню масіву
+            # elif random_health < 48:
+            #     self.health = "Ампутированая рука"
+            # elif random_health < 52:
+            #     self.health = "Слепота"
+            # elif random_health < 56:
+            #     self.health = "Псориаз"
+            # elif random_health < 60:
+            #     self.health = "Туберкульоз"
+            # elif random_health < 64:
+            #     self.health = "Биполярка"
+            # elif random_health < 68:
+            #     self.health = "Альц Геймер"
+            # elif random_health < 72:
+            #     self.health = "Парализован ниже пояса"
+            # elif random_health < 76:
+            #     self.health = "Отсутствие обояния"
+            # elif random_health < 80:
+            #     self.health = "Сахарный диабет"
+            # elif random_health < 84:
+            #     self.health = "Алергия"
+            # elif random_health < 88:
+            #     self.health = "Астма"
+            # elif random_health < 92:
+            #     self.health = "Алкоголизм"
+            # elif random_health < 96:
+            #     self.health = "Тремор"
+            # else:
+            #     self.health = "Дальтонизм"
+            #
+            #     # /////////////////////////Phobia///////////////////////////////////// #
+            #
+            # random_phobia = random.randint(1, 101)
+            # if random_phobia < 24:
+            #     self.phobia = "Без фобий"
+            # elif random_phobia < 28:
+            #     self.phobia = "Арахнофобия(Боязнь пауков)"
+            # elif random_phobia < 32:
+            #     self.phobia = "Клаустрофобия"
+            # elif random_phobia < 36:
+            #     self.phobia = "Ортофобия(боязнь птиц и их перьев)"
+            # elif random_phobia < 40:
+            #     self.phobia = "Кинофобия(боязнь собак)"
+            # elif random_phobia < 44:
+            #     self.phobia = "Гемофобия(страх крови)"
+            # elif random_phobia < 48:
+            #     self.phobia = "Некрофобия(Страх трупов и нежети)"
+            # elif random_phobia < 52:
+            #     self.phobia = "Фобофобия(боязнь чужих фобий)"
+            # elif random_phobia < 56:
+            #     self.phobia = "Боязнь демонов"
+            # elif random_phobia < 60:
+            #     self.phobia = "Тетрафобия(боязнь числа 4)"
+            # elif random_phobia < 64:
+            #     self.phobia = "Боязнь призраков"
+            # elif random_phobia < 68:
+            #     self.phobia = "Аквафобия"
+            # elif random_phobia < 72:
+            #     self.phobia = "Танатофобия (Страх смерти)"
+            # elif random_phobia < 76:
+            #     self.phobia = "Акустикофобия(Страх громких звуков)"
+            # elif random_phobia < 80:
+            #     self.phobia = "Боязнь шерсти"
+            # elif random_phobia < 84:
+            #     self.phobia = "Боязнь темноты"
+            # elif random_phobia < 88:
+            #     self.phobia = "Акрофобия(Боязнь высоты)"
+            # elif random_phobia < 92:
+            #     self.phobia = "Боязнь быть одному"
+            # elif random_phobia < 96:
+            #     self.phobia = "Боязнь грязи"
+            # else:
+            #     self.phobia = "Боязнь костей"
 
             print("\n" + "             Характеристики персонажа" + "\n")
+            print("Здоровье = " + self.random_health)
             print("Професия = "+random_job)
             print("Хобби = " + random_hobby)
             print("Доп инфа = " + random_dop_info)
             print("Человеческая черта = " + random_human_trait)
-            print("Фобия = " + self.phobia)
-            print("Биологическая характеристика = " + str(self.age)+"  " + self.biological+"  " + self.childFree)
-            print("Здоровье = " + self.health)
+            print("Фобия = " + self.random_phobia)
 
-
-
-
+            Body()
 Person()
-class Body:
-    def __init__(self):
-        self.height = random.randint(160, 200)
-        self.weight = random.randint(50, 110)
-        imt = self.weight/(self.height/100*self.height/100)
-        if imt > 39:
-            self.bodyType = "Ожирение"
-        elif imt >= 16:
-            self.bodyType = "Крепкое"
-        else:
-            self.bodyType = "Анарексия"
-        self.body = "Телосложение: " + self.bodyType + ", Рост: " + str(self.height) + " cм" + ", Вес: " + str(self.weight)\
-                   + " кг"
-        print(self.body)
-Body()
+
+
 
 class Catastrophe:
     def __init__(self):
@@ -240,11 +288,6 @@ def characteristic_chooser(text, array):
     print(text + random_characteristic)
 
 #   ///////// Присети для кількості гравців ///////////// #
-
-
-def eight_players():
-    for i in range(9):
-        characteristic_chooser("Багаж:", Person().item)
 
 
 
