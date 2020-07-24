@@ -1,15 +1,26 @@
 import random
 
 
-players_count = 8
+players_count = 8   # Вибор кількості гравців
 
 
 
 def persentage(text, start, finish):
     return text + str(random.randint(start, finish)*10)
 
-class Body():
+#    //////////////////////////////Функція для перевірки на піддавання чомусь стадії ////////////////////////////////////        #
+def check_for_stage(exeption_array, random_ability, ability_name, ability_stages):
+    random_ability_stage = ability_stages[random.randint(0, len(ability_stages) - 1)]
+    for i in exeption_array:
+        if random_ability == i:
+            print(ability_name + " = " + random_ability)
+        else:
+            print(ability_name + " = " + random_ability + " " + random_ability_stage)
+
+class Body:
+
     def __init__(self):
+
         # //////////////////////////////////////Body///////////////////////////////////////////// #
         self.height = random.randint(155, 200)
         self.weight = random.randint(50, 110)
@@ -25,8 +36,12 @@ class Body():
                     + " кг"
         print(self.body)
 
+class JobBio:
+    def __init__(self):
         # ///////////////////////////////biological/////////////////////////////////////////////////////    #
-        self.age = "Возрост - " + str(random.randint(18, 80)) + " лет"
+        self.random_age = random.randint(18, 80)
+        self.age = "Возрост - " + str(self.random_age) + " лет"
+
         if random.randint(0, 2) == 0:
             self.biological = "Мужчина"
         else:
@@ -37,9 +52,23 @@ class Body():
         else:
             self.childFree = "Не чайлд фри"
 
-        print("Биологическая характеристика = " + str(self.age) + "  " + self.biological + "  " + self.childFree)
+        # //////////////////////////////////////job///////////////////////////////////////////// #
+        self.job = ["Педиатр", "Фитнес тренер", "Полицейский", "Физик-ядерщик", "Биолог", "Химик", "Философ", "Блогер",
+                    "Диетолог", "Психолог", "Сексолог", "Строитель", "Учитель", "Военний", "Пилот", "Художник",
+                    "Татуировщик", "Президент", "Повар", "Бурильщик", "Хакер", "Бариста", "Акушер", "БиоХимик",
+                    "Кондитер", "Хирург", "Инжирен", "Инструктор по выживанию", "Бугалтер", "Ландшафтный дизайнер",
+                    "Животновод", "Режисер", "Порноактер", "Ветеринар", "Матрос", "Водитель", "Космонавт", "Пожарник",
+                    "Судья", "Имунолог", "Вирусолог", "Священник"]
+        self.stag = random.randint(0, self.random_age - 18)
 
-class Person():
+        random_job = self.job[random.randint(0, len(self.job) - 1)]
+        self.job.remove(random_job)
+
+        print("Биологическая характеристика = " + str(self.age) + "  " + self.biological + "  " + self.childFree)
+        print("Професия = " + random_job + ", стаж: " + str(self.stag))
+
+
+class Person:
     def __init__(self):
 
         # //////////////////////////////////////Health///////////////////////////////////////////// #
@@ -49,8 +78,11 @@ class Person():
                         , "Туберкулез", "Биполярное розстройство", "Альц Геймер", "Парализован ниже пояса", "Отсутствие"
                         " обояния", "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
                        "Анальгия(Нечуствительность к боли)", "Безсонница", "Синтром Турета", "Шизофрения", "Грыжа",
-                       "Синдром Мюнхаузена", "Ветрянка", "Епилепсия", ""]
+                       "Синдром Мюнхаузена", "Ветрянка", "Епилепсия", "Дифект речи"]
+        self.no_health_stages = ["Совершенно здоров"]
         print(len(self.health))
+
+        self.health_stages = [" В ремисии", " В ремисии", " 10%", " 20%", " 30%", " 40%", " 50%", " 60%", " 70%", " 80%", " 100%"]
 
         # //////////////////////////////////////Phobia///////////////////////////////////////////// #
         self.phobia = ["Без фобий", "Без фобий", "Без фобий", "Без фобий", "Без фобий", "Без фобий", "Мусофобия(боязнь крыс)"
@@ -64,13 +96,6 @@ class Person():
                        "высоты)", "Аутофобия (Боязнь оставаться наедине)", "Боязнь грязи", "Боязнь костей"]
         print(len(self.phobia))
 
-        # //////////////////////////////////////job///////////////////////////////////////////// #
-        self.job = ["Педиатр", "Фитнес тренер", "Полицейский", "Физик-ядерщик", "Биолог", "Химик", "Философ", "Блогер",
-                    "Диетолог", "Психолог", "Сексолог", "Строитель", "Учитель", "Военний", "Пилот", "Художник",
-                    "Татуировщик", "Президент", "Повар", "Бурильщик", "Хакер", "Бариста", "Акушер", "БиоХимик",
-                    "Кондитер", "Хирург", "Инжирен", "Инструктор по выживанию", "Бугалтер", "Ландшафтный дизайнер",
-                    "Животновод", "Режисер", "Порноактер", "Ветеринар", "Матрос", "Водитель", "Космонавт", "Пожарник",
-                    "Судья", "Имунолог", "Вирусолог", "Священник"]
 
         # //////////////////////////////////////Hobby///////////////////////////////////////////// #
         self.hobby = ["Животноводство", "Парусний спорт", "Рибалка", "Бадминон", "Кепминг", "Футбол",
@@ -95,8 +120,6 @@ class Person():
 
             # ---------------------------------Initiation---------------------------------------------------------
         for j in range(players_count):
-            random_job = self.job[random.randint(0, len(self.job)-1)]
-            self.job.remove(random_job)
 
             random_hobby = self.hobby[random.randint(0, len(self.hobby)-1)]
             self.hobby.remove(random_hobby)
@@ -111,11 +134,20 @@ class Person():
             self.random_health = self.health[random_health_index]
             self.health.remove(self.random_health)
 
+
             random_phobia_index = random.randint(0, len(self.phobia) - 1)
             self.random_phobia = self.phobia[random_phobia_index]
             self.phobia.remove(self.random_phobia)
 
+            self.random_age = random.randint(18, 80)
 
+
+
+            # for i in self.no_stages:
+            #     if self.random_health == i:
+            #         print("Здоровье = " + self.random_health)
+            #     else:
+            #         print("Здоровье = " + self.random_health + random_health_stage)
 
             # # /////////////////////////Health///////////////////////////////////// #
             # random_health = random.randint(1, 101)
@@ -199,13 +231,12 @@ class Person():
             #     self.phobia = "Боязнь костей"
 
             print("\n" + "             Характеристики персонажа" + "\n")
-            print("Здоровье = " + self.random_health)
-            print("Професия = "+random_job)
+            check_for_stage(self.no_health_stages, self.random_health, "Состояние здоровья", self.health_stages)
+            JobBio()
             print("Хобби = " + random_hobby)
-            print("Доп инфа = " + random_dop_info)
+            print("Доп инфа = " + " " + random_dop_info)
             print("Человеческая черта = " + random_human_trait)
             print("Фобия = " + self.random_phobia)
-
             Body()
 Person()
 
