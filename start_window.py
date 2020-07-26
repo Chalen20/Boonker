@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 class Start_window:
     def __init__(self):
         self.window = Tk()
-        self.window.title("Game")
+        self.window.title("Boonker")
         width = self.window.winfo_screenwidth()
         height = self.window.winfo_screenheight()
         width = width // 2
