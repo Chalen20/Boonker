@@ -262,6 +262,8 @@ class Game:
         counter = self.width_rubashka/8
         for i in range(0, 8):
             self.canvas.create_rectangle(de[0], de[1] + counter * i, de[2],  de[1] + counter * (i+1))
+            self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + counter * i, text="text",
+                                    anchor="nw", font=("Verdana", 20))
 
     def exit_func(self, event):
         self.window.quit()
