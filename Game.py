@@ -1,8 +1,8 @@
-import math
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
 from Character import Person
+import math
 
 class Game:
     def __init__(self, number_of_player):
@@ -15,11 +15,13 @@ class Game:
         if number_of_player <= 6:
             koef = 1
         elif number_of_player <= 9:
-            koef = 3 / 2
+
+            koef = 3/2
         elif number_of_player <= 12:
             koef = 2
         elif number_of_player <= 15:
-            koef = 5 / 2
+            koef = 5/2
+
         elif number_of_player <= 18:
             koef = 3
         self.canvas.configure(scrollregion=(0, 0, self.width,
@@ -27,9 +29,6 @@ class Game:
         self.canvas.pack()
 
         self.width_rubashka = round(self.width / 4)
-
-
-
 
         rub1 = Image.open("img/rubashka1.png")
         rub1 = rub1.resize((round(self.width_rubashka * 0.7), self.width_rubashka), Image.ANTIALIAS)
@@ -133,8 +132,11 @@ class Game:
 
     def animate2(self, start_x, start_y):
         counter = 0
+
         for i in range(0, math.floor(self.number_of_player/3)):  # рядки
             for j in range(0, 3):  # стовбці
+
+
                 if j < 2:
                     self.canvas.move(self.allCards[counter],
                                      round((round(j * self.width / 3 + self.width / 12) - (
@@ -151,8 +153,10 @@ class Game:
                     counter += 1
                 elif j < 6:
                     self.canvas.move(self.allCards[counter],
+
                                      round((round(j * self.width / 3 + self.width / 12) - (
                                          start_x)) / self.animation_number),
+
                                      round((round(i * self.height / 2) -
                                             start_y)) / self.animation_number)
                     counter += 1
@@ -166,7 +170,9 @@ class Game:
 
         for i in range(0, self.number_of_player % 3):
             self.canvas.move(self.allCards[counter],
+
                              round((round(i * self.width / 3 + self.width/12) - (
+
                                  start_x)) / self.animation_number),
                              round((round(self.number_of_player//3 * self.height / 2) -
                                     start_y)) / self.animation_number)
@@ -241,8 +247,9 @@ class Game:
         de = self.canvas.coords(x)
         self.canvas.delete(x)
         canvas2 = self.canvas.create_rectangle(de[0]-self.width_rubashka/12, de[1], de[0]-self.width_rubashka/12 +
-                                            self.width_rubashka/6 * self.revert_counter_flip * 0.7,
-                                            de[1]+self.width_rubashka)
+
+                                               self.width_rubashka/6 * self.revert_counter_flip * 0.7,
+                                               self.width_rubashka + de[1], fill="white")
 
         self.revert_counter_flip += 1
         self.canvas.after(50, lambda canvas=canvas2, y=de[0],
@@ -263,9 +270,10 @@ class Game:
 
     def open_icon(self, canvas, number):
         de = self.canvas.coords(canvas)
-        for i in range(8):
-        self.canvas.create_rectangle(de[0], de[1], de[2], )
 
+        counter = self.width_rubashka/8
+        for i in range(0, 8):
+            self.canvas.create_rectangle(de[0], de[1] + counter * i, de[2],  de[1] + counter * (i+1))
 
     def exit_func(self, event):
         self.window.quit()
@@ -293,4 +301,6 @@ class Timer:
         canvas.place(x=self.x, y=self.y)
         canvas.create_text(text="")
 
-Game(7)
+
+Game(12)
+
