@@ -130,7 +130,7 @@ class Person:
         self.humanTrait = ["Параноик", "Зануда", "Конфликтный", "Настойчивый", "Жизнерадосний", "Скучний", "Понимающий",
                            "ЧСВ", "Чудесен", "Нимфоманка", "Пацифист"]
 
-        self.humanTrait_stages = [" Слабовыраженно", " Сильновыраженно", " Средневыраженно" ]
+        self.humanTrait_stages = [" Слабовыраженно", " Сильновыраженно", " Средневыраженно"]
 
             # ---------------------------------Initiation---------------------------------------------------------
         for j in range(players_count):
@@ -154,6 +154,9 @@ class Person:
             self.phobia.remove(self.random_phobia)
 
             self.random_age = random.randint(18, 80)
+
+
+
 
             print("\n" + "             Характеристики персонажа" + "\n")
             check_for_stage(self.no_health_stages, self.random_health, "Состояние здоровья", self.health_stages)
