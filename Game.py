@@ -6,6 +6,7 @@ from Character import Person
 class Game:
     def __init__(self, number_of_player):
         self.window = Tk()
+        self.window.iconify()
         self.window.attributes('-fullscreen', 1)
         self.width = self.window.winfo_screenwidth()
         self.height = self.window.winfo_screenheight()
@@ -134,14 +135,17 @@ class Game:
             pers_characteristics = []
             pers.create_character()
             pers_characteristics.append(pers.random_job)
+            pers_characteristics.append(pers.stag)
             pers_characteristics.append(pers.random_hobby)
+            pers_characteristics.append(pers.random_hobby_stage)
             pers_characteristics.append(pers.random_dop_info)
             pers_characteristics.append(pers.random_human_trait)
-            pers_characteristics.append(pers.phobia)
-            pers_characteristics.append(pers.age)
-            pers_characteristics.append(pers.biological)
-            pers_characteristics.append(pers.childFree)
-            pers_characteristics.append(pers.health)
+            pers_characteristics.append(pers.random_humanTrait_stage)
+            pers_characteristics.append(pers.random_phobia)
+           # pers_characteristics.append(pers.age)
+           # pers_characteristics.append(pers.biological)
+           # pers_characteristics.append(pers.childFree)
+           # pers_characteristics.append(pers.random_health)
             self.pers_cards.append(pers_characteristics)
 
         for i in self.pers_cards:
@@ -347,7 +351,7 @@ class Game:
 
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height):
-        self.time = time
+        #self.time = time
         self.x = x
         self.y = y
         self.width = width
@@ -356,4 +360,4 @@ class Timer:
         canvas.place(x=self.x, y=self.y)
         canvas.create_text(text="")
 
-Game(6)
+Game(8)
