@@ -1,3 +1,4 @@
+import math
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
@@ -11,102 +12,24 @@ class Game:
         self.width = self.window.winfo_screenwidth()
         self.height = self.window.winfo_screenheight()
         self.canvas = Canvas(self.window, height=self.height, width=self.width, bg="lightgreen")
-        self.canvas.configure(scrollregion=(0, 0, self.width*number_of_player/6 - self.width/11*number_of_player/6,
-                                            self.height))
+        if number_of_player <= 6:
+            koef = 1
+        elif number_of_player <= 9:
+            koef = 3 / 2
+        elif number_of_player <= 12:
+            koef = 2
+        elif number_of_player <= 15:
+            koef = 5 / 2
+        elif number_of_player <= 18:
+            koef = 3
+        self.canvas.configure(scrollregion=(0, 0, self.width,
+                                            self.height * koef))
         self.canvas.pack()
 
         self.width_rubashka = round(self.width / 4)
 
-        pediatr = Image.open('img/pediatr.jpg')
-        pediatr = pediatr.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        pediatr = ImageTk.PhotoImage(pediatr)
 
-        trener = Image.open('img/trener.jpg')
-        trener = trener.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        trener = ImageTk.PhotoImage(trener)
 
-        police = Image.open('img/police.jpg')
-        police = police.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        police = ImageTk.PhotoImage(police)
-
-        phizik = Image.open('img/phizik.jpg')
-        phizik = phizik.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        phizik = ImageTk.PhotoImage(phizik)
-
-        biolog = Image.open('img/біолог.jpg')
-        biolog = biolog.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        biolog = ImageTk.PhotoImage(biolog)
-
-        himik = Image.open('img/химик.jpg')
-        himik = himik.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        himik = ImageTk.PhotoImage(himik)
-
-        philosoph = Image.open('img/філософ.jpg')
-        philosoph = philosoph.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                                     Image.ANTIALIAS)
-        philosoph = ImageTk.PhotoImage(philosoph)
-
-        bloger = Image.open('img/блогер.jpg')
-        bloger = bloger.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        bloger = ImageTk.PhotoImage(bloger)
-
-        dietolog = Image.open('img/диетолог.jpg')
-        dietolog = dietolog.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)), Image.ANTIALIAS)
-        dietolog = ImageTk.PhotoImage(dietolog)
-
-        psiholog = Image.open('img/Психология.jpg')
-        psiholog = psiholog.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                                   Image.ANTIALIAS)
-        psiholog = ImageTk.PhotoImage(psiholog)
-
-        sexolog = Image.open('img/сексолог.jpg')
-        sexolog = sexolog.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                                   Image.ANTIALIAS)
-        sexolog = ImageTk.PhotoImage(sexolog)
-
-        stroitel = Image.open('img/строитель.jpg')
-        stroitel = stroitel.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                                   Image.ANTIALIAS)
-        stroitel = ImageTk.PhotoImage(stroitel)
-
-        teacher = Image.open('img/вчитель.png')
-        teacher = teacher.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                                   Image.ANTIALIAS)
-        teacher = ImageTk.PhotoImage(teacher)
-
-        army = Image.open('img/военний.jpg')
-        army = army.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                                 Image.ANTIALIAS)
-        army = ImageTk.PhotoImage(army)
-
-        pilot = Image.open('img/пилот.jpg')
-        pilot = pilot.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                           Image.ANTIALIAS)
-        pilot = ImageTk.PhotoImage(pilot)
-
-        art = Image.open('img/художник.png')
-        art = art.resize((round(self.width_rubashka * 0.7), round(self.width_rubashka * 0.7)),
-                           Image.ANTIALIAS)
-        art = ImageTk.PhotoImage(art)
-
-        self.prof_images = {
-            "Педиатр": pediatr,
-            "Фитнес тренер": trener,
-            "Полицейский": police,
-            "Физик-ядерщик": phizik,
-            "Биолог": biolog,
-            "Химик": himik,
-            "Философ": philosoph,
-            "Блогер": bloger,
-            "Диетолог": dietolog,
-            "Психолог": psiholog,
-            "Сексолог": sexolog,
-            "Строитель": stroitel,
-            "Учитель": teacher,
-            "Военний": army,
-            "Пилот": pilot,
-            "Художник": art,
-        }
 
         rub1 = Image.open("img/rubashka1.png")
         rub1 = rub1.resize((round(self.width_rubashka * 0.7), self.width_rubashka), Image.ANTIALIAS)
@@ -142,10 +65,10 @@ class Game:
             pers_characteristics.append(pers.random_human_trait)
             pers_characteristics.append(pers.random_humanTrait_stage)
             pers_characteristics.append(pers.random_phobia)
-           # pers_characteristics.append(pers.age)
-           # pers_characteristics.append(pers.biological)
-           # pers_characteristics.append(pers.childFree)
-           # pers_characteristics.append(pers.random_health)
+            pers_characteristics.append(pers.age)
+            pers_characteristics.append(pers.biological)
+            pers_characteristics.append(pers.childFree)
+            pers_characteristics.append(pers.random_health)
             self.pers_cards.append(pers_characteristics)
 
         for i in self.pers_cards:
@@ -210,8 +133,8 @@ class Game:
 
     def animate2(self, start_x, start_y):
         counter = 0
-        for i in range(0, 2):
-            for j in range(0, round(self.number_of_player/2)):
+        for i in range(0, math.floor(self.number_of_player/3)):  # рядки
+            for j in range(0, 3):  # стовбці
                 if j < 2:
                     self.canvas.move(self.allCards[counter],
                                      round((round(j * self.width / 3 + self.width / 12) - (
@@ -221,15 +144,15 @@ class Game:
                     counter += 1
                 elif j < 4:
                     self.canvas.move(self.allCards[counter],
-                                     round((round(j * self.width / 3 + self.width/24) - (
+                                     round((round(j * self.width / 3 + self.width/12) - (
                                                  start_x)) / self.animation_number),
                                      round((round(i * self.height / 2) -
                                             start_y)) / self.animation_number)
                     counter += 1
                 elif j < 6:
                     self.canvas.move(self.allCards[counter],
-                                     round((round(j * self.width / 3) - (
-                                                 start_x)) / self.animation_number),
+                                     round((round(j * self.width / 3 + self.width / 12) - (
+                                         start_x)) / self.animation_number),
                                      round((round(i * self.height / 2) -
                                             start_y)) / self.animation_number)
                     counter += 1
@@ -240,6 +163,14 @@ class Game:
                                      round((round(i * self.height / 2) -
                                             start_y)) / self.animation_number)
                     counter += 1
+
+        for i in range(0, self.number_of_player % 3):
+            self.canvas.move(self.allCards[counter],
+                             round((round(i * self.width / 3 + self.width/12) - (
+                                 start_x)) / self.animation_number),
+                             round((round(self.number_of_player//3 * self.height / 2) -
+                                    start_y)) / self.animation_number)
+            counter += 1
 
         self.count += 1
         if self.count < 120:
@@ -309,30 +240,32 @@ class Game:
     def flip3(self, x, number):
         de = self.canvas.coords(x)
         self.canvas.delete(x)
-        canvas2 = Canvas(self.canvas, width=self.width_rubashka/6 * self.revert_counter_flip * 0.7,
-                         height=self.width_rubashka)
-        canvas2.place(x=de[0]-self.width_rubashka/12, y=de[1], anchor='nw')
+        canvas2 = self.canvas.create_rectangle(de[0]-self.width_rubashka/12, de[1], de[0]-self.width_rubashka/12 +
+                                            self.width_rubashka/6 * self.revert_counter_flip * 0.7,
+                                            de[1]+self.width_rubashka)
+
         self.revert_counter_flip += 1
         self.canvas.after(50, lambda canvas=canvas2, y=de[0],
                                          z=de[1]: self.flip4(canvas, y, z, number))
 
     def flip4(self, x, de, z, number):
-        x.destroy()
-        self.canvas2 = Canvas(self.canvas, width=self.width_rubashka / 6 * self.revert_counter_flip * 0.7,
-                         height=self.width_rubashka)
-        self.canvas2.place(x=de - self.width_rubashka / 12, y=z, anchor='nw')
+        self.canvas.delete(x)
+        self.canvas2 = self.canvas.create_rectangle(de - self.width_rubashka / 12, z, de - self.width_rubashka / 12 +
+                                                    self.width_rubashka / 6 * self.revert_counter_flip * 0.7,
+                                                    z + self.width_rubashka, fill="white")
         self.revert_counter_flip += 1
         if self.revert_counter_flip < 7:
-            self.canvas.after(50, lambda x=self.canvas2, y=de-self.width_rubashka/15,
+            self.canvas.after(50, lambda x=self.canvas2, y=de - self.width_rubashka / 15,
                                          z=z: self.flip4(x, y, z, number))
         else:
             self.revert_counter_flip = 0
             self.open_icon(self.canvas2, number)
 
     def open_icon(self, canvas, number):
-        canvas.create_text(self.width_rubashka/2, self.width_rubashka * 0.7 + 10, text=self.pers_cards[number-1][0],
-                           anchor='c', font=("Verdana", 20))
-        canvas.create_image(0, 0, image=self.prof_images[self.pers_cards[number-1][0]], anchor='nw')
+        de = self.canvas.coords(canvas)
+        for i in range(8):
+        self.canvas.create_rectangle(de[0], de[1], de[2], )
+
 
     def exit_func(self, event):
         self.window.quit()
@@ -360,4 +293,4 @@ class Timer:
         canvas.place(x=self.x, y=self.y)
         canvas.create_text(text="")
 
-Game(8)
+Game(7)

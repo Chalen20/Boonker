@@ -1,5 +1,8 @@
 import random
 
+max_hobby_stage = 40
+
+
 def persentage(text, start, finish):
     return text + str(random.randint(start, finish)*10)
 
@@ -9,8 +12,10 @@ def check_for_stage(exeption_array, random_ability, ability_name, ability_stages
     for i in exeption_array:
         if random_ability == i:
             print(ability_name + " = " + random_ability)
+            break
         else:
             print(ability_name + " = " + random_ability + " " + random_ability_stage)
+            break
 
 class Body:
     def __init__(self):
@@ -29,7 +34,6 @@ class Body:
             self.weight) \
                     + " кг"
 
-max_hobby_stage = 40
 
 class Person:
     def __init__(self):
@@ -45,13 +49,13 @@ class Person:
         self.health = ["Совершенно здоров", "Совершенно здоров", "Совершенно здоров", "Совершенно здоров",
                        "Совершенно здоров", "Совершенно здоров", "Совершенно здоров", "Совершенно здоров",
                        "Совершенно здоров", "Алергия на шерсть", "Безплоден", "Ампутирована рука", "Слепота", "Псориаз"
-                        , "Туберкулез", "Биполярное розстройство", "Альц Геймер", "Парализован ниже пояса", "Отсутствие"
-                        " обояния", "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
+                        , "Туберкулез", "Биполярное розстройство", "Альц Геймер", "Парализован ниже пояса"
+                        , "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
                        "Анальгия(Нечуствительность к боли)", "Безсонница", "Синтром Турета", "Шизофрения", "Грыжа",
                        "Синдром Мюнхаузена", "Ветрянка", "Епилепсия", "Дифект речи"]
+
         self.no_health_stages = ["Совершенно здоров", "Безплоден", "Ампутирована рука", "Слепота", "Биполярное"
-                                                                                                   " розстройство",
-                                 "Парализован ниже пояса"]
+                                 " розстройство", "Парализован ниже пояса", "Отсутствие обоняния"]
         print(len(self.health))
 
         self.health_stages = [" В ремисии", " 10%", " 20%", " 30%", " 40%", " 50%", " 60%", " 80%", " 100%",
@@ -76,7 +80,7 @@ class Person:
         self.hobby = ["Животноводство", "Парусний спорт", "Рибалка", "Бадминон", "Кепминг", "Футбол",
                       "Реставрация поверхностей", "Готовка", "Астрономия", "Радиосвязь", "Оригами", "Стенд ап", "Химия"
                       , "Решение задач по физике", "Очищение воды", "Просмотр фильмов", "Ориентирование на местности",
-                      "Яой", "Копрофилия"]
+                      "Яой", "Копрофилия", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 
         # //////////////////////////////////////item///////////////////////////////////////////// #
         self.item = ["Сборник 100 лутшых фильмов", "Удочка и снасти для рыбалки", "Инкубатор и набор яиц для выращивания"
@@ -95,6 +99,7 @@ class Person:
                            "ЧСВ", "Чудесен", "Нимфоманка", "Пацифист", "Інтроверт", "Екстраверт", "Невротизм",
                            "Откровенность"]
         self.humanTrait_stages = [" Слабовыраженно", " Сильновыраженно", " Средневыраженно"]
+
         self.body = Body()
         self.height = self.body.height
         self.weight = self.body.weight
@@ -118,14 +123,21 @@ class Person:
     def create_character(self):
         self.random_job = self.job[random.randint(0, len(self.job) - 1)]
         self.job.remove(self.random_job)
+
         self.random_hobby = self.hobby[random.randint(0, len(self.hobby) - 1)]
         self.hobby.remove(self.random_hobby)
+
         self.random_dop_info = self.dopInfo[random.randint(0, len(self.dopInfo) - 1)]
         self.dopInfo.remove(self.random_dop_info)
+
         self.random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait) - 1)]
         self.humanTrait.remove(self.random_human_trait)
+
         self.random_phobia = self.phobia[random.randint(0, len(self.phobia) - 1)]
         self.phobia.remove(self.random_phobia)
+
+        self.random_health = self.health[random.randint(0, len(self.health) - 1)]
+        self.health.remove(self.random_health)
 
         # ///////bio////////    #
         if random.randint(0, 2) == 0:
@@ -138,7 +150,7 @@ class Person:
         else:
             self.childFree = "Не чайлд фри"
 
-        self.random_health = self.health[random.randint(0, len(self.health) - 1)]
+
 
         self.body = Body()
         self.height = self.body.height
