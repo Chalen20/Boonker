@@ -28,7 +28,8 @@ class Body:
         self.body = "Телосложение: " + self.bodyType + ", Рост: " + str(self.height) + " cм" + ", Вес: " + str(
             self.weight) \
                     + " кг"
-        print(self.body)
+
+max_hobby_stage = 40
 
 class Person:
     def __init__(self):
@@ -48,11 +49,13 @@ class Person:
                         " обояния", "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
                        "Анальгия(Нечуствительность к боли)", "Безсонница", "Синтром Турета", "Шизофрения", "Грыжа",
                        "Синдром Мюнхаузена", "Ветрянка", "Епилепсия", "Дифект речи"]
-        self.no_health_stages = ["Совершенно здоров"]
+        self.no_health_stages = ["Совершенно здоров", "Безплоден", "Ампутирована рука", "Слепота", "Биполярное"
+                                                                                                   " розстройство",
+                                 "Парализован ниже пояса"]
         print(len(self.health))
 
-        self.health_stages = [" В ремисии", " В ремисии", " 10%", " 20%", " 30%", " 40%", " 50%", " 60%", " 70%",
-                              " 80%", " 100%"]
+        self.health_stages = [" В ремисии", " 10%", " 20%", " 30%", " 40%", " 50%", " 60%", " 80%", " 100%",
+                              " В ремисии", " 10%", " 20%", " 30%", " 40%", " 50%"]
 
         # //////////////////////////////////////Phobia///////////////////////////////////////////// #
         self.phobia = ["Без фобий", "Без фобий", "Без фобий", "Без фобий", "Без фобий", "Без фобий", "Мусофобия(боязнь крыс)"
@@ -63,7 +66,8 @@ class Person:
                        "Фобофобия(Боязнь чужих фобий)", "Демонофобия(Боязнь демонов)", "Тетрофобия(Боязнь числа 4 )",
                        "Спектрофобия(Боязнь призраков)", "Аквафобия(Боязнь воды)", "Танатофобия(Боязнь смерти)",
                        "Акустикофобия(Боязнь громких звуков)", "Боязнь шерсти", "Боязнь темноти", "Акрофобия(Боязнь "
-                       "высоты)", "Аутофобия (Боязнь оставаться наедине)", "Боязнь грязи", "Боязнь костей"]
+                       "высоты)", "Аутофобия (Боязнь оставаться наедине)", "Боязнь грязи", "Боязнь костей", "Без фобий",
+                       "Без фобий", "Без фобий", "Без фобий", "Без фобий"]
         print(len(self.phobia))
 
 
@@ -89,18 +93,24 @@ class Person:
         self.humanTrait = ["Параноик", "Зануда", "Конфликтный", "Настойчивый", "Жизнерадосний", "Скучний", "Понимающий",
                            "ЧСВ", "Чудесен", "Нимфоманка", "Пацифист", "Інтроверт", "Екстраверт", "Невротизм",
                            "Откровенность"]
-
+        self.humanTrait_stages = [" Слабовыраженно", " Сильновыраженно", " Средневыраженно"]
+        self.body = Body()
+        self.height = self.body.height
+        self.weight = self.body.weight
+        self.bodyType = self.body.bodyType
         self.random_job = self.job[random.randint(0, len(self.job) - 1)]
         self.random_hobby = self.hobby[random.randint(0, len(self.hobby) - 1)]
         self.random_dop_info = self.dopInfo[random.randint(0, len(self.dopInfo) - 1)]
         self.random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait) - 1)]
         self.biological = "Мужчина"
         self.childFree = "Не чайлд фри"
-        self.health = "Совершенно здоров"
-        self.phobia = "Без фобий"
+        self.random_health = "Совершенно здоров"
+        self.random_phobia = "Без фобий"
         self.random_age = 0
         self.stag = 0
         self.age = 0
+        self.random_hobby_stage = 0
+        self.random_humanTrait_stage = 0
 
         self.create_character()
 
@@ -113,6 +123,8 @@ class Person:
         self.dopInfo.remove(self.random_dop_info)
         self.random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait) - 1)]
         self.humanTrait.remove(self.random_human_trait)
+        self.random_phobia = self.phobia[random.randint(0, len(self.phobia) - 1)]
+        self.phobia.remove(self.random_phobia)
 
         # ///////bio////////    #
         if random.randint(0, 2) == 0:
@@ -125,100 +137,35 @@ class Person:
         else:
             self.childFree = "Не чайлд фри"
 
+        self.random_health = self.health[random.randint(0, len(self.health) - 1)]
+
+        self.body = Body()
+        self.height = self.body.height
+        self.weight = self.body.weight
+        self.bodyType = self.body.bodyType
+
         self.random_age = random.randint(18, 80)
         self.stag = random.randint(0, self.random_age - 18)
         self.age = "Возрост - " + str(self.random_age) + " лет"
+        self.random_hobby_stage = random.randint(0, self.random_age - 1)
+        if self.random_hobby_stage > max_hobby_stage:
+            self.random_hobby_stage = self.random_hobby_stage - max_hobby_stage
 
-        # /////////////////////////Health///////////////////////////////////// #
-        random_health = random.randint(1, 101)
-        if random_health < 36:
-            self.health = "Совершенно здоров"
-        elif random_health < 40:
-            self.health = "Алергия на шерсть"
-        elif random_health < 44:
-            self.health = "Безплоден"  # записуємо результат в масів і в кінці сравнюємо чи результат не дорівнює значенню масіву
-        elif random_health < 48:
-            self.health = "Ампутированая рука"
-        elif random_health < 52:
-            self.health = "Слепота"
-        elif random_health < 56:
-            self.health = "Псориаз"
-        elif random_health < 60:
-            self.health = "Туберкульоз"
-        elif random_health < 64:
-            self.health = "Биполярка"
-        elif random_health < 68:
-            self.health = "Альц Геймер"
-        elif random_health < 72:
-            self.health = "Парализован ниже пояса"
-        elif random_health < 76:
-            self.health = "Отсутствие обояния"
-        elif random_health < 80:
-            self.health = "Сахарный диабет"
-        elif random_health < 84:
-            self.health = "Алергия"
-        elif random_health < 88:
-            self.health = "Астма"
-        elif random_health < 92:
-            self.health = "Алкоголизм"
-        elif random_health < 96:
-            self.health = "Тремор"
-        else:
-            self.health = "Дальтонизм"
+        self.random_humanTrait_stage = self.humanTrait_stages[random.randint(0, len(self.humanTrait_stages) - 1)]
 
-        # /////////////////////////Phobia///////////////////////////////////// #
-
-        random_phobia = random.randint(1, 101)
-        if random_phobia < 24:
-            self.phobia = "Без фобий"
-        elif random_phobia < 28:
-            self.phobia = "Арахнофобия(Боязнь пауков)"
-        elif random_phobia < 32:
-            self.phobia = "Клаустрофобия"
-        elif random_phobia < 36:
-            self.phobia = "Ортофобия(боязнь птиц и их перьев)"
-        elif random_phobia < 40:
-            self.phobia = "Кинофобия(боязнь собак)"
-        elif random_phobia < 44:
-            self.phobia = "Гемофобия(страх крови)"
-        elif random_phobia < 48:
-            self.phobia = "Некрофобия(Страх трупов и нежети)"
-        elif random_phobia < 52:
-            self.phobia = "Фобофобия(боязнь чужих фобий)"
-        elif random_phobia < 56:
-            self.phobia = "Боязнь демонов"
-        elif random_phobia < 60:
-            self.phobia = "Тетрафобия(боязнь числа 4)"
-        elif random_phobia < 64:
-            self.phobia = "Боязнь призраков"
-        elif random_phobia < 68:
-            self.phobia = "Аквафобия"
-        elif random_phobia < 72:
-            self.phobia = "Танатофобия (Страх смерти)"
-        elif random_phobia < 76:
-            self.phobia = "Акустикофобия(Страх громких звуков)"
-        elif random_phobia < 80:
-            self.phobia = "Боязнь шерсти"
-        elif random_phobia < 84:
-            self.phobia = "Боязнь темноты"
-        elif random_phobia < 88:
-            self.phobia = "Акрофобия(Боязнь высоты)"
-        elif random_phobia < 92:
-            self.phobia = "Боязнь быть одному"
-        elif random_phobia < 96:
-            self.phobia = "Боязнь грязи"
-        else:
-            self.phobia = "Боязнь костей"
+        random_hobby = self.hobby[random.randint(0, len(self.hobby) - 1)]
+        self.hobby.remove(random_hobby)
 
         print("\n" + "             Характеристики персонажа" + "\n")
-        check_for_stage(self.no_health_stages, self.health, "Состояние здоровья", self.health_stages)
+        check_for_stage(self.no_health_stages, self.random_health, "Состояние здоровья", self.health_stages)
         print("Биологическая характеристика = " + str(self.age) + "  " + self.biological + "  " + self.childFree)
         print("Професия = " + self.random_job + ", стаж: " + str(self.stag))
-        print("Хобби = " + self.random_hobby)
         print("Доп инфа = " + " " + self.random_dop_info)
-        print("Человеческая черта = " + self.random_human_trait)
-        print("Фобия = " + self.phobia)
-        Body()
+        print("Фобия = " + self.random_phobia)
+        print("Хобби = " + random_hobby + ", стаж: " + str(self.random_hobby_stage))
+        print("Человеческая черта = " + self.random_human_trait + self.random_humanTrait_stage)
+        print(self.body.body)
+
 Person()
 
 class Catastrophe:
