@@ -279,63 +279,76 @@ class Game:
         self.canvas.delete(texts[i] + str(number))
         if texts[i] == "hobby":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
-                                de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                text=str(self.pers_cards[number][2]) + ", " +
-                                     str(self.pers_cards[number][3]),
-                                anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
+                                    text=str(self.pers_cards[number - 1][2]) + ", " +
+                                         str(self.pers_cards[number - 1][3]),
+                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
         elif texts[i] == "additional_information":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                    text=str(self.pers_cards[number][4]),
+                                    text=str(self.pers_cards[number - 1][4]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
         elif texts[i] == "human_trait":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                    text=str(self.pers_cards[number][5]) + ", " +
-                                         str(self.pers_cards[number][6]),
+                                    text=str(self.pers_cards[number - 1][5]) + ", " +
+                                         str(self.pers_cards[number - 1][6]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
         elif texts[i] == "phobia":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                    text=str(self.pers_cards[number][7]),
+                                    text=str(self.pers_cards[number - 1][7]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
         elif texts[i] == "biological":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                    text=str(self.pers_cards[number][8]) + ", " + str(self.pers_cards[number][9])
-                                         + ", " + str(self.pers_cards[number][10]),
+                                    text=str(self.pers_cards[number - 1][8]) + ", " + str(
+                                        self.pers_cards[number - 1][9])
+                                         + ", " + str(self.pers_cards[number - 1][10]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
         elif texts[i] == "health":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                    text=str(self.pers_cards[number][11]),
+                                    text=str(self.pers_cards[number - 1][11]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
         elif texts[i] == "body_type":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
-                                    text=str(self.pers_cards[number][12] + ", " + str(self.pers_cards[number][13])),
+                                    text=str(
+                                        self.pers_cards[number - 1][12] + ", " + str(self.pers_cards[number - 1][13])
+                                        + ", " + str(self.pers_cards[number - 1][14])),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
     def job_func(self, de, number, event):
+        number = number - 1
         if self.pers_cards[number][1] == 1:
             years = "год"
         elif self.pers_cards[number][1] <= 4:
             years = "года"
         else:
             years = "лет"
-        self.canvas.delete("job" + str(number))
-        self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
-                                text=str(self.pers_cards[number][0]) + ", " +
-                                     str(self.pers_cards[number][1]) + " " + years,
-                                anchor="c", font=("Verdana", 20), tag="job" + str(number))
-        self.canvas.tag_unbind("job" + str(number), "<Button-1>")
-        self.canvas.tag_unbind("job_" + str(number), "<Button-1>")
+        self.canvas.delete("job" + str(number + 1))
+        text = str(self.pers_cards[number][0]) + ", " + str(self.pers_cards[number][1]) + " " + years
+        if len(text) >= 22:
+            for i in range(len(text)-1, 0, -1):
+                if text[i] == " ":
+                    text = text[:i] + "\n" + text[i:]
+                    self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2.5,
+                                            text=text,
+                                            anchor="c", font=("Verdana", 14), tag="job" + str(number + 1))
+                    break
+        else:
+            self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
+                                    text=text,
+                                    anchor="c", font=("Verdana", 20), tag="job" + str(number + 1))
+        self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
+        self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
     def exit_func(self, event):
         self.window.quit()
@@ -355,6 +368,7 @@ class Game:
     def scroll_mouse_wheel(self, event):
         self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         return "break"
+
 
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
