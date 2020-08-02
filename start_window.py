@@ -23,7 +23,7 @@ class Saver:
         </head>
 <body>
   <div class = "card">
-          <p>""" + str(player_number) + """</p>
+          <p>""" + str(player_number+1) + """</p>
           <p>""" + job + """</p>
           <p>""" + hobby + """</p>
           <p>""" + add_info + """</p>

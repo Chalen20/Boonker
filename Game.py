@@ -31,12 +31,12 @@ class Game:
         self.width_rubashka = round(self.width / 4)
 
         rub1 = Image.open("img/rubashka1.png")
-        rub1 = rub1.resize((round(self.width_rubashka * 0.7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation = rub1.resize((round(self.width_rubashka / 12 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation2 = rub1.resize((round(self.width_rubashka / 15 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation3 = rub1.resize((round(self.width_rubashka / 20 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation4 = rub1.resize((round(self.width_rubashka / 30 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation5 = rub1.resize((round(self.width_rubashka / 60 * 7), self.width_rubashka), Image.ANTIALIAS)
+        rub1 = rub1.resize((round(self.width_rubashka * 0.8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation = rub1.resize((round(self.width_rubashka / 12 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation2 = rub1.resize((round(self.width_rubashka / 15 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation3 = rub1.resize((round(self.width_rubashka / 20 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation4 = rub1.resize((round(self.width_rubashka / 30 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation5 = rub1.resize((round(self.width_rubashka / 60 * 8), self.width_rubashka), Image.ANTIALIAS)
         rub1_animation6 = rub1.resize((1, self.width_rubashka), Image.ANTIALIAS)
 
         rub1 = ImageTk.PhotoImage(rub1)
@@ -218,7 +218,7 @@ class Game:
     def flip2(self, x, number):
         de = self.canvas.coords(x)
         self.canvas.delete(x)
-        card0 = self.canvas.create_image(de[0] + self.width_rubashka / 12 * 0.7, de[1],
+        card0 = self.canvas.create_image(de[0] + self.width_rubashka / 12 * 0.8, de[1],
                                          image=self.all_Rubashki[self.x][self.counter_for_flip], anchor="nw")
         self.counter_for_flip += 1
         if self.counter_for_flip < len(self.all_Rubashki[self.x]):
@@ -243,7 +243,7 @@ class Game:
         self.canvas.delete(x)
         self.canvas2 = self.canvas.create_rectangle(de - self.width_rubashka / 12, z,
                                                     de - self.width_rubashka / 12 +
-                                                    self.width_rubashka / 6 * self.revert_counter_flip * 0.7,
+                                                    self.width_rubashka / 6 * self.revert_counter_flip * 0.8,
                                                     z + self.width_rubashka, fill="white")
         self.revert_counter_flip += 1
         if self.revert_counter_flip < 7:
@@ -261,7 +261,7 @@ class Game:
         for i in range(0, 8):
             self.canvas.create_rectangle(de[0], de[1] + counter * i, de[2], de[1] + counter * (i + 1),
                                          tag=texts[i] + "_" + str(number))
-            self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + counter * i + counter / 2,
+            self.canvas.create_text(de[0] + self.width_rubashka * 0.8 / 2, de[1] + counter * i + counter / 2,
                                     text=texts[i], anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
             if i == 0:
                 self.canvas.tag_bind("job" + str(number), "<Button-1>", lambda event: self.job_func(de, number, event))
@@ -328,8 +328,11 @@ class Game:
         number = number - 1
         if self.pers_cards[number][1] == 1:
             years = "год"
+        elif self.pers_cards[number][1] == 0:
+            years = "лет"
         elif self.pers_cards[number][1] <= 4:
             years = "года"
+
         else:
             years = "лет"
         self.canvas.delete("job" + str(number + 1))
