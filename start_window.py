@@ -1,5 +1,43 @@
-from tkinter import *
+import sys
+if "tkinter" not in sys.modules:
+    from tkinter import *
 from PIL import Image, ImageTk
+import Game
+
+
+class Saver:
+    def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
+        f = open('player' + str(player_number+1) + '.html', 'w')
+        message = """<html>
+        <head>
+                <style> .card {
+                  margin : auto ;
+                  width : 400px;
+                  height : 600px;
+                  background-color: #f7d065;
+                  border-radius: 40px;}
+                  p {
+                  padding : 20px 0 0 25px
+                  }
+</style>
+        </head>
+<body>
+  <div class = "card">
+          <p>""" + str(player_number) + """</p>
+          <p>""" + job + """</p>
+          <p>""" + hobby + """</p>
+          <p>""" + add_info + """</p>
+          <p>""" + human_trait + """</p>
+          <p>""" + phobia + """</p>
+          <p>""" + biological + """</p>
+          <p>""" + health + """</p>
+          <p>""" + body_type + """</p>
+  </div></body>
+</html>"""
+
+        f.write(message)
+        f.close()
+
 
 class Start_window:
     def __init__(self):
@@ -11,6 +49,7 @@ class Start_window:
         height = height // 2
         width = width - 250
         height = height - 250
+        self.player_number = 6
         self.window.geometry('500x500+{}+{}'.format(width, height))
         self.window.resizable(False, False)
         self.canvas = Canvas(self.window, height=500, width=500, bg="red")
@@ -57,12 +96,23 @@ class Start_window:
         img2 = ImageTk.PhotoImage(img2)
         self.start = self.canvas.create_image(75, 380, image=img2, anchor=NW)
         self.motion()
+        self.canvas.tag_bind(self.start, "<Button-1>", lambda event: self.start_game(self.player_number, event))
         self.window.mainloop()
 
     def motion(self):
         self.canvas.move(self.start, 0, -1)
         if self.canvas.coords(self.start)[1] > 350:
             self.window.after(15, self.motion)
+
+    def start_game(self, player_number, event):
+        self.window.destroy()
+        game = Game.Game(player_number)
+        pers_cards = game.pers_cards
+        for i in range(len(pers_cards)):
+            Saver(i, pers_cards[i][0] + ", " + str(pers_cards[i][1]), pers_cards[i][2] + ", " + str(pers_cards[i][3]),
+                  pers_cards[i][4], pers_cards[i][5] + ", " + pers_cards[i][6], pers_cards[i][7],
+                  pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][10], pers_cards[i][11],
+                  pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(pers_cards[i][14]))
 
     def settings(self, event):
         self.canvas.delete(self.gears_button)
@@ -84,6 +134,7 @@ class Start_window:
 
     def button6(self):
         self.canvas.delete(self.stickmans)
+        self.player_number = 6
         self.stickmans = self.canvas.create_image(250, 150, image=self.stickman6)
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
@@ -91,6 +142,7 @@ class Start_window:
 
     def button8(self):
         self.canvas.delete(self.stickmans)
+        self.player_number = 8
         self.stickmans = self.canvas.create_image(250, 150, image=self.stickman8)
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
@@ -98,6 +150,7 @@ class Start_window:
 
     def button10(self):
         self.canvas.delete(self.stickmans)
+        self.player_number = 10
         self.stickmans = self.canvas.create_image(250, 150, image=self.stickman10)
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
@@ -105,6 +158,7 @@ class Start_window:
 
     def button12(self):
         self.canvas.delete(self.stickmans)
+        self.player_number = 12
         self.stickmans = self.canvas.create_image(250, 150, image=self.stickman12)
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
@@ -112,6 +166,7 @@ class Start_window:
 
     def button14_b(self):
         self.canvas.delete(self.stickmans)
+        self.player_number = 14
         self.stickmans = self.canvas.create_image(250, 150, image=self.stickman14)
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)

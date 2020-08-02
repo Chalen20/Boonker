@@ -1,15 +1,18 @@
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
+<<<<<<< HEAD
 from Character import Person
 import webbrowser
+=======
+import Character
+>>>>>>> 2e936256c6c352dfdd7e8ebb3aadf6ff17574868
 import math
 
 player_count = 12
 class Game:
     def __init__(self, number_of_player):
         self.window = Tk()
-        self.window.iconify()
         self.window.attributes('-fullscreen', 1)
         self.width = self.window.winfo_screenwidth()
         self.height = self.window.winfo_screenheight()
@@ -54,7 +57,7 @@ class Game:
         ]
 
         self.pers_cards = []
-        pers = Person()
+        pers = Character.Person()
         for i in range(0, number_of_player):
             pers_characteristics = []
             pers.create_character()
@@ -80,6 +83,7 @@ class Game:
 
         self.x = randint(0, len(self.all_Rubashki) - 1)
         self.rubashka = self.all_Rubashki[self.x][0]
+        print(self.rubashka)
         self.rubashka_animation1 = self.all_Rubashki[self.x][1]
         self.rubashka_animation2 = self.all_Rubashki[self.x][2]
 
@@ -394,6 +398,7 @@ class Timer:
                                               text=str(self.minutes) + ": " + str(self.seconds),
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
+<<<<<<< HEAD
             self.root.after(100, self.time)
 
 
@@ -433,3 +438,6 @@ class Saver:
         f.close()
 
 Saver("#1", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург")
+=======
+            self.root.after(100, self.time)
+>>>>>>> 2e936256c6c352dfdd7e8ebb3aadf6ff17574868
