@@ -4,7 +4,7 @@ from random import *
 import Character
 import math
 
-
+player_count = 12
 class Game:
     def __init__(self, number_of_player):
         self.window = Tk()
@@ -255,14 +255,14 @@ class Game:
 
     def open_icon(self, canvas, number):
         de = self.canvas.coords(canvas)
-        texts = ["job", "hobby", "additional_information", "human_trait", "phobia", "biological", "health", "body_type"]
+        texts = ["job", "hobby", "add_info", "human_trait", "phobia", "biological", "health", "body_type"]
 
         counter = self.width_rubashka / 8
         for i in range(0, 8):
             self.canvas.create_rectangle(de[0], de[1] + counter * i, de[2], de[1] + counter * (i + 1),
                                          tag=texts[i] + "_" + str(number))
             self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + counter * i + counter / 2,
-                                    text=texts[i], anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    text=texts[i], anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
             if i == 0:
                 self.canvas.tag_bind("job" + str(number), "<Button-1>", lambda event: self.job_func(de, number, event))
                 self.canvas.tag_bind("job_" + str(number), "<Button-1>", lambda event: self.job_func(de, number, event))
@@ -284,7 +284,7 @@ class Game:
                                          str(self.pers_cards[number - 1][3]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
 
-        elif texts[i] == "additional_information":
+        elif texts[i] == "add_info":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][4]),
@@ -310,7 +310,6 @@ class Game:
                                         self.pers_cards[number - 1][9])
                                          + ", " + str(self.pers_cards[number - 1][10]),
                                     anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
-
         elif texts[i] == "health":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
@@ -408,3 +407,39 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
+
+
+Game(player_count)
+
+class Saver:
+    def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
+        f = open('players.html', 'w')
+        message = """<html>
+        <head>
+                <style> .card {
+                  margin : auto ;
+                  width : 400px;
+                  height : 600px;
+                  background-color: #f7d065;
+                  border-radius: 40px;}
+                  p {
+                  padding : 20px 0 0 25px
+                  }
+</style>
+        </head>
+<body>
+  <div class = "card">
+          <p>""" + player_number + """</p>
+          <p>""" + job + """</p>
+          <p>""" + hobby + """</p>
+          <p>""" + add_info + """</p>
+          <p>""" + human_trait + """</p>
+          <p>""" + phobia + """</p>
+          <p>""" + biological + """</p>
+          <p>""" + health + """</p>
+          <p>""" + body_type + """</p>
+  </div></body>
+</html>"""
+
+        f.write(message)
+        f.close()
