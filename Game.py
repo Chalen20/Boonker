@@ -1,12 +1,9 @@
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
-<<<<<<< HEAD
 from Character import Person
 import webbrowser
-=======
 import Character
->>>>>>> 2e936256c6c352dfdd7e8ebb3aadf6ff17574868
 import math
 
 player_count = 12
@@ -36,12 +33,12 @@ class Game:
         self.width_rubashka = round(self.width / 4)
 
         rub1 = Image.open("img/rubashka1.png")
-        rub1 = rub1.resize((round(self.width_rubashka * 0.7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation = rub1.resize((round(self.width_rubashka / 12 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation2 = rub1.resize((round(self.width_rubashka / 15 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation3 = rub1.resize((round(self.width_rubashka / 20 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation4 = rub1.resize((round(self.width_rubashka / 30 * 7), self.width_rubashka), Image.ANTIALIAS)
-        rub1_animation5 = rub1.resize((round(self.width_rubashka / 60 * 7), self.width_rubashka), Image.ANTIALIAS)
+        rub1 = rub1.resize((round(self.width_rubashka * 0.8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation = rub1.resize((round(self.width_rubashka / 12 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation2 = rub1.resize((round(self.width_rubashka / 15 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation3 = rub1.resize((round(self.width_rubashka / 20 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation4 = rub1.resize((round(self.width_rubashka / 30 * 8), self.width_rubashka), Image.ANTIALIAS)
+        rub1_animation5 = rub1.resize((round(self.width_rubashka / 60 * 8), self.width_rubashka), Image.ANTIALIAS)
         rub1_animation6 = rub1.resize((1, self.width_rubashka), Image.ANTIALIAS)
 
         rub1 = ImageTk.PhotoImage(rub1)
@@ -223,7 +220,7 @@ class Game:
     def flip2(self, x, number):
         de = self.canvas.coords(x)
         self.canvas.delete(x)
-        card0 = self.canvas.create_image(de[0] + self.width_rubashka / 12 * 0.7, de[1],
+        card0 = self.canvas.create_image(de[0] + self.width_rubashka / 12 * 0.8, de[1],
                                          image=self.all_Rubashki[self.x][self.counter_for_flip], anchor="nw")
         self.counter_for_flip += 1
         if self.counter_for_flip < len(self.all_Rubashki[self.x]):
@@ -248,7 +245,7 @@ class Game:
         self.canvas.delete(x)
         self.canvas2 = self.canvas.create_rectangle(de - self.width_rubashka / 12, z,
                                                     de - self.width_rubashka / 12 +
-                                                    self.width_rubashka / 6 * self.revert_counter_flip * 0.7,
+                                                    self.width_rubashka / 6 * self.revert_counter_flip * 0.8,
                                                     z + self.width_rubashka, fill="white")
         self.revert_counter_flip += 1
         if self.revert_counter_flip < 7:
@@ -266,7 +263,7 @@ class Game:
         for i in range(0, 8):
             self.canvas.create_rectangle(de[0], de[1] + counter * i, de[2], de[1] + counter * (i + 1),
                                          tag=texts[i] + "_" + str(number))
-            self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + counter * i + counter / 2,
+            self.canvas.create_text(de[0] + self.width_rubashka * 0.8 / 2, de[1] + counter * i + counter / 2,
                                     text=texts[i], anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
             if i == 0:
                 self.canvas.tag_bind("job" + str(number), "<Button-1>", lambda event: self.job_func(de, number, event))
@@ -283,6 +280,7 @@ class Game:
             self.canvas.tag_unbind(texts[j] + "_" + str(number), "<Button-1>")
         self.canvas.delete(texts[i] + str(number))
         if texts[i] == "hobby":
+            number = number - 1
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                 de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                 text=str(self.pers_cards[number][2]) + ", " +
@@ -328,19 +326,23 @@ class Game:
                                     anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
     def job_func(self, de, number, event):
+        number = number - 1
         if self.pers_cards[number][1] == 1:
             years = "год"
+        elif self.pers_cards[number][1] == 0:
+            years = "лет"
         elif self.pers_cards[number][1] <= 4:
             years = "года"
+
         else:
             years = "лет"
-        self.canvas.delete("job" + str(number))
+        self.canvas.delete("job" + str(number+1))
         self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                 text=str(self.pers_cards[number][0]) + ", " +
                                      str(self.pers_cards[number][1]) + " " + years,
-                                anchor="c", font=("Verdana", 20), tag="job" + str(number))
-        self.canvas.tag_unbind("job" + str(number), "<Button-1>")
-        self.canvas.tag_unbind("job_" + str(number), "<Button-1>")
+                                anchor="c", font=("Verdana", 15), tag="job" + str(number+1))
+        self.canvas.tag_unbind("job" + str(number+1), "<Button-1>")
+        self.canvas.tag_unbind("job_" + str(number+1), "<Button-1>")
 
     def exit_func(self, event):
         self.window.quit()
@@ -398,46 +400,7 @@ class Timer:
                                               text=str(self.minutes) + ": " + str(self.seconds),
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
-<<<<<<< HEAD
             self.root.after(100, self.time)
 
 
-Game(player_count)
 
-class Saver:
-    def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
-        f = open('players.html', 'w')
-        message = """<html>
-        <head>
-                <style> .card {
-                  margin : auto ;
-                  width : 400px;
-                  height : 600px;
-                  background-color: #f7d065;
-                  border-radius: 40px;}
-                  p {
-                  padding : 20px 0 0 25px
-                  }
-</style>
-        </head>
-<body>
-  <div class = "card">
-          <p>""" + player_number + """</p>
-          <p>""" + job + """</p>
-          <p>""" + hobby + """</p>
-          <p>""" + add_info + """</p>
-          <p>""" + human_trait + """</p>
-          <p>""" + phobia + """</p>
-          <p>""" + biological + """</p>
-          <p>""" + health + """</p>
-          <p>""" + body_type + """</p>
-  </div></body>
-</html>"""
-
-        f.write(message)
-        f.close()
-
-Saver("#1", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург", "Хирург")
-=======
-            self.root.after(100, self.time)
->>>>>>> 2e936256c6c352dfdd7e8ebb3aadf6ff17574868
