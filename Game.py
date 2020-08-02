@@ -1,11 +1,6 @@
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
-<<<<<<< HEAD
-from Character import Person
-import webbrowser
-=======
->>>>>>> 20290b360d2a50cfefa5a0a2cce5c1a8afbf7eb0
 import Character
 import math
 
@@ -288,26 +283,26 @@ class Game:
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][2]) + ", " +
                                          str(self.pers_cards[number - 1][3]),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
         elif texts[i] == "add_info":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][4]),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
         elif texts[i] == "human_trait":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][5]) + ", " +
                                          str(self.pers_cards[number - 1][6]),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
         elif texts[i] == "phobia":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][7]),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
         elif texts[i] == "biological":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
@@ -315,12 +310,12 @@ class Game:
                                     text=str(self.pers_cards[number - 1][8]) + ", " + str(
                                         self.pers_cards[number - 1][9])
                                          + ", " + str(self.pers_cards[number - 1][10]),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
         elif texts[i] == "health":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][11]),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
         elif texts[i] == "body_type":
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
@@ -341,20 +336,12 @@ class Game:
 
         else:
             years = "лет"
-<<<<<<< HEAD
-        self.canvas.delete("job" + str(number+1))
-        self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
-                                text=str(self.pers_cards[number][0]) + ", " +
-                                     str(self.pers_cards[number][1]) + " " + years,
-                                anchor="c", font=("Verdana", 15), tag="job" + str(number+1))
-        self.canvas.tag_unbind("job" + str(number+1), "<Button-1>")
-        self.canvas.tag_unbind("job_" + str(number+1), "<Button-1>")
-=======
+
         self.canvas.delete("job" + str(number + 1))
         text = str(self.pers_cards[number][0]) + ", " + str(self.pers_cards[number][1]) + " " + years
         if len(text) >= 22:
             for i in range(len(text)-1, 0, -1):
-                if text[i] == " ":
+                if text[i] == ",":
                     text = text[:i] + "\n" + text[i:]
                     self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2.5,
                                             text=text,
@@ -366,7 +353,7 @@ class Game:
                                     anchor="c", font=("Verdana", 20), tag="job" + str(number + 1))
         self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
->>>>>>> 20290b360d2a50cfefa5a0a2cce5c1a8afbf7eb0
+
 
     def exit_func(self, event):
         self.window.quit()
@@ -428,41 +415,5 @@ class Timer:
             self.root.after(100, self.time)
 
 
-<<<<<<< HEAD
-
-=======
 Game(player_count)
 
-class Saver:
-    def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
-        f = open('players.html', 'w')
-        message = """<html>
-        <head>
-                <style> .card {
-                  margin : auto ;
-                  width : 400px;
-                  height : 600px;
-                  background-color: #f7d065;
-                  border-radius: 40px;}
-                  p {
-                  padding : 20px 0 0 25px
-                  }
-</style>
-        </head>
-<body>
-  <div class = "card">
-          <p>""" + player_number + """</p>
-          <p>""" + job + """</p>
-          <p>""" + hobby + """</p>
-          <p>""" + add_info + """</p>
-          <p>""" + human_trait + """</p>
-          <p>""" + phobia + """</p>
-          <p>""" + biological + """</p>
-          <p>""" + health + """</p>
-          <p>""" + body_type + """</p>
-  </div></body>
-</html>"""
-
-        f.write(message)
-        f.close()
->>>>>>> 20290b360d2a50cfefa5a0a2cce5c1a8afbf7eb0
