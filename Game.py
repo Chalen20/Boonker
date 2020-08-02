@@ -278,7 +278,6 @@ class Game:
             self.canvas.tag_unbind(texts[j] + "_" + str(number), "<Button-1>")
         self.canvas.delete(texts[i] + str(number))
         if texts[i] == "hobby":
-            number = number - 1
             self.canvas.create_text(de[0] + self.width_rubashka * 0.35,
                                     de[1] + self.width_rubashka / 8 * i + self.width_rubashka / 16,
                                     text=str(self.pers_cards[number - 1][2]) + ", " +
@@ -323,7 +322,7 @@ class Game:
                                     text=str(
                                         self.pers_cards[number - 1][12] + ", " + str(self.pers_cards[number - 1][13])
                                         + ", " + str(self.pers_cards[number - 1][14])),
-                                    anchor="c", font=("Verdana", 20), tag=texts[i] + str(number))
+                                    anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
 
     def job_func(self, de, number, event):
         number = number - 1
@@ -342,15 +341,15 @@ class Game:
         if len(text) >= 22:
             for i in range(len(text)-1, 0, -1):
                 if text[i] == ",":
-                    text = text[:i] + "\n" + text[i:]
-                    self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2.5,
+                    text = text[:i+1] + "\n" + text[i+1:]
+                    self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                             text=text,
-                                            anchor="c", font=("Verdana", 14), tag="job" + str(number + 1))
+                                            anchor="c", font=("Verdana", 13), tag="job" + str(number + 1))
                     break
         else:
             self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                     text=text,
-                                    anchor="c", font=("Verdana", 20), tag="job" + str(number + 1))
+                                    anchor="c", font=("Verdana", 15), tag="job" + str(number + 1))
         self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
@@ -413,7 +412,4 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
-
-
-Game(player_count)
 
