@@ -101,6 +101,7 @@ class Game:
 
         self.canvas.bind("<ButtonPress-1>", self.scroll_start)
         self.canvas.bind("<B1-Motion>", self.scroll_move)
+        self.canvas.bind("<MouseWheel>", self.scroll_mouse_wheel)
 
         self.count = 0
         self.animation_number = 120
@@ -351,6 +352,9 @@ class Game:
     def scroll_move(self, event):
         self.canvas.scan_dragto(event.x, event.y, gain=1)
 
+    def scroll_mouse_wheel(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        return "break"
 
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
