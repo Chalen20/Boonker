@@ -1,14 +1,13 @@
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
-from Character import Person
+import Character
 import math
 
 
 class Game:
     def __init__(self, number_of_player):
         self.window = Tk()
-        self.window.iconify()
         self.window.attributes('-fullscreen', 1)
         self.width = self.window.winfo_screenwidth()
         self.height = self.window.winfo_screenheight()
@@ -53,7 +52,7 @@ class Game:
         ]
 
         self.pers_cards = []
-        pers = Person()
+        pers = Character.Person()
         for i in range(0, number_of_player):
             pers_characteristics = []
             pers.create_character()
@@ -79,6 +78,7 @@ class Game:
 
         self.x = randint(0, len(self.all_Rubashki) - 1)
         self.rubashka = self.all_Rubashki[self.x][0]
+        print(self.rubashka)
         self.rubashka_animation1 = self.all_Rubashki[self.x][1]
         self.rubashka_animation2 = self.all_Rubashki[self.x][2]
 
@@ -394,6 +394,3 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
-
-
-Game(12)
