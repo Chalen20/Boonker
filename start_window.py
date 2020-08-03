@@ -7,7 +7,7 @@ import Game
 
 class Saver:
     def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
-        f = open('player' + str(player_number+1) + '.html', 'w')
+        f = open("player" + str(player_number+1) + ".html", "w")
         message = """<html>
         <head>
                 <style> .card {
@@ -23,23 +23,22 @@ class Saver:
         </head>
 <body>
   <div class = "card">
-          <p>""" + str(player_number+1) + """</p>
-          <p>""" + job + """</p>
-          <p>""" + hobby + """</p>
-          <p>""" + add_info + """</p>
-          <p>""" + human_trait + """</p>
-          <p>""" + phobia + """</p>
-          <p>""" + biological + """</p>
-          <p>""" + health + """</p>
-          <p>""" + body_type + """</p>
+          <p>Player number: """ + str(player_number+1) + """</p>
+          <p>Profession: """ + job + """</p>
+          <p>Hobby: """ + hobby + """</p>
+          <p>Dop. info""" + add_info + """</p>
+          <p>Human Trait""" + human_trait + """</p>
+          <p>Phobia: """ + phobia + """</p>
+          <p>Bio. Characteristic: """ + biological + """</p>
+          <p>Health: """ + health + """</p>
+          <p>Body type: """ + body_type + """</p>
   </div></body>
 </html>"""
 
         f.write(message)
         f.close()
 
-
-class Start_window:
+class StartWindow:
     def __init__(self):
         self.window = Tk()
         self.window.title("Boonker")
@@ -114,6 +113,7 @@ class Start_window:
                   pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][10], pers_cards[i][11],
                   pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(pers_cards[i][14]))
 
+
     def settings(self, event):
         self.canvas.delete(self.gears_button)
         self.canvas_frame = Canvas(self.canvas, width=450, height=500, bg="blue")
@@ -172,4 +172,4 @@ class Start_window:
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
         self.canvas.tag_bind(self.gears_button, "<Button-1>", self.settings)
 
-Start_window()
+StartWindow()

@@ -1,3 +1,4 @@
+import os
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
@@ -5,6 +6,8 @@ import Character
 import math
 
 player_count = 12
+
+
 class Game:
     def __init__(self, number_of_player):
         self.window = Tk()
@@ -13,17 +16,17 @@ class Game:
         self.height = self.window.winfo_screenheight()
         self.canvas = Canvas(self.window, height=self.height, width=self.width, bg="lightgreen")
         if number_of_player <= 6:
-            koef = 1
+            koef = 1.1
         elif number_of_player <= 9:
 
-            koef = 3 / 2
+            koef = 3.2 / 2
         elif number_of_player <= 12:
-            koef = 2
+            koef = 2.1
         elif number_of_player <= 15:
-            koef = 5 / 2
+            koef = 5.2 / 2
 
         elif number_of_player <= 18:
-            koef = 3
+            koef = 3.1
         self.canvas.configure(scrollregion=(0, 0, self.width,
                                             self.height * koef))
         self.canvas.pack()
@@ -109,6 +112,24 @@ class Game:
         self.animate(self.width / 6 * 5 - self.width * 0.05, self.height * 0.05)
         self.window.mainloop()
 
+    def delete_html(self):
+        os.unlink("player1.html")
+        os.unlink("player2.html")
+        os.unlink("player3.html")
+        os.unlink("player4.html")
+        os.unlink("player5.html")
+        os.unlink("player6.html")
+        os.unlink("player7.html")
+        os.unlink("player8.html")
+        os.unlink("player9.html")
+        os.unlink("player10.html")
+        os.unlink("player11.html")
+        os.unlink("player12.html")
+        os.unlink("player13.html")
+        os.unlink("player14.html")
+
+
+
     def main_window_func(self, event):
         self.main_window = Canvas(self.canvas, width=self.width / 5, height=self.height / 3, bg="lightblue")
         self.main_window.place(x=self.width * 2 / 5, y=self.height / 3)
@@ -125,6 +146,8 @@ class Game:
         self.main_window.destroy()
         self.window.unbind("<Escape>")
         self.window.bind("<Escape>", self.main_window_func)
+
+
 
     def animate(self, start_x, start_y):
         self.allCards = []
@@ -168,12 +191,18 @@ class Game:
                     counter += 1
 
         for i in range(0, self.number_of_player % 3):
-            self.canvas.move(self.allCards[counter],
+            if self.number_of_player == 8:
+                self.coefits = self.height / 1.85
+            elif self.number_of_player == 10:
+                self.coefits = self.height / 1.9
+            elif self.number_of_player == 14:
+                self.coefits = self.height / 1.91
 
+            self.canvas.move(self.allCards[counter],
                              round((round(i * self.width / 3 + self.width / 12) - (
 
                                  start_x)) / self.animation_number),
-                             round((round(self.number_of_player // 3 * self.height / 2) -
+                             round((round(self.number_of_player // 3 * self.coefits) -
                                     start_y)) / self.animation_number)
             counter += 1
 
@@ -335,25 +364,28 @@ class Game:
 
         else:
             years = "лет"
+
         self.canvas.delete("job" + str(number + 1))
         text = str(self.pers_cards[number][0]) + ", " + str(self.pers_cards[number][1]) + " " + years
         if len(text) >= 22:
             for i in range(len(text)-1, 0, -1):
                 if text[i] == ",":
-                    text = text[:i] + "\n" + text[i:]
+                    text = text[:i+1] + "\n" + text[i+1:]
                     self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                             text=text,
-                                            anchor="c", font=("Verdana", 14), tag="job" + str(number + 1))
+                                            anchor="c", font=("Verdana", 13), tag="job" + str(number + 1))
                     break
         else:
             self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                     text=text,
-                                    anchor="c", font=("Verdana", 20), tag="job" + str(number + 1))
+                                    anchor="c", font=("Verdana", 15), tag="job" + str(number + 1))
         self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
+
     def exit_func(self, event):
         self.window.quit()
+       # self.delete_html()
 
     def continue_func(self, event):
         self.main_window.destroy()
@@ -410,3 +442,4 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
+
