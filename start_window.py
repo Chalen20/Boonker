@@ -8,7 +8,7 @@ import Character
 
 class Saver:
     def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
-        f = open("player" + str(player_number+1) + ".html", "w")
+        f = open("player" + str(player_number + 1) + ".html", "w")
         message = """<html>
         <head>
                 <style>
@@ -39,7 +39,7 @@ class Saver:
                         Player number:
                     </td>
                     <td class="data">
-                        """ + str(player_number+1) + """
+                        """ + str(player_number + 1) + """
                     </td>
                 </tr>
                 <tr>
@@ -159,15 +159,15 @@ class StartWindow:
         self.canvas.tag_bind(self.gears_button, "<Button-1>", self.settings)
 
         self.button6 = Button(self.canvas, width=10, height=3, bg="yellow", text=6, command=self.button6)
-        self.button6.place(x=(6/2-3)*100+10, y=270)
+        self.button6.place(x=(6 / 2 - 3) * 100 + 10, y=270)
         self.button8 = Button(self.canvas, width=10, height=3, bg="yellow", text=8, command=self.button8)
-        self.button8.place(x=(8/2-3)*100+10, y=270)
+        self.button8.place(x=(8 / 2 - 3) * 100 + 10, y=270)
         self.button10 = Button(self.canvas, width=10, height=3, bg="yellow", text=10, command=self.button10)
-        self.button10.place(x=(10/2-3)*100+10, y=270)
+        self.button10.place(x=(10 / 2 - 3) * 100 + 10, y=270)
         self.button12 = Button(self.canvas, width=10, height=3, bg="yellow", text=12, command=self.button12)
-        self.button12.place(x=(12/2-3)*100+10, y=270)
+        self.button12.place(x=(12 / 2 - 3) * 100 + 10, y=270)
         self.button14 = Button(self.canvas, width=10, height=3, bg="yellow", text=14, command=self.button14_b)
-        self.button14.place(x=(14/2-3)*100+10, y=270)
+        self.button14.place(x=(14 / 2 - 3) * 100 + 10, y=270)
 
         img2 = Image.open('img/start.png')
         img2 = ImageTk.PhotoImage(img2)
@@ -225,6 +225,9 @@ class StartWindow:
         self.gears_button2 = self.frame2.create_image(25, 25, image=self.gears)
         self.frame2.tag_bind(self.gears_button2, "<Button-1>", self.close_settings)
         self.button14.destroy()
+        set_names_button = Button(self.canvas_frame, text="Set names of players", bg="yellow",
+                                  command=self.set_names_of_players)
+        set_names_button.place(x=20, y=20)
 
     def close_settings(self, event):
         self.canvas_frame.destroy()
@@ -233,6 +236,9 @@ class StartWindow:
         self.button14 = Button(self.canvas, width=10, height=3, bg="yellow", text=14, command=self.button14_b)
         self.button14.place(x=(14 / 2 - 3) * 100 + 10, y=270)
         self.canvas.tag_bind(self.gears_button, "<Button-1>", self.settings)
+
+    def set_names_of_players(self):
+        pass
 
     def button6(self):
         self.canvas.delete(self.stickmans)
@@ -273,5 +279,6 @@ class StartWindow:
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
         self.canvas.tag_bind(self.gears_button, "<Button-1>", self.settings)
+
 
 StartWindow()

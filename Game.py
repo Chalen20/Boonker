@@ -4,8 +4,6 @@ from PIL import Image, ImageTk
 from random import *
 import math
 
-player_count = 12
-
 
 class Game:
     def __init__(self, number_of_player, pers_cards):
