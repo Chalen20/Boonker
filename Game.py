@@ -341,7 +341,7 @@ class Game:
             for i in range(len(text)-1, 0, -1):
                 if text[i] == ",":
                     text = text[:i] + "\n" + text[i:]
-                    self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2.5,
+                    self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                             text=text,
                                             anchor="c", font=("Verdana", 14), tag="job" + str(number + 1))
                     break
