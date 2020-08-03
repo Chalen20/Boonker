@@ -409,7 +409,7 @@ class Game:
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
     def exit_func(self, event):
-        self.window.quit()
+        self.window.destroy()
         self.delete_html()
 
     def continue_func(self, event):

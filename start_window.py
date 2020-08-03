@@ -11,33 +11,110 @@ class Saver:
         f = open("player" + str(player_number+1) + ".html", "w")
         message = """<html>
         <head>
-                <style> .card {
+                <style>
+                 .card {
                   margin : auto ;
                   width : 400px;
                   height : 600px;
                   background-color: #f7d065;
-                  border-radius: 40px;}
-                  p {
-                  padding : 20px 0 0 25px
+                  border-radius: 40px;
+                  }
+                  tr{
+                  padding : 20px 25px 20px 25px;
+                  }
+                  td{
+                  padding : 20px 25px 20px 25px;
+                  }
+                  table{
+                    width: 400px
                   }
 </style>
         </head>
 <body>
   <div class = "card">
-          <p>Player number: """ + str(player_number+1) + """</p>
-          <p>Profession: """ + job + """</p>
-          <p>Hobby: """ + hobby + """</p>
-          <p>Dop. info""" + add_info + """</p>
-          <p>Human Trait""" + human_trait + """</p>
-          <p>Phobia: """ + phobia + """</p>
-          <p>Bio. Characteristic: """ + biological + """</p>
-          <p>Health: """ + health + """</p>
-          <p>Body type: """ + body_type + """</p>
-  </div></body>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        Player number:
+                    </td>
+                    <td class="data">
+                        """ + str(player_number+1) + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Profession: 
+                    </td>
+                    <td class="data">
+                        """ + job + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Hobby: 
+                    </td>
+                    <td class="data">
+                        """ + hobby + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Dop. info: 
+                    </td>
+                    <td class="data">
+                        """ + add_info + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Human trait:
+                    </td>
+                    <td class="data">
+                        """ + human_trait + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Phobia:
+                    </td>
+                    <td class="data">
+                        """ + phobia + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Bio. Characteristic:
+                    </td>
+                    <td class="data">
+                        """ + biological + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Health: 
+                    </td>
+                    <td class="data">
+                        """ + health + """
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Body type: 
+                    </td>
+                    <td class="data">
+                        """ + body_type + """
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+  </div>
+</body>
 </html>"""
 
         f.write(message)
         f.close()
+
 
 class StartWindow:
     def __init__(self):
