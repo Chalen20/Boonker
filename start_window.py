@@ -3,6 +3,7 @@ if "tkinter" not in sys.modules:
     from tkinter import *
 from PIL import Image, ImageTk
 import Game
+import Character
 
 
 class Saver:
@@ -105,14 +106,38 @@ class StartWindow:
 
     def start_game(self, player_number, event):
         self.window.destroy()
-        game = Game.Game(player_number)
-        pers_cards = game.pers_cards
+        pers_cards = []
+        pers = Character.Person()
+        for i in range(0, player_number):
+            pers_characteristics = []
+            pers.create_character()
+            pers_characteristics.append(pers.random_job)
+            pers_characteristics.append(pers.stag)
+            pers_characteristics.append(pers.random_hobby)
+            pers_characteristics.append(pers.random_hobby_stage)
+            pers_characteristics.append(pers.random_dop_info)
+            pers_characteristics.append(pers.random_human_trait)
+            pers_characteristics.append(pers.random_humanTrait_stage)
+            pers_characteristics.append(pers.random_phobia)
+            pers_characteristics.append(pers.age)
+            pers_characteristics.append(pers.biological)
+            pers_characteristics.append(pers.childFree)
+            pers_characteristics.append(pers.random_health)
+            pers_characteristics.append(pers.bodyType)
+            pers_characteristics.append(pers.height)
+            pers_characteristics.append(pers.weight)
+            pers_cards.append(pers_characteristics)
+
+        for i in pers_cards:
+            print(i)
+
         for i in range(len(pers_cards)):
             Saver(i, pers_cards[i][0] + ", " + str(pers_cards[i][1]), pers_cards[i][2] + ", " + str(pers_cards[i][3]),
                   pers_cards[i][4], pers_cards[i][5] + ", " + pers_cards[i][6], pers_cards[i][7],
                   pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][10], pers_cards[i][11],
                   pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(pers_cards[i][14]))
 
+        game = Game.Game(player_number, pers_cards)
 
     def settings(self, event):
         self.canvas.delete(self.gears_button)

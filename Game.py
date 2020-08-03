@@ -2,14 +2,14 @@ import os
 from tkinter import *
 from PIL import Image, ImageTk
 from random import *
-import Character
 import math
 
 player_count = 12
 
 
 class Game:
-    def __init__(self, number_of_player):
+    def __init__(self, number_of_player, pers_cards):
+        self.pers_cards = pers_cards
         self.window = Tk()
         self.window.attributes('-fullscreen', 1)
         self.width = self.window.winfo_screenwidth()
@@ -54,31 +54,6 @@ class Game:
             [rub1, rub1_animation, rub1_animation2, rub1_animation3, rub1_animation4, rub1_animation5, rub1_animation6]
         ]
 
-        self.pers_cards = []
-        pers = Character.Person()
-        for i in range(0, number_of_player):
-            pers_characteristics = []
-            pers.create_character()
-            pers_characteristics.append(pers.random_job)
-            pers_characteristics.append(pers.stag)
-            pers_characteristics.append(pers.random_hobby)
-            pers_characteristics.append(pers.random_hobby_stage)
-            pers_characteristics.append(pers.random_dop_info)
-            pers_characteristics.append(pers.random_human_trait)
-            pers_characteristics.append(pers.random_humanTrait_stage)
-            pers_characteristics.append(pers.random_phobia)
-            pers_characteristics.append(pers.age)
-            pers_characteristics.append(pers.biological)
-            pers_characteristics.append(pers.childFree)
-            pers_characteristics.append(pers.random_health)
-            pers_characteristics.append(pers.bodyType)
-            pers_characteristics.append(pers.height)
-            pers_characteristics.append(pers.weight)
-            self.pers_cards.append(pers_characteristics)
-
-        for i in self.pers_cards:
-            print(i)
-
         self.x = randint(0, len(self.all_Rubashki) - 1)
         self.rubashka = self.all_Rubashki[self.x][0]
         print(self.rubashka)
@@ -113,22 +88,75 @@ class Game:
         self.window.mainloop()
 
     def delete_html(self):
-        os.unlink("player1.html")
-        os.unlink("player2.html")
-        os.unlink("player3.html")
-        os.unlink("player4.html")
-        os.unlink("player5.html")
-        os.unlink("player6.html")
-        os.unlink("player7.html")
-        os.unlink("player8.html")
-        os.unlink("player9.html")
-        os.unlink("player10.html")
-        os.unlink("player11.html")
-        os.unlink("player12.html")
-        os.unlink("player13.html")
-        os.unlink("player14.html")
+        try:
+            os.unlink("player1.html")
+        except:
+            pass
 
+        try:
+            os.unlink("player2.html")
+        except:
+            pass
 
+        try:
+            os.unlink("player3.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player4.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player5.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player6.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player7.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player8.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player9.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player10.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player11.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player12.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player13.html")
+        except:
+            pass
+
+        try:
+            os.unlink("player14.html")
+        except:
+            pass
 
     def main_window_func(self, event):
         self.main_window = Canvas(self.canvas, width=self.width / 5, height=self.height / 3, bg="lightblue")
@@ -146,8 +174,6 @@ class Game:
         self.main_window.destroy()
         self.window.unbind("<Escape>")
         self.window.bind("<Escape>", self.main_window_func)
-
-
 
     def animate(self, start_x, start_y):
         self.allCards = []
@@ -368,9 +394,9 @@ class Game:
         self.canvas.delete("job" + str(number + 1))
         text = str(self.pers_cards[number][0]) + ", " + str(self.pers_cards[number][1]) + " " + years
         if len(text) >= 22:
-            for i in range(len(text)-1, 0, -1):
+            for i in range(len(text) - 1, 0, -1):
                 if text[i] == ",":
-                    text = text[:i+1] + "\n" + text[i+1:]
+                    text = text[:i + 1] + "\n" + text[i + 1:]
                     self.canvas.create_text(de[0] + self.width_rubashka * 0.7 / 2, de[1] + self.width_rubashka / 8 / 2,
                                             text=text,
                                             anchor="c", font=("Verdana", 13), tag="job" + str(number + 1))
@@ -382,10 +408,9 @@ class Game:
         self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
-
     def exit_func(self, event):
         self.window.quit()
-       # self.delete_html()
+        self.delete_html()
 
     def continue_func(self, event):
         self.main_window.destroy()
@@ -442,4 +467,3 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
-
