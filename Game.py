@@ -9,7 +9,9 @@ class Game:
     def __init__(self, number_of_player, pers_cards):
         self.pers_cards = pers_cards
         self.window = Tk()
-        self.window.attributes('-fullscreen', 1)
+        self.window.attributes('-fullscreen', False)
+        self.fullScreenState = True
+        self.window.bind("<F11>", self.toggleFullScreen)
         self.width = self.window.winfo_screenwidth()
         self.height = self.window.winfo_screenheight()
         self.canvas = Canvas(self.window, height=self.height, width=self.width, bg="lightgreen")
@@ -58,7 +60,6 @@ class Game:
         self.rubashka_animation1 = self.all_Rubashki[self.x][1]
         self.rubashka_animation2 = self.all_Rubashki[self.x][2]
 
-        self.window.bind("<Escape>", self.main_window_func)
         self.number_of_player = number_of_player
         self.counter_for_flip = 2
         self.revert_counter_flip = 1
@@ -75,9 +76,14 @@ class Game:
         self.exit = self.exit.resize((round(self.width / 5), round(self.height / 9)), Image.ANTIALIAS)
         self.exit = ImageTk.PhotoImage(self.exit)
 
+
+      # //////////////////// бинд клавиш //////////////////////////////////////////////////////////////////////
+
+        self.window.bind("<Escape>", self.main_window_func)
         self.canvas.bind("<ButtonPress-1>", self.scroll_start)
         self.canvas.bind("<B1-Motion>", self.scroll_move)
         self.canvas.bind("<MouseWheel>", self.scroll_mouse_wheel)
+        self.window.bind('<Destroy>', self.exit_func)
 
         self.count = 0
         self.animation_number = 120
@@ -85,76 +91,9 @@ class Game:
         self.animate(self.width / 6 * 5 - self.width * 0.05, self.height * 0.05)
         self.window.mainloop()
 
-    def delete_html(self):
-        try:
-            os.unlink("player1.html")
-        except:
-            pass
 
-        try:
-            os.unlink("player2.html")
-        except:
-            pass
 
-        try:
-            os.unlink("player3.html")
-        except:
-            pass
 
-        try:
-            os.unlink("player4.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player5.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player6.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player7.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player8.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player9.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player10.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player11.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player12.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player13.html")
-        except:
-            pass
-
-        try:
-            os.unlink("player14.html")
-        except:
-            pass
 
     def main_window_func(self, event):
         self.main_window = Canvas(self.canvas, width=self.width / 5, height=self.height / 3, bg="lightblue")
@@ -426,6 +365,98 @@ class Game:
         self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         return "break"
 
+    def delete_html(self):
+        try:
+            os.unlink("player1.html")
+        except:
+            print("File <player1.html> not found")
+            pass
+
+        try:
+            os.unlink("player2.html")
+        except:
+            print("File <player2.html> not found")
+            pass
+
+        try:
+            os.unlink("player3.html")
+        except:
+            print("File <player3.html> not found")
+            pass
+
+        try:
+            os.unlink("player4.html")
+        except:
+            print("File <player4.html> not found")
+            pass
+
+        try:
+            os.unlink("player5.html")
+        except:
+            print("File <player5.html> not found")
+            pass
+
+        try:
+            os.unlink("player6.html")
+        except:
+            print("File <player6.html> not found")
+            pass
+
+        try:
+            os.unlink("player7.html")
+        except:
+            print("File <player7.html> not found")
+            pass
+
+        try:
+            os.unlink("player8.html")
+        except:
+            print("File <player8.html> not found")
+            pass
+
+        try:
+            os.unlink("player9.html")
+        except:
+            print("File <player9.html> not found")
+            pass
+
+        try:
+            os.unlink("player10.html")
+        except:
+            print("File <player10.html> not found")
+            pass
+
+        try:
+            os.unlink("player11.html")
+        except:
+            print("File <player11.html> not found")
+            pass
+
+        try:
+            os.unlink("player12.html")
+        except:
+            print("File <player12.html> not found")
+            pass
+
+        try:
+            os.unlink("player13.html")
+        except:
+            print("File <player13.html> not found")
+            pass
+
+        try:
+            os.unlink("player14.html")
+        except:
+            print("File <player14.html> not found")
+            pass
+
+    def toggleFullScreen(self, event):
+        self.fullScreenState = not self.fullScreenState
+        self.window.attributes("-fullscreen", self.fullScreenState)
+
+    def quitFullScreen(self, event):
+        self.fullScreenState = False
+        self.window.attributes("-fullscreen", self.fullScreenState)
 
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
@@ -465,3 +496,5 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
+
+

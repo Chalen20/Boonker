@@ -15,12 +15,13 @@ class Saver:
                  .card {
                   margin : auto ;
                   width : 400px;
-                  height : 600px;
+                  height : 650px;
                   background-color: #f7d065;
                   border-radius: 40px;
                   }
                   tr{
                   padding : 20px 25px 20px 25px;
+                  border: 4px double #f7d080;
                   }
                   td{
                   padding : 20px 25px 20px 25px;
@@ -28,6 +29,10 @@ class Saver:
                   table{
                     width: 400px
                   }
+                  .brd{
+                  border: 2px dotted #bdad8c;
+                  }
+                  
 </style>
         </head>
 <body>
@@ -43,58 +48,58 @@ class Saver:
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Profession: 
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + job + """
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Hobby: 
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + hobby + """
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Dop. info: 
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + add_info + """
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Human trait:
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + human_trait + """
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Phobia:
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + phobia + """
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Bio. Characteristic:
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + biological + """
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="brd">
                         Health: 
                     </td>
-                    <td class="data">
+                    <td class="data, brd">
                         """ + health + """
                     </td>
                 </tr>
