@@ -3,7 +3,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from random import *
 import math
-
+from tkinter import messagebox as mb
 
 class Game:
     def __init__(self, number_of_player, pers_cards):
@@ -32,6 +32,8 @@ class Game:
         self.canvas.pack()
 
         self.width_rubashka = round(self.width / 4)
+
+
 
         rub1 = Image.open("img/rubashka1.png")
         rub1 = rub1.resize((round(self.width_rubashka * 0.8), self.width_rubashka), Image.ANTIALIAS)
@@ -90,10 +92,6 @@ class Game:
         self.count_number = 0
         self.animate(self.width / 6 * 5 - self.width * 0.05, self.height * 0.05)
         self.window.mainloop()
-
-
-
-
 
     def main_window_func(self, event):
         self.main_window = Canvas(self.canvas, width=self.width / 5, height=self.height / 3, bg="lightblue")
@@ -345,9 +343,15 @@ class Game:
         self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
+    def exit_command(self):
+        if mb.askyesno("Quit", "Do you really want to quit?"):
+            Tk.destroy()
+            self.delete_html()
+        else:
+            self.window.iconify()
+
     def exit_func(self, event):
-        self.window.destroy()
-        self.delete_html()
+        self.exit_command()
 
     def continue_func(self, event):
         self.main_window.destroy()
