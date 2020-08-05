@@ -465,6 +465,7 @@ class Game:
         self.fullScreenState = False
         self.window.attributes("-fullscreen", self.fullScreenState)
 
+
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
         self.minutes = time_minutes
