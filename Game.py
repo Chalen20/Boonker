@@ -9,7 +9,7 @@ class Game:
     def __init__(self, number_of_player, pers_cards):
         self.pers_cards = pers_cards
         self.window = Tk()
-        self.window.attributes('-fullscreen', False)
+        self.window.attributes('-fullscreen', True)
         self.fullScreenState = True
         self.window.bind("<F11>", self.toggleFullScreen)
         self.width = self.window.winfo_screenwidth()
@@ -32,8 +32,6 @@ class Game:
         self.canvas.pack()
 
         self.width_rubashka = round(self.width / 4)
-
-
 
         rub1 = Image.open("img/rubashka1.png")
         rub1 = rub1.resize((round(self.width_rubashka * 0.8), self.width_rubashka), Image.ANTIALIAS)
@@ -58,7 +56,6 @@ class Game:
 
         self.x = randint(0, len(self.all_Rubashki) - 1)
         self.rubashka = self.all_Rubashki[self.x][0]
-        print(self.rubashka)
         self.rubashka_animation1 = self.all_Rubashki[self.x][1]
         self.rubashka_animation2 = self.all_Rubashki[self.x][2]
 
@@ -78,14 +75,14 @@ class Game:
         self.exit = self.exit.resize((round(self.width / 5), round(self.height / 9)), Image.ANTIALIAS)
         self.exit = ImageTk.PhotoImage(self.exit)
 
-
       # //////////////////// бинд клавиш //////////////////////////////////////////////////////////////////////
 
         self.window.bind("<Escape>", self.main_window_func)
         self.canvas.bind("<ButtonPress-1>", self.scroll_start)
         self.canvas.bind("<B1-Motion>", self.scroll_move)
         self.canvas.bind("<MouseWheel>", self.scroll_mouse_wheel)
-        self.window.bind('<Destroy>', self.exit_func)
+        self.canvas.bind("<F11>", self.toggleFullScreen)
+        self.window.protocol("WM_DELETE_WINDOW", self.confirm_window)
 
         self.count = 0
         self.animation_number = 120
@@ -101,11 +98,27 @@ class Game:
         iconify = self.main_window.create_image(0, round(self.height / 9), image=self.iconify, anchor=NW)
         self.main_window.tag_bind(iconify, "<Button-1>", self.iconify_func)
         exit = self.main_window.create_image(0, round(self.height / 9 * 2), image=self.exit, anchor=NW)
-        self.main_window.tag_bind(exit, "<Button-1>", self.exit_func)
+        self.main_window.tag_bind(exit, "<Button-1>", self.exit_confirm_window)
         self.window.unbind("<Escape>")
         self.window.bind("<Escape>", self.close_main_window)
 
-    def close_main_window(self, event):
+    def confirm_window(self):
+        if mb.askyesno("Quit", "Do you really want to quit?"):
+            self.window.unbind("<Destroy>")
+            self.window.destroy()
+            self.delete_html()
+        else:
+            self.window.iconify()
+
+    def exit_confirm_window(self, event):
+        if mb.askyesno("Quit", "Do you really want to quit?"):
+            self.window.unbind("<Destroy>")
+            self.window.destroy()
+            self.delete_html()
+        else:
+            self.window.iconify()
+
+    def close_main_window(self):
         self.main_window.destroy()
         self.window.unbind("<Escape>")
         self.window.bind("<Escape>", self.main_window_func)
@@ -343,16 +356,6 @@ class Game:
         self.canvas.tag_unbind("job" + str(number + 1), "<Button-1>")
         self.canvas.tag_unbind("job_" + str(number + 1), "<Button-1>")
 
-    def exit_command(self):
-        if mb.askyesno("Quit", "Do you really want to quit?"):
-            Tk.destroy()
-            self.delete_html()
-        else:
-            self.window.iconify()
-
-    def exit_func(self, event):
-        self.exit_command()
-
     def continue_func(self, event):
         self.main_window.destroy()
 
@@ -500,5 +503,3 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
-
-
