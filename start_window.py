@@ -1,9 +1,68 @@
+import random
 import sys
 if "tkinter" not in sys.modules:
     from tkinter import *
 from PIL import Image, ImageTk
 import Game
 import Character
+
+class Redistribution:
+    def __init__(self, i, characteristic_name, characteristic):
+        f = open("New" + characteristic_name + " " + str(i+1) + ".html", "w")
+        message = """<html>
+                <head>
+                        <style>
+                         .card {
+                          margin : auto ;
+                          width : 400px;
+                          height : 200px;
+                          background-color: #f7d065;
+                          border-radius: 40px;
+                          }
+                          tr{
+                          padding : 20px 25px 20px 25px;
+                          border: 4px double #f7d080;
+                          }
+                          td{
+                          padding : 20px 25px 20px 25px;
+                          }
+                          table{
+                            width: 400px
+                          }
+                          .brd{
+                          border: 2px dotted #bdad8c;
+                          }
+
+        </style>
+                </head>
+        <body>
+          <div class = "card">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Player number:
+                            </td>
+                            <td class="data">
+                                """ + str(i+1) + """
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="brd">
+                                """ + characteristic_name + """: 
+                            </td>
+                            <td class="data, brd">
+                                """ + characteristic + """
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+          </div>
+        </body>
+        </html>"""
+
+        f.write(message)
+        f.close()
 
 
 class Saver:
@@ -187,6 +246,8 @@ class StartWindow:
             self.window.after(15, self.motion)
 
     def start_game(self, player_number, event):
+        self.existing_job_array = []
+        self.job_array = []
         self.window.destroy()
         pers_cards = []
         pers = Character.Person()
@@ -218,6 +279,18 @@ class StartWindow:
                   pers_cards[i][4], pers_cards[i][5] + ", " + pers_cards[i][6], pers_cards[i][7],
                   pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][10], pers_cards[i][11],
                   pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(pers_cards[i][14]))
+
+
+        for i in range(len(pers_cards)):
+            self.existing_job_array.append(pers_cards[i][0])
+
+        print(self.existing_job_array)
+
+        for i in pers.job:
+            for j in self.existing_job_array:
+                if i != j:
+                    self.job_array.append(i)
+                    break
 
         game = Game.Game(player_number, pers_cards)
 
@@ -284,6 +357,16 @@ class StartWindow:
         self.canvas.delete(self.gears_button)
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
         self.canvas.tag_bind(self.gears_button, "<Button-1>", self.settings)
+
+    def redistribution_card_job(self, player_number, event):
+        pers = Character.Person()
+        for i in range(0, player_number):
+            new_crktr_index = random.randint(0, len(self.job_array))
+            new_crktr = self.job_array[new_crktr_index]
+            self.job_array.remove(new_crktr)
+            Redistribution(i, "job", new_crktr + ", " + str(pers.stag))
+            print(self.job_array)
+
 
 
 StartWindow()
