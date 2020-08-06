@@ -19,6 +19,7 @@ def check_for_stage(exeption_array, random_ability, ability_name, ability_stages
             break
     if switch == 0:
         print(ability_name + " = " + random_ability + " " + random_ability_stage)
+        return str(random_ability + " " + random_ability_stage)
 
 
 class Body:
@@ -158,12 +159,23 @@ class Person:
 
         self.create_character()
 
-    def create_character(self):
+    def create_job(self):
         self.random_job = self.job[random.randint(0, len(self.job) - 1)]
         self.job.remove(self.random_job)
+        return self.random_job
 
+    def create_hobby(self):
         self.random_hobby = self.hobby[random.randint(0, len(self.hobby) - 1)]
         self.hobby.remove(self.random_hobby)
+
+    def create_phobia(self):
+        self.random_phobia = self.phobia[random.randint(0, len(self.phobia) - 1)]
+        self.phobia.remove(self.random_phobia)
+
+    def create_character(self):
+        self.create_job()
+
+        self.create_hobby()
 
         self.random_dop_info = self.dopInfo[random.randint(0, len(self.dopInfo) - 1)]
         self.dopInfo.remove(self.random_dop_info)
@@ -171,8 +183,7 @@ class Person:
         self.random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait) - 1)]
         self.humanTrait.remove(self.random_human_trait)
 
-        self.random_phobia = self.phobia[random.randint(0, len(self.phobia) - 1)]
-        self.phobia.remove(self.random_phobia)
+        self.create_phobia()
 
         self.random_health = self.health[random.randint(0, len(self.health) - 1)]
         self.health.remove(self.random_health)
@@ -216,6 +227,7 @@ class Person:
         print("Хобби = " + random_hobby + ", стаж: " + str(self.random_hobby_stage))
         print("Человеческая черта = " + self.random_human_trait + self.random_humanTrait_stage)
         print(self.body.body)
+
 
 
 Person()

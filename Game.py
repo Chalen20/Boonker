@@ -5,6 +5,7 @@ from random import *
 import math
 from tkinter import messagebox as mb
 
+
 class Game:
     def __init__(self, number_of_player, pers_cards):
         self.pers_cards = pers_cards
@@ -75,7 +76,7 @@ class Game:
         self.exit = self.exit.resize((round(self.width / 5), round(self.height / 9)), Image.ANTIALIAS)
         self.exit = ImageTk.PhotoImage(self.exit)
 
-      # //////////////////// бинд клавиш //////////////////////////////////////////////////////////////////////
+        # //////////////////// бинд клавиш //////////////////////////////////////////////////////////////////////
 
         self.window.bind("<Escape>", self.main_window_func)
         self.canvas.bind("<ButtonPress-1>", self.scroll_start)
