@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from random import *
 import math
 from tkinter import messagebox as mb
+from glob import glob
 
 
 class Game:
@@ -375,87 +376,10 @@ class Game:
 
     def delete_html(self):
         try:
-            os.unlink("player1.html")
+            for f in glob("*.html"):
+                os.unlink(f)
         except:
-            print("File <player1.html> not found")
-            pass
-
-        try:
-            os.unlink("player2.html")
-        except:
-            print("File <player2.html> not found")
-            pass
-
-        try:
-            os.unlink("player3.html")
-        except:
-            print("File <player3.html> not found")
-            pass
-
-        try:
-            os.unlink("player4.html")
-        except:
-            print("File <player4.html> not found")
-            pass
-
-        try:
-            os.unlink("player5.html")
-        except:
-            print("File <player5.html> not found")
-            pass
-
-        try:
-            os.unlink("player6.html")
-        except:
-            print("File <player6.html> not found")
-            pass
-
-        try:
-            os.unlink("player7.html")
-        except:
-            print("File <player7.html> not found")
-            pass
-
-        try:
-            os.unlink("player8.html")
-        except:
-            print("File <player8.html> not found")
-            pass
-
-        try:
-            os.unlink("player9.html")
-        except:
-            print("File <player9.html> not found")
-            pass
-
-        try:
-            os.unlink("player10.html")
-        except:
-            print("File <player10.html> not found")
-            pass
-
-        try:
-            os.unlink("player11.html")
-        except:
-            print("File <player11.html> not found")
-            pass
-
-        try:
-            os.unlink("player12.html")
-        except:
-            print("File <player12.html> not found")
-            pass
-
-        try:
-            os.unlink("player13.html")
-        except:
-            print("File <player13.html> not found")
-            pass
-
-        try:
-            os.unlink("player14.html")
-        except:
-            print("File <player14.html> not found")
+            print("File not found")
             pass
 
     def toggleFullScreen(self, event):
