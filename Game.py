@@ -5,6 +5,7 @@ from random import *
 import math
 from tkinter import messagebox as mb
 
+
 class Game:
     def __init__(self, number_of_player, pers_cards):
         self.pers_cards = pers_cards
