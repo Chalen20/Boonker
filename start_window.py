@@ -6,9 +6,14 @@ from PIL import Image, ImageTk
 import Game
 import Character
 
+        # self.redistribution_card_health("health", 1)
+        # self.redistribution_card_hobby("hobby", 1)
+        # self.redistribution_card_job("job", 1)
+
+
 class Redistribution:
     def __init__(self, i, characteristic_name, characteristic):
-        f = open("New" + characteristic_name + " " + str(i+1) + ".html", "w")
+        f = open("New" + " " + characteristic_name + str(i+1) + ".html", "w")
         message = """<html>
                 <head>
                         <style>
@@ -248,8 +253,12 @@ class StartWindow:
     def start_game(self, player_number, event):
         self.existing_job_array = []
         self.job_array = []
+        self.existing_health_array = []
+        self.health_array = []
+        self.existing_hobby_array = []
+        self.hobby_array = []
         self.window.destroy()
-        pers_cards = []
+        self.pers_cards = []
         pers = Character.Person()
         for i in range(0, player_number):
             pers_characteristics = []
@@ -269,20 +278,15 @@ class StartWindow:
             pers_characteristics.append(pers.bodyType)
             pers_characteristics.append(pers.height)
             pers_characteristics.append(pers.weight)
-            pers_cards.append(pers_characteristics)
+            self.pers_cards.append(pers_characteristics)
 
-        for i in pers_cards:
+        for i in self.pers_cards:
             print(i)
+        self.save_all()
 
-        for i in range(len(pers_cards)):
-            Saver(i, pers_cards[i][0] + ", " + str(pers_cards[i][1]), pers_cards[i][2] + ", " + str(pers_cards[i][3]),
-                  pers_cards[i][4], pers_cards[i][5] + ", " + pers_cards[i][6], pers_cards[i][7],
-                  pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][10], pers_cards[i][11],
-                  pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(pers_cards[i][14]))
-
-
-        for i in range(len(pers_cards)):
-            self.existing_job_array.append(pers_cards[i][0])
+# ///////////////////////////////////////////////
+        for i in range(len(self.pers_cards)):
+            self.existing_job_array.append(self.pers_cards[i][0])
 
         print(self.existing_job_array)
 
@@ -291,8 +295,41 @@ class StartWindow:
                 if i != j:
                     self.job_array.append(i)
                     break
+# ///////////////////////////////////////////////
+        for i in range(len(self.pers_cards)):
+            self.existing_health_array.append(self.pers_cards[i][11])
 
-        game = Game.Game(player_number, pers_cards)
+        print(self.existing_health_array)
+
+        for i in pers.health:
+            for j in self.existing_health_array:
+                if i != j:
+                    self.health_array.append(i)
+                    break
+# ///////////////////////////////////////////////
+        for i in range(len(self.pers_cards)):
+            self.existing_hobby_array.append(self.pers_cards[i][2])
+
+        print(self.existing_hobby_array)
+
+        for i in pers.hobby:
+            for j in self.existing_hobby_array:
+                if i != j:
+                    self.hobby_array.append(i)
+                    break
+
+        self.redistribution_card_health("health", 1)
+        self.redistribution_card_hobby("hobby", 1)
+        self.redistribution_card_job("job", 1)
+
+        game = Game.Game(player_number, self.pers_cards)
+
+    def save_all(self):
+        for i in range(len(self.pers_cards)):
+            Saver(i, self.pers_cards[i][0] + ", " + str(self.pers_cards[i][1]), self.pers_cards[i][2] + ", " + str(self.pers_cards[i][3]),
+                  self.pers_cards[i][4], self.pers_cards[i][5] + ", " + self.pers_cards[i][6], self.pers_cards[i][7],
+                  self.pers_cards[i][8] + ", " + self.pers_cards[i][9] + ", " + self.pers_cards[i][10], self.pers_cards[i][11],
+                  self.pers_cards[i][12] + ", " + str(self.pers_cards[i][13]) + ", " + str(self.pers_cards[i][14]))
 
     def settings(self, event):
         self.canvas.delete(self.gears_button)
@@ -358,15 +395,35 @@ class StartWindow:
         self.gears_button = self.canvas.create_image(475, 25, image=self.gears)
         self.canvas.tag_bind(self.gears_button, "<Button-1>", self.settings)
 
-    def redistribution_card_job(self, player_number, event):
+    def redistribution_card_job(self, characteristic_name, card_count):
         pers = Character.Person()
-        for i in range(0, player_number):
+        for i in range(0, card_count):
             new_crktr_index = random.randint(0, len(self.job_array))
             new_crktr = self.job_array[new_crktr_index]
             self.job_array.remove(new_crktr)
-            Redistribution(i, "job", new_crktr + ", " + str(pers.stag))
-            print(self.job_array)
+            self.pers_cards[i][0] = new_crktr
+            Redistribution(i, characteristic_name + " ", new_crktr + ", " + str(pers.stag))
+        self.save_all()
 
+    def redistribution_card_health(self, characteristic_name, card_count):
+        pers = Character.Person()
+        for i in range(0, card_count):
+            new_crktr_index = random.randint(0, len(self.health_array))
+            new_crktr = self.health_array[new_crktr_index]
+            self.health_array.remove(new_crktr)
+            self.pers_cards[i][11] = new_crktr
+            Redistribution(i, characteristic_name + " ", new_crktr)
+        self.save_all()
+
+    def redistribution_card_hobby(self, characteristic_name, card_count):
+        pers = Character.Person()
+        for i in range(0, card_count):
+            new_crktr_index = random.randint(0, len(self.hobby_array))
+            new_crktr = self.hobby_array[new_crktr_index]
+            self.hobby_array.remove(new_crktr)
+            self.pers_cards[i][2] = new_crktr
+            Redistribution(i, characteristic_name + " ", new_crktr + " " + str(pers.random_hobby_stage))
+        self.save_all()
 
 
 StartWindow()

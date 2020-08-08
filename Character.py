@@ -1,8 +1,9 @@
 import random
 
+
+
 max_hobby_stage = 40
 max_stag = 40
-
 
 def persentage(text, start, finish):
     return text + str(random.randint(start, finish) * 10)
@@ -19,6 +20,7 @@ def check_for_stage(exeption_array, random_ability, ability_name, ability_stages
             break
     if switch == 0:
         print(ability_name + " = " + random_ability + " " + random_ability_stage)
+        return str(random_ability + " " + random_ability_stage)
 
 
 class Body:
@@ -57,8 +59,8 @@ class Person:
         self.health = ["Совершенно здоров", "Совершенно здоров", "Совершенно здоров", "Совершенно здоров",
                        "Совершенно здоров", "Совершенно здоров", "Совершенно здоров", "Совершенно здоров",
                        "Совершенно здоров", "Алергия на шерсть", "Безплоден", "Ампутирована рука", "Слепота", "Псориаз"
-            , "Туберкулез", "Биполярное розстройство", "Альц Геймер", "Парализован ниже пояса"
-            , "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
+                        , "Туберкулез", "Биполярное розстройство", "Альц Геймер", "Парализован ниже пояса"
+                        , "Сахарный диабет", "Алергия", "Астма", "Алкоголизм", "Тремор", "Дальтонизм",
                        "Анальгия(Нечуствительность к боли)", "Безсонница", "Синтром Турета", "Шизофрения", "Грыжа",
                        "Синдром Мюнхаузена", "Ветрянка", "Епилепсия", "Дифект речи", "Непереносимость лактозы",
                        "Глухонемой"]
@@ -80,7 +82,7 @@ class Person:
                        "Коулрофобия(Страх клоунов)", "Интернетофобия(Боязнь интернета)"
                                                      "Арахнофобия(боязнь пауков)", "Клаустрофобия",
                        "Ортофобия(Боязнь птиц и их оперения)"
-            , "Кинофобия(боязнь собак)", "Гемофобия(боязнь крови)", "Некрофобия(страх трупов и нежети)",
+                         , "Кинофобия(боязнь собак)", "Гемофобия(боязнь крови)", "Некрофобия(страх трупов и нежети)",
                        "Фобофобия(Боязнь чужих фобий)", "Демонофобия(Боязнь демонов)", "Тетрофобия(Боязнь числа 4 )",
                        "Спектрофобия(Боязнь призраков)", "Аквафобия(Боязнь воды)", "Танатофобия(Боязнь смерти)",
                        "Акустикофобия(Боязнь громких звуков)", "Боязнь шерсти", "Боязнь темноти", "Акрофобия(Боязнь "
@@ -121,7 +123,7 @@ class Person:
                                                                                                       "диплом в 15 лет",
                         "Могу оказать первую мед помощ", "Перечитал все книги о властелине колец",
                         "Может спать неделю не просипаясь", "Переборол рак", "Верю в НЛО", "Вырос в семье фермеров"
-            , "Прожил в тебетском монастыре 5 лет", "Роботал моделью виктория сикрет", "Левша", "Знаю 8"
+                        , "Прожил в тебетском монастыре 5 лет", "Роботал моделью виктория сикрет", "Левша", "Знаю 8"
                                                                                                 " языков",
                         "Чемпион мира по 100 клеточным шашкам", "Бросал курить 12 раз", "Роботаю с 14 лет",
                         "Служил в мор. флоте", "Вегатерианец", "Нацыоналист", "Побывал во всех странах", "Получил "
@@ -158,12 +160,23 @@ class Person:
 
         self.create_character()
 
-    def create_character(self):
+    def create_job(self):
         self.random_job = self.job[random.randint(0, len(self.job) - 1)]
         self.job.remove(self.random_job)
+        return self.random_job
 
+    def create_hobby(self):
         self.random_hobby = self.hobby[random.randint(0, len(self.hobby) - 1)]
         self.hobby.remove(self.random_hobby)
+
+    def create_phobia(self):
+        self.random_phobia = self.phobia[random.randint(0, len(self.phobia) - 1)]
+        self.phobia.remove(self.random_phobia)
+
+    def create_character(self):
+        self.create_job()
+
+        self.create_hobby()
 
         self.random_dop_info = self.dopInfo[random.randint(0, len(self.dopInfo) - 1)]
         self.dopInfo.remove(self.random_dop_info)
@@ -171,8 +184,7 @@ class Person:
         self.random_human_trait = self.humanTrait[random.randint(0, len(self.humanTrait) - 1)]
         self.humanTrait.remove(self.random_human_trait)
 
-        self.random_phobia = self.phobia[random.randint(0, len(self.phobia) - 1)]
-        self.phobia.remove(self.random_phobia)
+        self.create_phobia()
 
         self.random_health = self.health[random.randint(0, len(self.health) - 1)]
         self.health.remove(self.random_health)
@@ -216,7 +228,6 @@ class Person:
         print("Хобби = " + random_hobby + ", стаж: " + str(self.random_hobby_stage))
         print("Человеческая черта = " + self.random_human_trait + self.random_humanTrait_stage)
         print(self.body.body)
-
 
 Person()
 
@@ -289,7 +300,8 @@ class Bunker:
                                                                                    " на 1 человека",
                           "Аптечка первой помощи 5 штук", "Аптечка первой помощи 10 штук",
                           "Запас вина на на 3 месяца на"
-                          "всех учасников бункера", "Аптечка с литием(для душевно больных) на 4 месяца на 2 человека"]
+                          "всех учасников бункера", "Аптечка с литием(для душевно больных) на 4 месяца на 2 человека",
+                          "Набор столярных инструментов", "Большая енциклопедия грибника", ""]
 
         self.rooms = ["Кухня-столовая", "Оборудованая теплица с набором семьян", "Оборудованая теплица", "Компютерная "
                                                                                                          "комната",
@@ -300,8 +312,10 @@ class Bunker:
         # //////////Initiation ////////////////// #
         random_inventory = self.inventory[random.randint(0, len(self.inventory) - 1)]
         random_rooms = self.rooms[random.randint(0, len(self.rooms) - 1)]
+        random_live_time = "Время проживания в бункере : " + str(random.randint(3, 12)) + " месяцев"
 
         # print("\n" + "             Информация про бункер" + "\n")
+        # print(random_live_time)
         # print("Инвентарь бункера: " + random_inventory)
         # print("Доступные комнати: " + random_rooms)
         # print(self.size)
