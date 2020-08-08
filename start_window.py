@@ -10,12 +10,9 @@ import Character
         # self.redistribution_card_hobby("hobby", 1)
         # self.redistribution_card_job("job", 1)
 
-
-for_delete_array = []
 class Redistribution:
     def __init__(self, i, characteristic_name, characteristic):
         f = open("New" + " " + characteristic_name + str(i+1) + ".html", "w")
-        for_delete_array.append("New" + " " + characteristic_name + str(i+1) + ".html")
         message = """<html>
                 <head>
                         <style>
@@ -75,7 +72,6 @@ class Redistribution:
 class Saver:
     def __init__(self, player_number, job, hobby, add_info, human_trait, phobia, biological, health, body_type):
         f = open("player" + str(player_number + 1) + ".html", "w")
-        for_delete_array.append("player" + str(player_number + 1) + ".html")
         message = """<html>
         <head>
                 <style>
