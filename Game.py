@@ -395,9 +395,25 @@ class Game:
         self.fullScreenState = False
         self.window.attributes("-fullscreen", self.fullScreenState)
 
+    def add_vote(self, counter, event):
+        data = self.counter_data[counter]
+        self.counter_data[counter] += 1
+        self.canvas.delete("count" + str(counter))
+        self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                round(counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
+                                text=str(self.counter_data[counter]), tag="count" + str(counter), font=("Verdana", 18))
+
+    def delete_vote(self, counter, event):
+        data = self.counter_data[counter]
+        self.counter_data[counter] -= 1
+        self.canvas.delete("count" + str(counter))
+        self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                round(counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
+                                text=str(self.counter_data[counter]), tag="count" + str(counter), font=("Verdana", 18))
+
     def vote(self):
-        counter = 0
         self.counter_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        counter = 0
         for i in range(0, math.floor(self.number_of_player / 3)):  # рядки
             for j in range(0, 3):  # стовбці
                 self.canvas.create_rectangle(round(j * self.width / 3 + self.width / 12),
@@ -410,74 +426,76 @@ class Game:
                                         text="Player " + str(counter + 1), font=("Verdana", 20))
                 self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                         round(i * self.height / 2) + self.height / 16 + 70, text="Up",
-                                        font=("Verdana", 18), tag="Up" + str(counter))
+                                        tag="Up" + str(counter),
+                                        font=("Verdana", 18))
                 self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                         round(i * self.height / 2) + self.height / 16 + self.width_rubashka * 0.7 - 50,
-                                        text="Down", font=("Verdana", 18), tag="Down" + str(counter))
+                                        text="Down", tag="Down" + str(counter), font=("Verdana", 18))
                 self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                         round(i * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
-                                        text=str(self.counter_data[counter]), font=("Verdana", 18),
-                                        tag="count" + str(counter))
+                                        text=str(self.counter_data[counter]), tag="count" + str(counter),
+                                        font=("Verdana", 18))
                 counter += 1
 
-        self.canvas.tag_bind("Down0", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down0", "<Button-1>",
+                             lambda event: self.delete_vote(0, event))
         self.canvas.tag_bind("Up0", "<Button-1>",
                              lambda event: self.add_vote(0, event))
 
-        self.canvas.tag_bind("Down1", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down1", "<Button-1>", lambda event: self.delete_vote(1, event))
         self.canvas.tag_bind("Up1", "<Button-1>",
                              lambda event: self.add_vote(1, event))
 
-        self.canvas.tag_bind("Down2", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down2", "<Button-1>", lambda event: self.delete_vote(2, event))
         self.canvas.tag_bind("Up2", "<Button-1>",
                              lambda event: self.add_vote(2, event))
 
-        self.canvas.tag_bind("Down3", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down3", "<Button-1>", lambda event: self.delete_vote(3, event))
         self.canvas.tag_bind("Up3", "<Button-1>",
                              lambda event: self.add_vote(3, event))
 
-        self.canvas.tag_bind("Down4", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down4", "<Button-1>", lambda event: self.delete_vote(4, event))
         self.canvas.tag_bind("Up4", "<Button-1>",
                              lambda event: self.add_vote(4, event))
 
-        self.canvas.tag_bind("Down5", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down5", "<Button-1>", lambda event: self.delete_vote(5, event))
         self.canvas.tag_bind("Up5", "<Button-1>",
                              lambda event: self.add_vote(5, event))
 
-        self.canvas.tag_bind("Down6", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down6", "<Button-1>", lambda event: self.delete_vote(6, event))
         self.canvas.tag_bind("Up6", "<Button-1>",
                              lambda event: self.add_vote(6, event))
 
-        self.canvas.tag_bind("Down7", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down7", "<Button-1>", lambda event: self.delete_vote(7, event))
         self.canvas.tag_bind("Up7", "<Button-1>",
                              lambda event: self.add_vote(7, event))
 
-        self.canvas.tag_bind("Down8", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down8", "<Button-1>", lambda event: self.delete_vote(8, event))
         self.canvas.tag_bind("Up8", "<Button-1>",
                              lambda event: self.add_vote(8, event))
 
-        self.canvas.tag_bind("Down9", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down9", "<Button-1>", lambda event: self.delete_vote(9, event))
         self.canvas.tag_bind("Up9", "<Button-1>",
                              lambda event: self.add_vote(9, event))
 
-        self.canvas.tag_bind("Down10", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down10", "<Button-1>", lambda event: self.delete_vote(10, event))
         self.canvas.tag_bind("Up10", "<Button-1>",
                              lambda event: self.add_vote(10, event))
 
-        self.canvas.tag_bind("Down11", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down11", "<Button-1>", lambda event: self.delete_vote(11, event))
         self.canvas.tag_bind("Up11", "<Button-1>",
                              lambda event: self.add_vote(11, event))
 
-        self.canvas.tag_bind("Down12", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down12", "<Button-1>", lambda event: self.delete_vote(12, event))
         self.canvas.tag_bind("Up12", "<Button-1>",
                              lambda event: self.add_vote(12, event))
 
-        self.canvas.tag_bind("Down13", "<Button-1>", self.delete_vote)
+        self.canvas.tag_bind("Down13", "<Button-1>", lambda event: self.delete_vote(13, event))
         self.canvas.tag_bind("Up13", "<Button-1>",
                              lambda event: self.add_vote(13, event))
 
         if self.number_of_player == 8:
-            self.coefits = self.height / 1.85
+            self.coefits = self.height / 1.81
         elif self.number_of_player == 10:
             self.coefits = self.height / 1.9
         elif self.number_of_player == 14:
@@ -494,35 +512,15 @@ class Game:
                                     text="Player" + str(counter + 1), font=("Verdana", 20))
             self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                     round(self.number_of_player // 3 * self.coefits) + 70, text="Up",
-                                    font=("Verdana", 18), tag="Up" + str(counter))
+                                    tag="Up" + str(counter),
+                                    font=("Verdana", 18))
             self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                     round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.7 - 50,
-                                    text="Down", font=("Verdana", 18), tag="Down" + str(counter))
-            self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
-                                    round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.35,
-                                    text=str(self.counter_data[counter]), font=("Verdana", 18),
-                                    tag="count" + str(counter))
-            self.canvas.tag_bind("Down" + str(counter), "<Button-1>", self.delete_vote)
-            self.canvas.tag_bind("Up" + str(counter), "<Button-1>",
-                                 lambda event: self.add_vote(counter, event))
-
-            counter += 1
-
-    def add_vote(self, counter, event):
-        data = self.counter_data[counter]
-        self.counter_data[counter] += 1
-        self.canvas.delete("count" + str(counter))
-        self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
-                                round(counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
-                                text=str(data), tag="count" + str(counter), font=("Verdana", 18))
-
-    def delete_vote(self, counter, event):
-        data = self.counter_data[counter]
-        self.counter_data[counter] -= 1
-        self.canvas.delete("count" + str(counter))
-        self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
-                                round(counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
-                                text=str(data), tag="count" + str(counter), font=("Verdana", 18))
+                                    text="Down", tag="Down" + str(counter), font=("Verdana", 18))
+            self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                    round(i * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
+                                    text=str(self.counter_data[counter]), tag="count" + str(counter),
+                                    font=("Verdana", 18))
 
 
 class Timer:
