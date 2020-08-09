@@ -418,7 +418,7 @@ class StartWindow:
     def redistribution_card_hobby(self, characteristic_name, card_count):
         pers = Character.Person()
         for i in range(0, card_count):
-            new_crktr_index = random.randint(0, len(self.hobby_array))
+            new_crktr_index = random.randint(0, len(self.hobby_array)-1)
             new_crktr = self.hobby_array[new_crktr_index]
             self.hobby_array.remove(new_crktr)
             self.pers_cards[i][2] = new_crktr
