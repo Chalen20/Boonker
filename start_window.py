@@ -10,6 +10,7 @@ import Character
         # self.redistribution_card_hobby("hobby", 1)
         # self.redistribution_card_job("job", 1)
 
+
 class Redistribution:
     def __init__(self, i, characteristic_name, characteristic):
         f = open("New" + " " + characteristic_name + str(i+1) + ".html", "w")
@@ -423,5 +424,6 @@ class StartWindow:
             self.pers_cards[i][2] = new_crktr
             Redistribution(i, characteristic_name + " ", new_crktr + " " + str(pers.random_hobby_stage))
         self.save_all()
+
 
 StartWindow()

@@ -7,6 +7,7 @@ from tkinter import messagebox as mb
 from glob import glob
 import random
 
+
 class Game:
     def __init__(self, number_of_player, pers_cards):
         self.pers_cards = pers_cards
@@ -390,6 +391,7 @@ class Game:
         self.fullScreenState = False
         self.window.attributes("-fullscreen", self.fullScreenState)
 
+
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
         self.minutes = time_minutes
@@ -428,6 +430,7 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
+
 
 class SpecialCards:
     def __init__(self, number_of_player):
