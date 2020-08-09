@@ -428,7 +428,7 @@ class Timer:
                                               font=("Verdana", 20), anchor='nw', fill=self.color_text)
         if self.seconds != 0 or self.minutes != 0:
             self.root.after(100, self.time)
-            
+
 class SpecialCards:
     def __init__(self, number_of_player):
         self.special_cards = ["Перероздача професий", "Отмена всех професий", "Перероздача сост. здоровя"
