@@ -517,10 +517,11 @@ class Game:
             self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                     round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.7 - 50,
                                     text="Down", tag="Down" + str(counter), font=("Verdana", 18))
-            self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
-                                    round(i * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
+            self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                    round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.35,
                                     text=str(self.counter_data[counter]), tag="count" + str(counter),
                                     font=("Verdana", 18))
+            counter += 1
 
 
 class Timer:
