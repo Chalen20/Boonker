@@ -12,11 +12,11 @@ class Game:
     def __init__(self, number_of_player, pers_cards):
         self.pers_cards = pers_cards
         self.window = Tk()
+        self.window.bind("<F11>", self.toggleFullScreen)
         self.window.attributes('-fullscreen', True)
         self.window.grab_set()
         self.window.focus_force()
         self.fullScreenState = True
-        self.window.bind("<F11>", self.toggleFullScreen)
         self.width = self.window.winfo_screenwidth()
         self.height = self.window.winfo_screenheight()
         self.canvas = Canvas(self.window, height=self.height, width=self.width, bg="lightgreen")
@@ -86,15 +86,13 @@ class Game:
         self.canvas.bind("<ButtonPress-1>", self.scroll_start)
         self.canvas.bind("<B1-Motion>", self.scroll_move)
         self.canvas.bind("<MouseWheel>", self.scroll_mouse_wheel)
-        self.canvas.bind("<F11>", self.toggleFullScreen)
         self.window.protocol("WM_DELETE_WINDOW", self.confirm_window)
 
         self.count = 0
         self.animation_number = 120
         self.count_number = 0
-        # self.animate(self.width / 6 * 5 - self.width * 0.05, self.height * 0.05)
+        self.animate(self.width / 6 * 5 - self.width * 0.05, self.height * 0.05)
         self.list_of_person = list(range(self.number_of_player))
-        self.vote()
         self.window.mainloop()
 
     def main_window_func(self, event):
@@ -265,22 +263,35 @@ class Game:
 
     def open_icon(self, canvas, number):
         de = self.canvas.coords(canvas)
-        texts = ["job", "hobby", "add_info", "human_trait", "phobia", "biological", "health", "body_type"]
+        self.texts = ["job", "hobby", "add_info", "human_trait", "phobia", "biological", "health", "body_type"]
 
         counter = self.width_rubashka / 8
         for i in range(0, 8):
             self.canvas.create_rectangle(de[0], de[1] + counter * i, de[2], de[1] + counter * (i + 1),
-                                         tag=texts[i] + "_" + str(number))
+                                         tag=self.texts[i] + "_" + str(number), fill="white")
             self.canvas.create_text(de[0] + self.width_rubashka * 0.8 / 2, de[1] + counter * i + counter / 2,
-                                    text=texts[i], anchor="c", font=("Verdana", 15), tag=texts[i] + str(number))
+                                    text=self.texts[i], anchor="c", font=("Verdana", 15),
+                                    tag=self.texts[i] + str(number))
             if i == 0:
                 self.canvas.tag_bind("job" + str(number), "<Button-1>", lambda event: self.job_func(de, number, event))
                 self.canvas.tag_bind("job_" + str(number), "<Button-1>", lambda event: self.job_func(de, number, event))
             else:
-                self.canvas.tag_bind(texts[i] + str(number), "<Button-1>",
-                                     lambda event, x=i: self.func_arg(texts, x, de, number, event))
-                self.canvas.tag_bind(texts[i] + "_" + str(number), "<Button-1>",
-                                     lambda event, x=i: self.func_arg(texts, x, de, number, event))
+                self.canvas.tag_bind(self.texts[i] + str(number), "<Button-1>",
+                                     lambda event, x=i: self.func_arg(self.texts, x, de, number, event))
+                self.canvas.tag_bind(self.texts[i] + "_" + str(number), "<Button-1>",
+                                     lambda event, x=i: self.func_arg(self.texts, x, de, number, event))
+
+        self.canvas.delete(canvas)
+        self.next_rect = self.canvas.create_rectangle(self.width * 0.82,
+                                                      (self.number_of_player // 3 + 0.9) * self.height / 2,
+                                                      self.width * 0.98,
+                                                      (self.number_of_player // 3 + 1.11) * self.height / 2,
+                                                      fill="white")
+        self.next_text = self.canvas.create_text(self.width * 0.9, (self.number_of_player // 3 + 1) * self.height / 2,
+                                                 text="next",
+                                                 font=("Verdana", 100))
+        self.canvas.tag_bind(self.next_rect, "<Button-1>", self.vote)
+        self.canvas.tag_bind(self.next_text, "<Button-1>", self.vote)
 
     def func_arg(self, texts, i, de, number, event):
         for j in range(1, 8):
@@ -391,27 +402,54 @@ class Game:
         self.fullScreenState = not self.fullScreenState
         self.window.attributes("-fullscreen", self.fullScreenState)
 
-    def quitFullScreen(self, event):
-        self.fullScreenState = False
-        self.window.attributes("-fullscreen", self.fullScreenState)
-
     def add_vote(self, counter, event):
         data = self.counter_data[counter]
         self.counter_data[counter] += 1
         self.canvas.delete("count" + str(counter))
-        self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
-                                round(counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
-                                text=str(self.counter_data[counter]), tag="count" + str(counter), font=("Verdana", 18))
+        if ((counter == 6 or counter == 7) and self.number_of_player == 8) or \
+                (counter == 9 and self.number_of_player == 10) or \
+                (counter == 12 or counter == 13 and self.number_of_player == 14):
+            self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                    round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.35,
+                                    text=str(self.counter_data[counter]), tag="count" + str(counter),
+                                    font=("Verdana", 18))
+        else:
+            self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                    round(
+                                        counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
+                                    text=str(self.counter_data[counter]), tag="count" + str(counter),
+                                    font=("Verdana", 18))
 
     def delete_vote(self, counter, event):
         data = self.counter_data[counter]
-        self.counter_data[counter] -= 1
+        if data != 0:
+            self.counter_data[counter] -= 1
         self.canvas.delete("count" + str(counter))
-        self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
-                                round(counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
-                                text=str(self.counter_data[counter]), tag="count" + str(counter), font=("Verdana", 18))
+        if ((counter == 6 or counter == 7) and self.number_of_player == 8) or \
+                (counter == 9 and self.number_of_player == 10) or \
+                (counter == 12 or counter == 13 and self.number_of_player == 14):
+            self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                    round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.35,
+                                    text=str(self.counter_data[counter]), tag="count" + str(counter),
+                                    font=("Verdana", 18))
+        else:
+            self.canvas.create_text(round(counter % 3 * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
+                                    round(
+                                        counter // 3 * self.height / 2) + self.height / 16 + self.width_rubashka * 0.35,
+                                    text=str(self.counter_data[counter]), tag="count" + str(counter),
+                                    font=("Verdana", 18))
 
-    def vote(self):
+    def vote(self, event):
+        self.canvas.tag_unbind(self.next_rect, "<Button-1>")
+        self.canvas.tag_unbind(self.next_text, "<Button-1>")
+        self.all_datas = []
+        for j in range(self.number_of_player):
+            for i in self.texts:
+                self.all_datas.append(i + str(j + 1))
+                self.all_datas.append(i + "_" + str(j + 1))
+
+        for i in self.all_datas:
+            self.canvas.move(i, self.width * 2, 0)
         self.counter_data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         counter = 0
         for i in range(0, math.floor(self.number_of_player / 3)):  # рядки
@@ -420,10 +458,11 @@ class Game:
                                              round(i * self.height / 2) + self.height / 16,
                                              round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.7,
                                              round(i * self.height / 2) + self.height / 16 +
-                                             self.width_rubashka * 0.7, fill="red")
+                                             self.width_rubashka * 0.7, fill="#717744", tag="vote_rect" + str(counter))
                 self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                         round(i * self.height / 2) + self.height / 16 + 20,
-                                        text="Player " + str(counter + 1), font=("Verdana", 20))
+                                        text="Player " + str(self.list_of_person[counter] + 1), font=("Verdana", 20),
+                                        tag="name" + str(counter))
                 self.canvas.create_text(round(j * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                         round(i * self.height / 2) + self.height / 16 + 70, text="Up",
                                         tag="Up" + str(counter),
@@ -506,14 +545,14 @@ class Game:
                                          round(self.number_of_player // 3 * self.coefits),
                                          round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.7,
                                          round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.7,
-                                         fill="red"),
+                                         fill="#717744", tag="vote_rect" + str(counter)),
             self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                     round(self.number_of_player // 3 * self.coefits) + 20,
-                                    text="Player" + str(counter + 1), font=("Verdana", 20))
+                                    text="Player" + str(self.list_of_person[counter] + 1), font=("Verdana", 20),
+                                    tag="name" + str(counter))
             self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                     round(self.number_of_player // 3 * self.coefits) + 70, text="Up",
-                                    tag="Up" + str(counter),
-                                    font=("Verdana", 18))
+                                    tag="Up" + str(counter), font=("Verdana", 18))
             self.canvas.create_text(round(i * self.width / 3 + self.width / 12) + self.width_rubashka * 0.35,
                                     round(self.number_of_player // 3 * self.coefits) + self.width_rubashka * 0.7 - 50,
                                     text="Down", tag="Down" + str(counter), font=("Verdana", 18))
@@ -523,6 +562,38 @@ class Game:
                                     font=("Verdana", 18))
             counter += 1
 
+        self.canvas.tag_bind(self.next_rect, "<Button-1>", self.return_data)
+        self.canvas.tag_bind(self.next_text, "<Button-1>", self.return_data)
+
+    def return_data(self, event):
+        for i in self.all_datas:
+            self.canvas.move(i, -self.width * 2, 0)
+
+        for j in range(self.number_of_player):
+            self.canvas.delete("name" + str(j))
+            self.canvas.delete("vote_rect" + str(j))
+            self.canvas.delete("Up" + str(j))
+            self.canvas.delete("Down" + str(j))
+            self.canvas.delete("count" + str(j))
+
+        vote_result = max(self.counter_data)
+        person_lose = self.counter_data.index(vote_result)
+        self.list_of_person.remove(person_lose)
+
+        self.canvas.tag_unbind(self.next_rect, "<Button-1>")
+        self.canvas.tag_unbind(self.next_text, "<Button-1>")
+
+        for i in self.texts:
+            for j in range(self.number_of_player):
+                de = []
+                de.append(self.canvas.coords(i + "_" + str(j+1))[0])
+                de.append(self.canvas.coords(i + "_" + str(j+1))[1] + self.width_rubashka / 8 * self.texts.index(i))
+                self.canvas.tag_bind(i + str(j), "<Button-1>",
+                                     lambda event:  self.func_arg(self.texts, self.texts.index(i),
+                                                                  de, j, event))
+                self.canvas.tag_bind(i + "_" + str(j), "<Button-1>",
+                                     lambda event: self.func_arg(self.texts, self.texts.index(i),
+                                                                 de, j, event))
 
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
