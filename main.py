@@ -94,6 +94,20 @@ def get_prof_callback(query):
     t.start()
 
 
+def timer(query, ):
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+
+    keyboard_1.row(
+        telebot.types.InlineKeyboardButton(types[9], callback_data=str(types[9]))
+    )
+    bot.edit_message_text(text=query.message.text, message_id=query.message.message_id, chat_id=query.message.chat.id,
+                          reply_markup=keyboard_1)
+
+    t = threading.Timer(60.0, lambda: round_(query))
+    t.start()
+
+
+
 def round_(query):
     print("b")
 
