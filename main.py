@@ -18,11 +18,15 @@ active_users = []
 active_users_id = []
 min_users = 0
 time_that_start_new_game = 15.0
-round_counter = 0
+round_counter = 1
 request = {}
 job_counter = 0
 types = ["Професія", "Хобі", "Додаткова інформація", "Риса характеру", "Фобія", "Біологічна характеристика",
          "Здоров'я", "Статура", "Спеціальна карта 1", "Спеціальна карта 2"]
+list_for_round1 = [types[0], types[8], types[9]]
+list_of_list_of_round1 = {}
+list_for_round2 = [types[0], types[1], types[2], types[3], types[4], types[5], types[6], types[7], types[8], types[9]]
+list_of_list_for_round2 = {}
 
 
 @bot.message_handler(commands=["start"])
@@ -46,7 +50,6 @@ keyboard.row(
 
 @bot.message_handler(commands=['start_new_game'])
 def exchange_command(message):
-    print(message)
     global chat_id
     chat_id = message.chat.id
     if message.chat.type == "group" or message.chat.type == "supergroup":
@@ -64,34 +67,95 @@ def exchange_command(message):
 def iq_callback(query):
     data = query.data
     if data.startswith('Enter'):
-        print(query)
         get_ex_callback(query)
     elif data.startswith(types[0]):
-        get_prof_callback(query)
+        get_prof_callback(types[0], query)
+    elif data.startswith(types[8]):
+        if len(list_of_list_of_round1[query.from_user.id]) != 1 and round_counter == 1:
+            get_prof_callback(types[8], query)
+        else:
+            get_round_begins_from_two(types[8], query)
+    elif data.startswith(types[9]):
+        if len(list_of_list_of_round1[query.from_user.id]) != 1 and round_counter == 1:
+            get_prof_callback(types[9], query)
+        else:
+            get_round_begins_from_two(types[9], query)
+    elif data.startswith(types[1]):
+        get_round_begins_from_two(types[1], query)
+    elif data.startswith(types[2]):
+        get_round_begins_from_two(types[2], query)
+    elif data.startswith(types[3]):
+        get_round_begins_from_two(types[3], query)
+    elif data.startswith(types[4]):
+        get_round_begins_from_two(types[4], query)
+    elif data.startswith(types[5]):
+        get_round_begins_from_two(types[5], query)
+    elif data.startswith(types[6]):
+        get_round_begins_from_two(types[6], query)
+    elif data.startswith(types[7]):
+        get_round_begins_from_two(types[7], query)
 
 
-def get_prof_callback(query):
+def get_round_begins_from_two(type_str, query):
+    list_of_list_for_round2[query.from_user.id].remove(type_str)
+
+
+def get_prof_callback(type_str, query):
     global job_counter
-    print("a")
-    print(query)
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
-    keyboard_1.row(
-        telebot.types.InlineKeyboardButton(types[8], callback_data=str(types[8]))
-    )
-    keyboard_1.row(
-        telebot.types.InlineKeyboardButton(types[9], callback_data=str(types[9]))
-    )
-    bot.edit_message_text(text=query.message.text, message_id=query.message.message_id, chat_id=query.message.chat.id,
-                          reply_markup=keyboard_1)
-    bot.send_message(chat_id, "@" + query.from_user.username + " - " + str(request[query.from_user.id][0]))
-    job_counter += 1
+    if len(list_of_list_of_round1[query.from_user.id]) == 3 or\
+            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
+             types[0] == type_str and types[0] in list_of_list_of_round1[query.from_user.id]) or\
+            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
+             types[0] not in list_of_list_of_round1[query.from_user.id]):
+        some_variable = list_of_list_of_round1[query.from_user.id]
+        del some_variable[list_for_round1.index(type_str)]
+        list_of_list_of_round1[query.from_user.id] = some_variable
+        list_of_list_for_round2[query.from_user.id].remove(type_str)
+    if len(list_of_list_of_round1[query.from_user.id]) == 2 and \
+            types[0] not in list_of_list_of_round1[query.from_user.id]:
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
+        )
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][1],
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][1]))
+        )
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id,
+                              reply_markup=keyboard_1)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][types.index(type_str)]))
+        job_counter += 1
+        t = threading.Timer(time_that_start_new_game, lambda: round_(query))
+        t.start()
+    elif len(list_of_list_of_round1[query.from_user.id]) == 2 and\
+            types[0] in list_of_list_of_round1[query.from_user.id]:
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
+        )
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id,
+                              reply_markup=keyboard_1)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][types.index(type_str)]))
+        t = threading.Timer(time_that_start_new_game, lambda: round_(query))
+        t.start()
+    elif len(list_of_list_of_round1[query.from_user.id]) == 1 and\
+            types[0] not in list_of_list_of_round1[query.from_user.id]:
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id, reply_markup=None)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][types.index(type_str)]))
+        job_counter += 1
+        print(3)
     if job_counter == len(active_users):
         bot.send_message(chat_id, "Дискусія: \n"
                                   "бла \n "
                                   "бла \n "
                                   "бла \n ")
-    t = threading.Timer(time_that_start_new_game, lambda: round_(query))
-    t.start()
 
 
 def timer(query, ):
@@ -109,7 +173,15 @@ def timer(query, ):
 
 
 def round_(query):
-    print("b")
+    global round_counter
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    round_counter += 1
+    for i in list_of_list_for_round2[query.from_user.id]:
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(i, callback_data=str(i))
+        )
+    bot.send_message(chat_id=query.from_user.id, text="Відкрити карту іншим гравцям (раунд 2)",
+                     reply_markup=keyboard_1)
 
 
 def get_ex_callback(query):
@@ -118,50 +190,46 @@ def get_ex_callback(query):
     if query.from_user.username.strip() != "" and query.from_user.id not in active_users_id:
         res.text = res.text + "\n" + "      @" + query.from_user.username
         active_users.append(query.from_user)
-        print(active_users[0])
         active_users_id.append(query.from_user.id)
-        print(active_users_id)
         res = bot.edit_message_text(text=res.text, message_id=res.message_id, chat_id=res.chat.id,
                                     reply_markup=keyboard)
     elif query.from_user.username.strip() == "" or query.from_user.id not in active_users_id:
         try:
             res.text = res.text + "\n" + "      " + query.from_user.first_name + " " + query.from_user.last_name
             active_users.append(query.from_user)
-            print(active_users[0])
             active_users_id.append(query.from_user.id)
-            print(active_users_id)
             res = bot.edit_message_text(text=res.text, message_id=res.message_id, chat_id=res.chat.id,
                                         reply_markup=keyboard)
         except:
             try:
                 res.text = res.text + "\n" + "      " + query.from_user.last_name
                 active_users.append(query.from_user)
-                print(active_users[0])
                 active_users_id.append(query.from_user.id)
-                print(active_users_id)
                 res = bot.edit_message_text(text=res.text, message_id=res.message_id, chat_id=res.chat.id,
                                             reply_markup=keyboard)
             except:
                 try:
                     res.text = res.text + "\n" + "      " + query.from_user.first_name
                     active_users.append(query.from_user)
-                    print(active_users[0])
                     active_users_id.append(query.from_user.id)
-                    print(active_users_id)
                     res = bot.edit_message_text(text=res.text, message_id=res.message_id, chat_id=res.chat.id,
                                                 reply_markup=keyboard)
                 except:
                     res.text = res.text + "\n" + "      anonymous"
                     active_users.append(query.from_user)
-                    print(active_users[0])
                     active_users_id.append(query.from_user.id)
-                    print(active_users_id)
                     res = bot.edit_message_text(text=res.text, message_id=res.message_id, chat_id=res.chat.id,
                                                 reply_markup=keyboard)
 
 
 def start_(message):
     global res
+    for i in range(0, len(active_users)):
+        some_variable = list_for_round1.copy()
+        list_of_list_of_round1[active_users[i].id] = some_variable
+    for i in range(0, len(active_users)):
+        some_variable = list_for_round2.copy()
+        list_of_list_for_round2[active_users[i].id] = some_variable
     try:
         bot.delete_message(message.chat.id, res.message_id)
         bot.delete_message(message.chat.id, message.message_id)
@@ -228,13 +296,13 @@ def start_(message):
             request[active_users[i].id] = array_data
         keyboard_1 = telebot.types.InlineKeyboardMarkup()
         keyboard_1.row(
-            telebot.types.InlineKeyboardButton(types[0], callback_data=str(types[0]))
+            telebot.types.InlineKeyboardButton(list_for_round1[0], callback_data=str(list_for_round1[0]))
         )
         keyboard_1.row(
-            telebot.types.InlineKeyboardButton(types[8], callback_data=str(types[8]))
+            telebot.types.InlineKeyboardButton(list_for_round1[1], callback_data=str(list_for_round1[1]))
         )
         keyboard_1.row(
-            telebot.types.InlineKeyboardButton(types[9], callback_data=str(types[9]))
+            telebot.types.InlineKeyboardButton(list_for_round1[2], callback_data=str(list_for_round1[2]))
         )
         time.sleep(5)
         for i in range(len(active_users)):
