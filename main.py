@@ -18,6 +18,8 @@ active_users = []
 active_users_id = []
 min_users = 0
 time_that_start_new_game = 15.0
+ALL_TIME_CONST = 0
+list_of_players_times_per_round = []
 round_counter = 1
 request = {}
 job_counter = 0
@@ -216,6 +218,7 @@ def start_(message):
     for i in range(0, len(active_users)):
         some_variable = list_for_round2.copy()
         list_of_list_for_round2[active_users[i].id] = some_variable
+    ALL_TIME_CONST = len(active_users) * 60.0
     try:
         bot.delete_message(message.chat.id, res.message_id)
         bot.delete_message(message.chat.id, message.message_id)
