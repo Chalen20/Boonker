@@ -114,6 +114,10 @@ def get_prof_callback(type_str, query):
         del some_variable[list_for_round1.index(type_str)]
         list_of_list_of_round1[query.from_user.id] = some_variable
         list_of_list_for_round2[query.from_user.id].remove(type_str)
+
+    timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
+    timer_in_button(query, 60.0, timer_message.message_id)
+
     if len(list_of_list_of_round1[query.from_user.id]) == 2 and \
             types[0] not in list_of_list_of_round1[query.from_user.id]:
         keyboard_1.row(
@@ -158,6 +162,22 @@ def get_prof_callback(type_str, query):
                                   "бла \n "
                                   "бла \n "
                                   "бла \n ")
+
+
+def timer_in_button(query, time_number, message_id):
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    keyboard_1.row(telebot.types.InlineKeyboardButton(str(time_number), callback_data="timer"))
+    bot.edit_message_text(text=query.message.text, chat_id=query.message.chat.id, reply_markup=keyboard_1,
+                          message_id=message_id)
+    if time_number != 0:
+        t = threading.Timer(1.0, lambda: timer_in_button(query, time_number-1, message_id))
+        t.start()
+
+def timer_in_message(query, seconds_count, message_id):
+    bot.edit_message_text(text=str(seconds_count), chat_id=query.message.chat.id, message_id=message_id)
+    if seconds_count != 0:
+        t = threading.Timer(1.0, lambda: timer_in_message(query, seconds_count-1, message_id=message_id))
+        t.start()
 
 
 def round_(query):

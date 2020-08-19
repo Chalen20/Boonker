@@ -595,7 +595,6 @@ class Game:
                                      lambda event: self.func_arg(self.texts, self.texts.index(i),
                                                                  de, j, event))
 
-
 class Timer:
     def __init__(self, root, x, y, time_minutes, time_seconds, width, height, color_bg, color_text):
         self.minutes = time_minutes
