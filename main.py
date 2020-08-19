@@ -12,14 +12,19 @@ bunker = Character.Bunker()
 catastrophe = Character.Catastrophe()
 special_cards = Character.SpecialCards(5)
 
+timer_message_id = 0
+time_value = 0
 res = 0
 chat_id = 0
 active_users = []
 active_users_id = []
 min_users = 0
 time_that_start_new_game = 15.0
+
 ALL_TIME_CONST = 0
 list_of_players_times_per_round = {}
+list_of_add_time = {}
+
 round_counter = 1
 request = {}
 job_counter = 0
@@ -106,6 +111,7 @@ def get_round_begins_from_two(type_str, query):
 
 
 def get_prof_callback(type_str, query):
+    global timer_message_id
     global job_counter
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
@@ -119,7 +125,8 @@ def get_prof_callback(type_str, query):
         list_of_list_for_round2[query.from_user.id].remove(type_str)
 
     timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
-    timer_in_button(query, time_per_round, timer_message.message_id)
+    timer_message_id = timer_message.message_id
+    timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
 
     if len(list_of_list_of_round1[query.from_user.id]) == 2 and \
             types[0] not in list_of_list_of_round1[query.from_user.id]:
@@ -194,16 +201,22 @@ def give_say_to_next_person(query):
             bot.send_message(chat_id=chat_id, text="Розпочинається раунд 2")
 
 
-def timer_in_button(query, time_number, message_id):
+def timer_in_button(query, time_number, message_id, timer_message):
+    global time_value
+    time_value = time_number
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     keyboard_1.row(telebot.types.InlineKeyboardButton(str(time_number), callback_data="timer"))
     bot.edit_message_text(text=query.message.text, chat_id=query.message.chat.id, reply_markup=keyboard_1,
                           message_id=message_id)
-    if time_number != 0:
-        t = threading.Timer(1.0, lambda: timer_in_button(query, time_number - 1, message_id))
-        t.start()
-    else:
-        bot.delete_message(chat_id=query.message.chat.id, message_id=message_id)
+    try:
+        bot.edit_message_text(text=timer_message.text, chat_id=query.message.chat.id, reply_markup=keyboard_1,
+                              message_id=message_id)
+
+        if time_number != 0:
+            t = threading.Timer(1.0, lambda: timer_in_button(query, time_number-1, message_id, timer_message))
+            t.start()
+    except:
+        pass
 
 
 def timer_in_message(query, seconds_count, message_id):
@@ -211,6 +224,19 @@ def timer_in_message(query, seconds_count, message_id):
     if seconds_count != 0:
         t = threading.Timer(1.0, lambda: timer_in_message(query, seconds_count - 1, message_id=message_id))
         t.start()
+
+@bot.message_handler(commands=["next_player"])
+def add_time(query):
+    global timer_message_id
+    list_of_add_time[query.from_user.id] += time_value
+    print(list_of_add_time)
+    #  удалити сообщеніє з таймером
+    bot.delete_message(chat_id=query.chat.id, message_id=timer_message_id)
+
+
+
+def finish_spitch(query):
+    pass
 
 
 def round_(query):
@@ -223,6 +249,7 @@ def round_(query):
         )
     bot.send_message(chat_id=query.from_user.id, text="Відкрити карту іншим гравцям (раунд 2)",
                      reply_markup=keyboard_1)
+
 
 
 def get_ex_callback(query):
@@ -274,6 +301,8 @@ def start_(message):
     for i in range(0, len(active_users)):
         list_of_players_times_per_round[active_users[i].id] = time_per_round
     ALL_TIME_CONST = len(active_users) * time_per_round
+    for i in range(0, len(active_users)):
+        list_of_add_time[active_users[i].id] = 0
     try:
         bot.delete_message(message.chat.id, res.message_id)
         bot.delete_message(message.chat.id, message.message_id)
