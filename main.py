@@ -28,7 +28,7 @@ list_of_add_time = {}
 round_counter = 1
 request = {}
 job_counter = 0
-time_per_round = 15
+time_per_round = 10
 player_that_say = 0
 types = ["Професія", "Хобі", "Додаткова інформація", "Риса характеру", "Фобія", "Біологічна характеристика",
          "Здоров'я", "Статура", "Спеціальна карта 1", "Спеціальна карта 2"]
@@ -104,6 +104,9 @@ def iq_callback(query):
         get_round_begins_from_two(types[6], query)
     elif data.startswith(types[7]):
         get_round_begins_from_two(types[7], query)
+    elif data.startswith("add_time"):
+        add_time(query)
+
 
 
 def get_round_begins_from_two(type_str, query):
@@ -127,6 +130,7 @@ def get_prof_callback(type_str, query):
     timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
     timer_message_id = timer_message.message_id
     timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
+
 
     if len(list_of_list_of_round1[query.from_user.id]) == 2 and \
             types[0] not in list_of_list_of_round1[query.from_user.id]:
@@ -176,6 +180,7 @@ def get_prof_callback(type_str, query):
 
 
 def give_say_to_next_person(query):
+    time.sleep(3)
     global person, player_that_say
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     keyboard_1.row(
@@ -187,27 +192,29 @@ def give_say_to_next_person(query):
     keyboard_1.row(
         telebot.types.InlineKeyboardButton(list_for_round1[2], callback_data=str(list_for_round1[2]))
     )
-    bot.delete_message(chat_id=query.message.chat.id, message_id=person.message_id)
-    if player_that_say < len(active_users):
-        person = bot.send_message(chat_id=active_users[player_that_say].id,
-                                  text="Відкрити карту іншим гравцям (раунд 1)",
-                                  reply_markup=keyboard_1)
-        for i in range(player_that_say + 1, len(active_users)):
-            bot.send_message(chat_id=active_users[i].id, text="Відкриває карти і пояснює свою необхідність гравець - @"
-                                                          + active_users[player_that_say].username)
-        player_that_say += 1
-    else:
-        for i in range(0, len(active_users)):
-            bot.send_message(chat_id=chat_id, text="Розпочинається раунд 2")
+    try:
+        bot.delete_message(chat_id=query.message.chat.id, message_id=person.message_id)
+        if player_that_say < len(active_users):
+            person = bot.send_message(chat_id=active_users[player_that_say].id,
+                                      text="Відкрити карту іншим гравцям (раунд 1)",
+                                      reply_markup=keyboard_1)
+            for i in range(player_that_say + 1, len(active_users)):
+                bot.send_message(chat_id=active_users[i].id, text="Відкриває карти і пояснює свою необхідність гравець - @"
+                                                              + active_users[player_that_say].username)
+            player_that_say += 1
+        else:
+            for i in range(0, len(active_users)):
+                bot.send_message(chat_id=chat_id, text="Розпочинається раунд 2")
+    except:
+        pass
 
 
 def timer_in_button(query, time_number, message_id, timer_message):
     global time_value
     time_value = time_number
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    keyboard_1.row(telebot.types.InlineKeyboardButton("Достроково закінчити обговорення", callback_data="add_time"))
     keyboard_1.row(telebot.types.InlineKeyboardButton(str(time_number), callback_data="timer"))
-    bot.edit_message_text(text=query.message.text, chat_id=query.message.chat.id, reply_markup=keyboard_1,
-                          message_id=message_id)
     try:
         bot.edit_message_text(text=timer_message.text, chat_id=query.message.chat.id, reply_markup=keyboard_1,
                               message_id=message_id)
@@ -217,13 +224,11 @@ def timer_in_button(query, time_number, message_id, timer_message):
             t.start()
     except:
         pass
-
-
-def timer_in_message(query, seconds_count, message_id):
-    bot.edit_message_text(text=str(seconds_count), chat_id=query.message.chat.id, message_id=message_id)
-    if seconds_count != 0:
-        t = threading.Timer(1.0, lambda: timer_in_message(query, seconds_count - 1, message_id=message_id))
-        t.start()
+# def timer_in_message(query, seconds_count, message_id):
+#     bot.edit_message_text(text=str(seconds_count), chat_id=query.message.chat.id, message_id=message_id)
+#     if seconds_count != 0:
+#         t = threading.Timer(1.0, lambda: timer_in_message(query, seconds_count - 1, message_id=message_id))
+#         t.start()
 
 @bot.message_handler(commands=["next_player"])
 def add_time(query):
@@ -231,12 +236,14 @@ def add_time(query):
     list_of_add_time[query.from_user.id] += time_value
     print(list_of_add_time)
     #  удалити сообщеніє з таймером
-    bot.delete_message(chat_id=query.chat.id, message_id=timer_message_id)
+    try:
+        bot.delete_message(chat_id=query.chat.id, message_id=timer_message_id)
+        give_say_to_next_person(query)
+    except:
+        bot.delete_message(chat_id=query.message.chat.id, message_id=timer_message_id)
+        give_say_to_next_person(query)
 
 
-
-def finish_spitch(query):
-    pass
 
 
 def round_(query):
