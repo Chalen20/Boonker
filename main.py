@@ -80,17 +80,11 @@ def iq_callback(query):
     if data.startswith('Enter'):
         get_ex_callback(query)
     elif data.startswith(types[0]):
-        get_prof_callback(types[0], query)
+        get_prof_callback(query)
     elif data.startswith(types[8]):
-        if len(list_of_list_of_round1[query.from_user.id]) != 1 and round_counter == 1:
-            get_prof_callback(types[8], query)
-        else:
-            get_round_begins_from_two(types[8], query)
+        open_special(types[8], query)
     elif data.startswith(types[9]):
-        if len(list_of_list_of_round1[query.from_user.id]) != 1 and round_counter == 1:
-            get_prof_callback(types[9], query)
-        else:
-            get_round_begins_from_two(types[9], query)
+        open_special(types[9], query)
     elif data.startswith(types[1]):
         get_round_begins_from_two(types[1], query)
     elif data.startswith(types[2]):
@@ -109,33 +103,58 @@ def iq_callback(query):
         add_time(query)
 
 
-
-def get_round_begins_from_two(type_str, query):
-    list_of_list_for_round2[query.from_user.id].remove(type_str)
-
-
-def get_prof_callback(type_str, query):
-    global timer_message_id
-    global job_counter
+def open_special(type_str, query):
     global some_counter
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
             (len(list_of_list_of_round1[query.from_user.id]) == 2 and
-             types[0] == type_str and types[0] in list_of_list_of_round1[query.from_user.id]) or \
-            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
              types[0] not in list_of_list_of_round1[query.from_user.id]):
         some_variable = list_of_list_of_round1[query.from_user.id]
-        del some_variable[list_for_round1.index(type_str)-some_counter]
+        del some_variable[list_for_round1.index(type_str) - some_counter]
         list_of_list_of_round1[query.from_user.id] = some_variable
-        list_of_list_for_round2[query.from_user.id].remove(type_str)
+        some_variable2 = list_of_list_for_round2[query.from_user.id]
+        del some_variable2[list_for_round1.index(type_str) - some_counter]
+        list_of_list_for_round2[query.from_user.id] = some_variable2
         some_counter += 1
+    if len(list_of_list_of_round1[query.from_user.id]) == 2:
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
+        )
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id,
+                              reply_markup=keyboard_1)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][list_for_round2.index(type_str)]))
+    elif len(list_of_list_of_round1[query.from_user.id]) == 1:
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id, reply_markup=None)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][list_for_round2.index(type_str)]))
 
 
-    if len(list_of_list_of_round1[query.from_user.id]) == 2 and \
-            types[0] not in list_of_list_of_round1[query.from_user.id]:
-        timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
-        timer_message_id = timer_message.message_id
-        timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
+def get_round_begins_from_two(type_str, query):
+    if type_str in list_of_list_for_round2[query.from_user.id]:
+        list_of_list_for_round2[query.from_user.id].remove(type_str)
+
+
+def get_prof_callback(query):
+    global timer_message_id
+    global job_counter
+    global round_counter
+    global some_counter
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
+            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
+             types[0] in list_of_list_of_round1[query.from_user.id]):
+        some_variable = list_of_list_of_round1[query.from_user.id]
+        del some_variable[0]
+        list_of_list_of_round1[query.from_user.id] = some_variable
+        some_variable2 = list_of_list_for_round2[query.from_user.id]
+        del some_variable2[0]
+        list_of_list_for_round2[query.from_user.id] = some_variable2
+        some_counter += 1
+    if len(list_of_list_of_round1[query.from_user.id]) == 2:
         keyboard_1.row(
             telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
                                                callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
@@ -148,37 +167,27 @@ def get_prof_callback(type_str, query):
                               chat_id=query.message.chat.id,
                               reply_markup=keyboard_1)
         bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][types.index(type_str)]))
+                         str(request[query.from_user.id][0]))
         job_counter += 1
         t = threading.Timer(time_per_round, lambda: give_say_to_next_person(query))
         t.start()
-    elif len(list_of_list_of_round1[query.from_user.id]) == 2 and \
-            types[0] in list_of_list_of_round1[query.from_user.id]:
-        keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
-        )
-        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
-                              chat_id=query.message.chat.id,
-                              reply_markup=keyboard_1)
-        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][types.index(type_str)]))
-        t = threading.Timer(time_per_round, lambda: give_say_to_next_person(query))
-        t.start()
-    elif len(list_of_list_of_round1[query.from_user.id]) == 1 and \
-            types[0] not in list_of_list_of_round1[query.from_user.id]:
+    elif len(list_of_list_of_round1[query.from_user.id]) == 1:
         bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
                               chat_id=query.message.chat.id, reply_markup=None)
         bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][types.index(type_str)]))
-        job_counter += 1
+                         str(request[query.from_user.id][0]))
         t = threading.Timer(time_per_round, lambda: give_say_to_next_person(query))
         t.start()
+        job_counter += 1
+    timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
+    timer_message_id = timer_message.message_id
+    timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
     if job_counter == len(active_users):
         bot.send_message(chat_id, "Дискусія: \n"
                                   "бла \n "
                                   "бла \n "
                                   "бла \n ")
+        round_counter += 1
 
 
 def give_say_to_next_person(query):
@@ -195,21 +204,18 @@ def give_say_to_next_person(query):
     keyboard_1.row(
         telebot.types.InlineKeyboardButton(list_for_round1[2], callback_data=str(list_for_round1[2]))
     )
-    try:
+    if player_that_say < len(active_users):
         bot.delete_message(chat_id=query.message.chat.id, message_id=person.message_id)
-        if player_that_say < len(active_users):
-            person = bot.send_message(chat_id=active_users[player_that_say].id,
-                                      text="Відкрити карту іншим гравцям (раунд 1)",
-                                      reply_markup=keyboard_1)
-            for i in range(player_that_say + 1, len(active_users)):
-                bot.send_message(chat_id=active_users[i].id, text="Відкриває карти і пояснює свою необхідність гравець - @"
-                                                              + active_users[player_that_say].username)
-            player_that_say += 1
-        else:
-            for i in range(0, len(active_users)):
-                bot.send_message(chat_id=chat_id, text="Розпочинається раунд" + str(round_counter))
-    except:
-        pass
+        person = bot.send_message(chat_id=active_users[player_that_say].id,
+                                  text="Відкрити карту іншим гравцям (раунд 1)",
+                                  reply_markup=keyboard_1)
+        for i in range(player_that_say + 1, len(active_users)):
+            bot.send_message(chat_id=active_users[i].id,
+                             text="Відкриває карти і пояснює свою необхідність гравець - @"
+                                  + active_users[player_that_say].username)
+        player_that_say += 1
+    else:
+        bot.send_message(chat_id=chat_id, text="Розпочинається раунд " + str(round_counter))
 
 
 def timer_in_button(query, time_number, message_id, timer_message):
@@ -223,10 +229,19 @@ def timer_in_button(query, time_number, message_id, timer_message):
                               message_id=message_id)
 
         if time_number != 0:
-            t = threading.Timer(1.0, lambda: timer_in_button(query, time_number-1, message_id, timer_message))
+            t = threading.Timer(1.0, lambda: timer_in_button(query, time_number - 1, message_id, timer_message))
             t.start()
+        else:
+            try:
+                bot.delete_message(chat_id=query.chat.id, message_id=timer_message_id)
+                give_say_to_next_person(query)
+            except:
+                bot.delete_message(chat_id=query.message.chat.id, message_id=timer_message_id)
+                give_say_to_next_person(query)
     except:
-        pass
+        print("Exception 228")
+
+
 # def timer_in_message(query, seconds_count, message_id):
 #     bot.edit_message_text(text=str(seconds_count), chat_id=query.message.chat.id, message_id=message_id)
 #     if seconds_count != 0:
@@ -315,7 +330,7 @@ def start_(message):
         bot.delete_message(message.chat.id, res.message_id)
         bot.delete_message(message.chat.id, message.message_id)
     except:
-        pass
+        print("Exception 317")
     pers_cards = []
     for i in range(0, len(active_users)):
         pers_characteristics = []
@@ -399,7 +414,7 @@ def start_(message):
     try:
         bot.unpin_chat_message(chat_id=message.chat.id)
     except:
-        pass
+        print("Exception 401")
 
     # for i in range(0, message.message_id*100):
     #    try:
