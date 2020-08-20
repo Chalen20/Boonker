@@ -33,7 +33,7 @@ player_that_say = 0
 types = ["Професія", "Хобі", "Додаткова інформація", "Риса характеру", "Фобія", "Біологічна характеристика",
          "Здоров'я", "Статура", "Спеціальна карта 1", "Спеціальна карта 2"]
 list_for_round1 = [types[0], types[8], types[9]]
-list_of_list_of_round1 = {}
+list_of_list_of_round1 = {}    # список невідкритих характеристик людей в раунді
 list_for_round2 = [types[0], types[1], types[2], types[3], types[4], types[5], types[6], types[7], types[8], types[9]]
 list_of_list_for_round2 = {}
 person = 0
@@ -110,10 +110,10 @@ def open_special(type_str, query):
             (len(list_of_list_of_round1[query.from_user.id]) == 2 and
              types[0] not in list_of_list_of_round1[query.from_user.id]):
         some_variable = list_of_list_of_round1[query.from_user.id]
-        del some_variable[list_for_round1.index(type_str) - some_counter]
+        del some_variable[list_for_round1.index(type_str) - some_counter - 1]
         list_of_list_of_round1[query.from_user.id] = some_variable
         some_variable2 = list_of_list_for_round2[query.from_user.id]
-        del some_variable2[list_for_round1.index(type_str) - some_counter]
+        del some_variable2[list_for_round1.index(type_str) - some_counter - 1]
         list_of_list_for_round2[query.from_user.id] = some_variable2
         some_counter += 1
     if len(list_of_list_of_round1[query.from_user.id]) == 2:
@@ -209,7 +209,7 @@ def give_say_to_next_person(query):
         person = bot.send_message(chat_id=active_users[player_that_say].id,
                                   text="Відкрити карту іншим гравцям (раунд 1)",
                                   reply_markup=keyboard_1)
-        for i in range(player_that_say + 1, len(active_users)):
+        for i in range(player_that_say + 1, len(active_users)):  # //////////////////////////////////////////////////////
             bot.send_message(chat_id=active_users[i].id,
                              text="Відкриває карти і пояснює свою необхідність гравець - @"
                                   + active_users[player_that_say].username)
@@ -239,7 +239,7 @@ def timer_in_button(query, time_number, message_id, timer_message):
                 bot.delete_message(chat_id=query.message.chat.id, message_id=timer_message_id)
                 give_say_to_next_person(query)
     except:
-        print("Exception 228")
+        print("Exception 242")
 
 
 # def timer_in_message(query, seconds_count, message_id):
@@ -254,7 +254,7 @@ def add_time(query):
     global timer_message_id
     list_of_add_time[query.from_user.id] += time_value
     print(list_of_add_time)
-    #  удалити сообщеніє з таймером
+    #  удалєніє сообщенія з таймером
     try:
         bot.delete_message(chat_id=query.chat.id, message_id=timer_message_id)
         give_say_to_next_person(query)
@@ -330,7 +330,7 @@ def start_(message):
         bot.delete_message(message.chat.id, res.message_id)
         bot.delete_message(message.chat.id, message.message_id)
     except:
-        print("Exception 317")
+        print("Exception 333")
     pers_cards = []
     for i in range(0, len(active_users)):
         pers_characteristics = []
@@ -366,17 +366,17 @@ def start_(message):
                          bunker.random_live_time + ";")
         for i in range(len(active_users)):
             bot.send_message(active_users[i].id,
-                             types[0] + ": " + pers_cards[i][0] + ", " + str(pers_cards[i][1]) + "\n" +
-                             types[1] + ": " + pers_cards[i][2] + ", " + str(pers_cards[i][3]) + "\n" +
-                             types[2] + ": " + pers_cards[i][4] + "\n" +
-                             types[3] + ": " + pers_cards[i][5] + ", " + pers_cards[i][6] + "\n" +
-                             types[4] + ": " + pers_cards[i][7] + "\n" +
+                             types[0] + ": " + pers_cards[i][0] + ", " + str(pers_cards[i][1]) + "\n" + "\n" +
+                             types[1] + ": " + pers_cards[i][2] + ", " + str(pers_cards[i][3]) + "\n" + "\n" +
+                             types[2] + ": " + pers_cards[i][4] + "\n" + "\n" +
+                             types[3] + ": " + pers_cards[i][5] + ", " + pers_cards[i][6] + "\n" + "\n" +
+                             types[4] + ": " + pers_cards[i][7] + "\n" + "\n" +
                              types[5] + ": " + pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][
-                                 10] + "\n" +
-                             types[6] + ": " + pers_cards[i][11] + "\n" +
+                                 10] + "\n" + "\n" +
+                             types[6] + ": " + pers_cards[i][11] + "\n" + "\n" +
                              types[7] + ": " + pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(
-                                 pers_cards[i][14]) + "\n" +
-                             types[8] + ": " + pers_cards[i][15] + "\n" +
+                                 pers_cards[i][14]) + "\n" + "\n" +
+                             types[8] + ": " + pers_cards[i][15] + "\n" + "\n" +
                              types[9] + ": " + pers_cards[i][16])
             array_data = []
             array_data.append(pers_cards[i][0] + ", " + str(pers_cards[i][1]))
@@ -414,7 +414,7 @@ def start_(message):
     try:
         bot.unpin_chat_message(chat_id=message.chat.id)
     except:
-        print("Exception 401")
+        print("Exception 417")
 
     # for i in range(0, message.message_id*100):
     #    try:
