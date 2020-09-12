@@ -477,7 +477,7 @@ class Bunker:
         # //////////Initiation ////////////////// #
         self.random_inventory = self.inventory[random.randint(0, len(self.inventory) - 1)]
         self.random_rooms = self.rooms[random.randint(0, len(self.rooms) - 1)]
-        self.random_live_time = "Час проживання в бункері : " + str(random.randint(3, 36)) + " месяців"
+        self.random_live_time = "Час проживання в бункері : " + str(random.randint(3, 36)) + " місяців"
 
         # print("\n" + "             Информация про бункер" + "\n")
         # print(random_live_time)

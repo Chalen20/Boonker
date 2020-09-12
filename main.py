@@ -5,6 +5,7 @@ import random
 import threading
 import Character
 import time
+import math
 
 # Створення основних змінних
 bot = telebot.TeleBot(config.TOKEN)
@@ -87,6 +88,13 @@ some_counter = 0
 # виклику між функціями (виключення таймера переходу)
 timer = 0
 
+# бульова зміна для перевірки чи не були відкриті інші характеристики
+# перед відкриттям карти спеціальних властивостей в раунді починаючи з 2
+is_first_opening_in_round_begins_from_2 = True
+
+# Задати кількість гравців, які повинні залишитися живими після гри
+number_of_players_that_win = 0
+
 
 # Команда, яка спрацьовує при виклику команди /start
 # або початку використання боту
@@ -149,16 +157,16 @@ def iq_callback(query):
     if data.startswith('Enter'):
         get_ex_callback(query)
 
-    # Викликається при натисканні на кнопку Професія
-    elif data.startswith(types[0]):
+    # Викликається при натисканні на кнопку Професія в першому раунді
+    elif data.startswith(types[0] + "1"):
         get_prof_callback(query)
 
-    # Викликається при натисканні на кнопку Спеціальна карта 1
-    elif data.startswith(types[8]):
+    # Викликається при натисканні на кнопку Спеціальна карта 1 в першому раунді
+    elif data.startswith(types[8] + "1"):
         open_special(types[8], query)
 
-    # Викликається при натисканні на кнопку Спеціальна карта 2
-    elif data.startswith(types[9]):
+    # Викликається при натисканні на кнопку Спеціальна карта 2 в першому раунді
+    elif data.startswith(types[9] + "1"):
         open_special(types[9], query)
 
     # Викликається при натисканні на кнопку Хоббі
@@ -189,6 +197,14 @@ def iq_callback(query):
     elif data.startswith(types[7]):
         get_round_begins_from_two(types[7], query)
 
+    # Викликається при натисканні на кнопку Спеціальна карта 1
+    elif data.startswith(types[8]):
+        get_round_begins_from_two(types[8], query)
+
+    # Викликається при натисканні на кнопку Спеціальна карта 2
+    elif data.startswith(types[9]):
+        get_round_begins_from_two(types[9], query)
+
     # Викликається при натисканні на кнопку Додати час
     elif data.startswith("add_time"):
         add_time(query)
@@ -203,18 +219,17 @@ def open_special(type_str, query):
             (len(list_of_list_of_round1[query.from_user.id]) == 2 and
              types[0] not in list_of_list_of_round1[query.from_user.id]):
         some_variable = list_of_list_of_round1[query.from_user.id]
-        print(list_for_round1.index(type_str))
         del some_variable[list_for_round1.index(type_str) - some_counter]
         list_of_list_of_round1[query.from_user.id] = some_variable
         some_variable2 = list_of_list_for_round2[query.from_user.id]
-        del some_variable2[list_for_round1.index(type_str) - some_counter]
+        del some_variable2[len(some_variable2) - 1 - list_for_round1.index(type_str) % 2]
         list_of_list_for_round2[query.from_user.id] = some_variable2
         some_counter += 1
     # Відкрита лише карта у поточному раунді
     if len(list_of_list_of_round1[query.from_user.id]) == 2:
         keyboard_1.row(
             telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]) + "1")
         )
         print(list_of_list_of_round1[query.from_user.id])
         # Замінити кнопку на кнопку з процесією
@@ -231,21 +246,54 @@ def open_special(type_str, query):
                          str(request[query.from_user.id][list_for_round2.index(type_str)]))
 
 
-# Поки безполезна функція (доробити)
+# Створює форму для раунда (2 і більше) в особистих повідомленнях
 def get_round_begins_from_two(type_str, query):
     global job_counter
+    global timer
+    global timer_message_id
+    global is_first_opening_in_round_begins_from_2
     list_of_list_for_round2[query.from_user.id].remove(type_str)
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
-    for i in list_of_list_for_round2[query.from_user.id]:
-        keyboard_1.row(
-            telebot.types.InlineKeyboardButton(i, callback_data=str(i))
-        )
+    if (type_str == list_for_round2[8] or type_str == list_for_round2[9]) and is_first_opening_in_round_begins_from_2:
+        if list_for_round2[8] in list_of_list_for_round2[query.from_user.id] and type_str != list_for_round2[8]:
+            for i in range(len(list_of_list_for_round2[query.from_user.id]) - 1):
+                keyboard_1.row(
+                    telebot.types.InlineKeyboardButton(list_of_list_for_round2[query.from_user.id][i],
+                                                       callback_data=list_of_list_for_round2[query.from_user.id][i])
+                )
+            is_first_opening_in_round_begins_from_2 = False
+        elif list_for_round2[9] in list_of_list_for_round2[query.from_user.id] and type_str != list_for_round2[9]:
+            for i in range(len(list_of_list_for_round2[query.from_user.id]) - 1):
+                keyboard_1.row(
+                    telebot.types.InlineKeyboardButton(list_of_list_for_round2[query.from_user.id][i],
+                                                       callback_data=list_of_list_for_round2[query.from_user.id][i])
+                )
+            is_first_opening_in_round_begins_from_2 = False
+    else:
+        if is_first_opening_in_round_begins_from_2:
+            is_first_opening_in_round_begins_from_2 = False
+            if list_for_round2[8] in list_of_list_for_round2[query.from_user.id]:
+                keyboard_1.row(
+                    telebot.types.InlineKeyboardButton(list_for_round2[8],
+                                                       callback_data=str(list_for_round2[8]))
+                )
+            if list_for_round2[9] in list_of_list_for_round2[query.from_user.id]:
+                keyboard_1.row(
+                    telebot.types.InlineKeyboardButton(list_for_round2[9],
+                                                       callback_data=str(list_for_round2[9]))
+                )
     bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
                           chat_id=query.message.chat.id,
                           reply_markup=keyboard_1)
     bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                     str(request[query.from_user.id][0]))
-    job_counter += 1
+                     str(request[query.from_user.id][list_for_round2.index(type_str)]))
+    if type_str != list_for_round2[8] and type_str != list_for_round2[9]:
+        job_counter += 1
+        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
+        timer.start()
+        timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
+        timer_message_id = timer_message.message_id
+        timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
     if job_counter == len(live_person):
         bot.send_message(chat_id, "Дискусія: \n"
                                   "бла \n "
@@ -276,11 +324,11 @@ def get_prof_callback(query):
     if len(list_of_list_of_round1[query.from_user.id]) == 2:
         keyboard_1.row(
             telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]))
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0] + "1"))
         )
         keyboard_1.row(
             telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][1],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][1]))
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][1] + "1"))
         )
         bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
                               chat_id=query.message.chat.id,
@@ -311,6 +359,26 @@ def get_prof_callback(query):
                                   "бла \n ")
 
 
+# Відправити дані для першого раунда до останнього гравця
+def start_next_round():
+    global person
+    live_person.reverse()
+    print(list_of_list_for_round2)
+    keyboard_ = telebot.types.InlineKeyboardMarkup()
+    for i in (list_of_list_for_round2[live_person[0].id]):
+        keyboard_.row(
+            telebot.types.InlineKeyboardButton(i, callback_data=str(i))
+        )
+    person = bot.send_message(chat_id=live_person[0].id,
+                              text="Відкрити карту іншим гравцям (раунд " + str(round_counter) + ")",
+                              reply_markup=keyboard_)
+    for i in range(1, len(live_person)):
+        # ////////////////////////////////////////////////////
+        bot.send_message(chat_id=active_users[i].id,
+                         text="Відкриває карти і пояснює свою необхідність гравець - @"
+                              + active_users[player_that_say].username)
+
+
 # Видалити повідомлення з вибором характеристик у попереднього гравця,
 # надати його наступному гравцеві
 def give_say_to_next_person(query, from_func):
@@ -320,20 +388,20 @@ def give_say_to_next_person(query, from_func):
     global some_counter
     global timer
     global round_counter
+    global job_counter
+    global is_first_opening_in_round_begins_from_2
     if from_func == 0:
         timer.cancel()
         print("Cancel")
+    print("round_counter " + str(round_counter))
     some_counter = 0
-    print(round_counter)
     if round_counter == 1:
         if player_that_say < len(active_users):
             # Створити кнопки
             keyboard_1 = telebot.types.InlineKeyboardMarkup()
-            print(list_of_list_of_round1[active_users[player_that_say].id])
-            print("nothing")
             for i in (list_of_list_of_round1[active_users[player_that_say].id]):
                 keyboard_1.row(
-                    telebot.types.InlineKeyboardButton(i, callback_data=str(i))
+                    telebot.types.InlineKeyboardButton(i, callback_data=str(i + "1"))
                 )
             # keyboard_1.row(
             #     telebot.types.InlineKeyboardButton(list_for_round1[0], callback_data=str(list_for_round1[0]))
@@ -354,13 +422,19 @@ def give_say_to_next_person(query, from_func):
                                  text="Відкриває карти і пояснює свою необхідність гравець - @"
                                       + active_users[player_that_say].username)
             player_that_say += 1
+            is_first_opening_in_round_begins_from_2 = True
         else:
+            bot.delete_message(chat_id=query.message.chat.id, message_id=person.message_id)
             round_counter += 1
             bot.send_message(chat_id=chat_id, text="Розпочинається раунд " + str(round_counter))
-            player_that_say = 0
+            player_that_say = 1
+            job_counter = 0
+            start_next_round()
+            is_first_opening_in_round_begins_from_2 = True
     else:
+        print("here")
         keyboard_1 = telebot.types.InlineKeyboardMarkup()
-        for i in (list_of_list_for_round2[active_users[player_that_say].id]):
+        for i in (list_of_list_for_round2[active_users[player_that_say - 1].id]):
             keyboard_1.row(
                 telebot.types.InlineKeyboardButton(i, callback_data=str(i))
             )
@@ -375,10 +449,18 @@ def give_say_to_next_person(query, from_func):
                                  text="Відкриває карти і пояснює свою необхідність гравець - @"
                                       + active_users[player_that_say].username)
             player_that_say += 1
+            is_first_opening_in_round_begins_from_2 = True
         else:
+            try:
+                bot.delete_message(chat_id=query.message.chat.id, message_id=person.message_id)
+            except:
+                print("delete in 453")
             round_counter += 1
             bot.send_message(chat_id=chat_id, text="Розпочинається раунд " + str(round_counter))
-            player_that_say = 0
+            player_that_say = 1
+            job_counter = 0
+            start_next_round()
+            is_first_opening_in_round_begins_from_2 = True
 
 
 # Функція, яка створить діючий таймер в кнопці під повідомленням
@@ -449,7 +531,6 @@ def add_time(query):
 
 # Обробляє напискання на реєстрацію на гру
 # Записує у повідомлення реєстрації нікнейм або ім'я або anonymous
-
 def get_ex_callback(query):
     global res, active_users, active_users_id
     bot.answer_callback_query(query.id)
@@ -493,7 +574,11 @@ def get_ex_callback(query):
 # Ініціалізує масиви початковими значеннями і надсилає першому
 # зареєстрованому гравцеві вибір карт для першого раунду
 def start_(message):
-    global res, player_that_say, person
+    global res
+    global player_that_say
+    global person
+    global live_person
+    global number_of_players_that_win
     # ініціалізує список невідкритих властивостей для першого раунду
     for i in range(0, len(active_users)):
         some_variable = list_for_round1.copy()
@@ -505,6 +590,7 @@ def start_(message):
     # ініціалізує список додаткового часу для кожного гравця
     for i in range(0, len(active_users)):
         list_of_add_time[active_users[i].id] = 0
+    live_person = active_users
     try:
         # видаляє повідомлення реєстрації
         bot.delete_message(message.chat.id, res.message_id)
@@ -512,6 +598,8 @@ def start_(message):
     except:
         print("Exception 333")
     pers_cards = []
+    # Задати кількість гравців, які повинні залишитися живими після гри
+    number_of_players_that_win = math.floor(len(active_users) / 2)
     # для кожного зареєстрованого гравця
     # створюється масив його характеристик
     for i in range(0, len(active_users)):
@@ -563,8 +651,8 @@ def start_(message):
     # напишить у особисті повідомлення усі особисті властивості для даного гравця
     if len(active_users) > min_users:
         bot.send_message(message.chat.id, "Гра починається.")
-        bot.send_message(message.chat.id, "Тип катастрофи - " + catastrophe.catastrophe_name_random + """. \n""" +
-                         catastrophe.random_description +
+        bot.send_message(message.chat.id, "Тип катастрофи - " + catastrophe.catastrophe_name_random + """. \n \n""" +
+                         catastrophe.random_description + "\n" +
                          "Бункер: " + "інвентар - " + bunker.random_inventory + "; \n"
                                                                                 "Спеціальні кімнати - " + bunker.random_rooms + "; \n" +
                          bunker.size + "; \n" +
@@ -593,15 +681,14 @@ def start_(message):
             request[active_users[i].id] = array_data
         keyboard_1 = telebot.types.InlineKeyboardMarkup()
         keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_for_round1[0], callback_data=str(list_for_round1[0]))
+            telebot.types.InlineKeyboardButton(list_for_round1[0], callback_data=str(list_for_round1[0]) + "1")
         )
         keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_for_round1[1], callback_data=str(list_for_round1[1]))
+            telebot.types.InlineKeyboardButton(list_for_round1[1], callback_data=str(list_for_round1[1]) + "1")
         )
         keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_for_round1[2], callback_data=str(list_for_round1[2]))
+            telebot.types.InlineKeyboardButton(list_for_round1[2], callback_data=str(list_for_round1[2]) + "1")
         )
-        time.sleep(5)
         person = bot.send_message(chat_id=active_users[player_that_say].id,
                                   text="Відкрити карту іншим гравцям (раунд 1)",
                                   reply_markup=keyboard_1)
@@ -615,7 +702,10 @@ def start_(message):
     try:
         # відкріпити повідомлення з реєстрацією
         # (видалилося воно на початку цього методу)
-        bot.unpin_chat_message(chat_id=message.chat.id)
+        try:
+            bot.unpin_chat_message(chat_id=message.chat.id)
+        except:
+            pass
     except:
         print("Exception 417")
 
