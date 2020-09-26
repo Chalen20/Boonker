@@ -7,12 +7,20 @@ import Character
 # import time
 import math
 
+# Початок блоку оголошення змінних
+
 # Створення основних змінних
 bot = telebot.TeleBot(config.TOKEN)
 pers = Character.Person()
 bunker = Character.Bunker()
 catastrophe = Character.Catastrophe()
 special_cards = Character.SpecialCards(5)
+
+# Чи почалася гра
+is_game_starts = False
+
+# Чи закінчилася гра
+is_game_end = False
 
 # ідентифікатор повідомлення з таймером
 timer_message_id = 0
@@ -118,82 +126,121 @@ list_of_person_that_vote_save = []
 # Кількість гравців, що проголосували
 vote_counter = 0
 
-die_of_player_that_leave_bunker = [" Гравець оселився у густому лісі, де він помер з голоду за " +
-                                   str(random.randint(random.randint(5, 10), random.randint(11, 49))) + " днів.",
+vote_couter_at_private = 0
 
-                                   " Гравець оселився у густому лісі, де його з'їли дикі звірі, помер за " +
-                                   str(random.randint(random.randint(5, 10), random.randint(11, 49))) + " днів.",
+# Можливі закінчення повідомлення при вигнанні гравця з бункера
+# Використовується у функції генерації речення (зроблено для того, щоб час змінювався, якщо задати строго в масиві,
+# то просто число створиться під час ініціалізації і число не буде змінюватися.
+# індекси від 0 - 5 це можливі інтервали чисел:
+# 0 - без періода
+# 1 - період (днів) від 5 до 49
+# 2 - період складений від 3 років і 1 місяця до 7 років і 11 місяців
+# 3 - період (років) від 5 до 8 років
+# 4 - період від 1 до 7
+# 5 - період від 24 до 49 годин
+die_of_player_that_leave_bunker = [[" Гравець оселився у густому лісі, де він помер з голоду за ", 1, " днів."],
 
-                                   " Гравець оселився у на руїнах колишнього мегаполіса, де його з'їли інші вигнанці,"
-                                   " прожив поза бункером" +
-                                   str(random.randint(random.randint(5, 10), random.randint(11, 49))) + " днів.",
+                                   [" Гравець оселився у густому лісі, де він помер з голоду за ", 1, " днів."],
 
-                                   " Гравець був не вразливим до цього типу катастрофи, прожив поза бункером " +
-                                   str(random.randint(random.randint(3, 5), random.randint(5, 7))) + " років " +
-                                   str(random.randint(random.randint(1, 6), random.randint(6, 11))) + " місяців,"
-                                   " помер від серцевого нападу.",
+                                   [" Гравець оселився у густому лісі, де його з'їли дикі звірі, помер за ", 1,
+                                    " днів."],
 
-                                   " Гравець знайшов інший покинутий бункер, де прожив " +
-                                   str(random.randint(random.randint(5, 6), random.randint(7, 8))) +
-                                   "років, помер від психічного розладу."
+                                   [" Гравець оселився у на руїнах колишнього мегаполіса, де його з'їли інші вигнанці,"
+                                    " прожив поза бункером", 1, " днів."],
 
-                                   " Гравець оселився біля бункера, з горя і жахливих умов він став канібалом,"
-                                   " можливо він і досі ззовні. Хто перевірить????",
+                                   [" Гравець був не вразливим до цього типу катастрофи, прожив поза бункером ", 2,
+                                    " помер від серцевого нападу."],
 
-                                   " Гравець покінчив життя самогубство після " +
-                                   str(random.randint(random.randint(5, 6), random.randint(7, 8))) + "годин.",
+                                   [" Гравець знайшов інший покинутий бункер, де прожив ", 3,
+                                    "років, помер від психічного розладу."],
 
-                                   " Гравець поселився в густому лісі, помер від пожежі через " +
-                                   str(random.randint(random.randint(5, 10), random.randint(11, 49))) + " днів.",
+                                   [" Гравець оселився біля бункера, з горя і жахливих умов він став канібалом, "
+                                    "можливо він і досі ззовні. Хто перевірить????", 0, ""],
 
-                                   " Гравець поселився в густому лісі і потрапив у пастку"
-                                   " (хз звідки вона там взялася),"
-                                   " помер через " + str(random.randint(random.randint(1, 5), random.randint(5, 7))) +
-                                   " днів, після виходу з бункера.",
+                                   [" Гравець покінчив життя самогубство після ", 3, "годин."],
 
-                                   " Гравець поселився у тайзі, помер через " +
-                                   str(random.randint(random.randint(5, 10), random.randint(11, 49))) +
-                                   "днів від переохолодження. ",
+                                   [" Гравець поселився в густому лісі, помер від пожежі через ", 1, " днів."],
 
-                                   " Гравець поселився у лісі, знайшов красиві і смачнючі гриби... помер через " +
-                                   str(random.randint(random.randint(5, 10), random.randint(11, 49))) +
-                                   " годин після споживання.",
+                                   [" Гравець поселився в густому лісі і потрапив у пастку"
+                                    " (хз звідки вона там взялася), помер через ", 4, " днів, після виходу з бункера."],
 
-                                   " Гравець оселився в пустелі, помер від зневоднення через" +
-                                   str(random.randint(random.randint(24, 36), random.randint(36, 49))) + "годин. ",
+                                   [" Гравець поселився у тайзі, помер через ", 1, "днів від переохолодження. "],
 
-                                   " Гравець поселився на розташованому поблизу заводі " +
-                                   "(не працює вже декілька років), помер через те, що впав у чан з кислотою. Прожив "
-                                   "за межами бункера " +
-                                   str(random.randint(random.randint(24, 36), random.randint(36, 49))) + " годин.",
+                                   [" Гравець поселився у лісі, знайшов красиві і смачнючі гриби... помер через ", 1,
+                                    " годин після споживання."],
 
-                                   " Гравця з'їли піранії...",
+                                   [" Гравець оселився в пустелі, помер від зневоднення через", 5, "годин. "],
 
-                                   " Хз, що з ним сталось, помер через " +
-                                   str(random.randint(random.randint(24, 36), random.randint(36, 49))) + " годин.",
+                                   [" Гравець поселився на розташованому поблизу заводі " +
+                                    "(не працює вже декілька років), помер через те, що впав у чан з кислотою. Прожив "
+                                    "за межами бункера ", 5, " годин."],
 
-                                   " Хз, що з ним сталось, помер через " +
-                                   str(random.randint(random.randint(24, 36), random.randint(36, 49))) + " годин.",
+                                   [" Гравця з'їли піранії...", 0, ""],
 
-                                   " Хз, що з ним сталось, помер через " +
-                                   str(random.randint(random.randint(24, 36), random.randint(36, 49))) + " годин.",
+                                   [" Хз, що з ним сталось, помер через ", 5, " годин."],
 
-                                   " Хз, що з ним сталось, помер через " +
-                                   str(random.randint(random.randint(24, 36), random.randint(36, 49))) + " годин.",
+                                   [" Хз, що з ним сталось, помер через ", 5, " годин."],
 
-                                   " Гравець помер від укусу змії.",
+                                   [" Хз, що з ним сталось, помер через ", 5, " годин."],
 
-                                   " Гравець поселився в закинутій фізлабораторії, отримав дозу гамма випромінювання"
-                                   " і... помер.",
+                                   [" Хз, що з ним сталось, помер через ", 5, " годин."],
 
-                                   " Гравець поселився в закинутій фізлабораторії, отримав дозу гамма випромінювання"
-                                   " і... став нечутливим до негативного впливу катастрофи.",
+                                   [" Гравець помер від укусу змії.", 0, ''],
+
+                                   [" Гравець поселився в закинутій фізлабораторії, отримав дозу гамма випромінювання"
+                                    " і... помер.", 0, ''],
+
+                                   [" Гравець поселився в закинутій фізлабораторії, отримав дозу гамма випромінювання"
+                                    " і... помер.", 0, ''],
+
+                                   [" Гравець поселився в закинутій фізлабораторії, отримав дозу гамма випромінювання"
+                                    " і... помер.", 0, ''],
+
+                                   [" Гравець поселився в закинутій фізлабораторії, отримав дозу гамма випромінювання"
+                                    " і... став нечутливим до негативного впливу катастрофи.", 0, ''],
                                    ]
 
-random_die = die_of_player_that_leave_bunker[random.randint(
-    random.randint(0, math.floor(len(die_of_player_that_leave_bunker) / 2)),
-    random.randint(math.floor(len(die_of_player_that_leave_bunker) / 2) + 1, len(die_of_player_that_leave_bunker) - 1)
-)]
+
+# Функція, яка конвертує набір строку і випадкове число у одну строку
+# Функція проста, тести до неї писати думаю не треба.
+def convert_to_(str1, number, str2):
+    random_period = 0
+    if number == 1:
+        random_period = str(random.randint(random.randint(5, 10), random.randint(11, 49)))
+    elif number == 2:
+        random_period = str(random.randint(random.randint(3, 5), random.randint(5, 7))) + " років " + \
+                        str(random.randint(random.randint(1, 6), random.randint(6, 11))) + " місяців,"
+    elif number == 3:
+        random_period = str(random.randint(random.randint(5, 6), random.randint(7, 8)))
+    elif number == 0:
+        random_period = ""
+    elif number == 4:
+        random_period = str(random.randint(random.randint(1, 5), random.randint(5, 7)))
+    elif number == 5:
+        random_period = str(random.randint(random.randint(24, 36), random.randint(36, 49)))
+    return str1 + random_period + str2
+
+
+# випадкова смерть з запропонованих
+random_die = ""
+
+
+# Функція, яка створює нову випадкову смерть з рандомним часом життя
+# Функція без тестів
+def new_random_die():
+    global random_die
+
+    random_property = random.randint(
+        random.randint(0, math.floor(len(die_of_player_that_leave_bunker) / 2)),
+        random.randint(math.floor(len(die_of_player_that_leave_bunker) / 2) + 1,
+                       len(die_of_player_that_leave_bunker) - 1)
+    )
+
+    random_die = convert_to_(
+        die_of_player_that_leave_bunker[random_property][0],
+        die_of_player_that_leave_bunker[random_property][1],
+        die_of_player_that_leave_bunker[random_property][2]
+    )
 
 
 # Команда, яка спрацьовує при виклику команди /start
@@ -218,6 +265,161 @@ def start(message):
                                       "/off - завершити поточну гру і вимкнуи бота \n")
 
 
+# Команда, яка спацьовує при виклику комади /suicide
+# Якщо гра ще не почалася, то видаляє гравця з списку зареєстрованих,
+# Якщо гра почалася, убиває гравця.
+@bot.message_handler(commands=["suicide"])
+def suicide_command(message):
+    global res
+    # print(message)
+    # Для використання, як бота тобто відправки /suicide
+
+    try:
+        if is_game_starts and message.chat.type != "group" and message.chat.type != "supergroup":
+            bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+            if message.from_user.username and message.from_user.username.strip() != "":
+                bot.send_message(text="Гравець @" + message.from_user.username + " покінчив життя самогубством"
+                                                                                 " (добровільно покинув бункер)",
+                                 chat_id=chat_id)
+            elif message.from_user.first_name and message.from_user.last_name and \
+                    message.from_user.first_name.strip() != "" and message.from_user.last_name.strip() != "":
+                bot.send_message(text="Гравець " + message.from_user.first_name + " " + message.from_user.last_name +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            elif message.from_user.first_name and message.from_user.first_name.strip() != "":
+                bot.send_message(text="Гравець " + message.from_user.first_name +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            elif message.from_user.last_name and message.from_user.last_name.strip() != "":
+                bot.send_message(text="Гравець " + message.from_user.last_name +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            else:
+                bot.send_message(text="Гравець " + str(message.from_user.id) +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            for i in range(0, len(live_person)):
+                if live_person[i].id == message.from_user.id:
+                    live_person.pop(i)
+
+        elif is_game_starts and (message.chat.type == "group" or message.chat.type == "supergroup"):
+            bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+            bot.send_message(text="Команду /suicide можна використовувати лише в особистих повідомленнях.",
+                             chat_id=message.from_user.id)
+        elif not is_game_starts and message.chat.type != "group" and message.chat.type != "supergroup":
+            bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+            bot.send_message(text="Команду /suicide можна використовувати лише під час гри.",
+                             chat_id=message.from_user.id)
+        elif not is_game_starts and (message.chat.type == "group" or message.chat.type == "supergroup"):
+            bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+            bot.send_message(
+                text="Команду /suicide можна використовувати лише в особистих повідомленнях і під час гри.",
+                chat_id=message.from_user.id)
+    # Для тестів
+    except:
+        if is_game_starts and message['chat']['type'] != "group" and message['chat']['type'] != "supergroup":
+            try:
+                bot.delete_message(chat_id=message['chat']['id'], message_id=message.message_id)
+            except:
+                print("message to delete is not found")
+            if message['from_user']['username'] and message['from_user']['username'].strip() != "":
+                bot.send_message(text="Гравець @" + message['from_user']['username'] + " покінчив життя самогубством"
+                                                                                       " (добровільно покинув бункер)",
+                                 chat_id=chat_id)
+            elif message['from_user']['first_name'] and message['from_user']['last_name'] and \
+                    message['from_user']['first_name'].strip() != "" and \
+                    message['from_user']['last_name'].strip() != "":
+                bot.send_message(text="Гравець " + message['from_user']['first_name'] + " " +
+                                      message['from_user']['last_name'] + " покінчив життя самогубством "
+                                                                          "(добровільно покинув бункер)",
+                                 chat_id=chat_id)
+            elif message['from_user']['first_name'] and message['from_user']['first_name'].strip() != "":
+                bot.send_message(text="Гравець " + message['from_user']['first_name'] +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            elif message['from_user']['last_name'] and message['from_user']['last_name'].strip() != "":
+                bot.send_message(text="Гравець " + message['from_user']['last_name'] +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            else:
+                bot.send_message(text="Гравець " + str(message['from_user']['id']) +
+                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+            for i in range(0, len(live_person)):
+                if live_person[i]['id'] == message['from_user']['id']:
+                    live_person.pop(i)
+        elif is_game_starts and (message['chat']['type'] == "group" or message['chat']['type'] == "supergroup"):
+            try:
+                bot.delete_message(chat_id=message['chat']['id'], message_id=message.message_id)
+            except:
+                print("message to delete is not found")
+            bot.send_message(text="Команду /suicide можна використовувати лише в особистих повідомленнях.",
+                             chat_id=message['from_user']['id'])
+        elif not is_game_starts and message['chat']['type'] != "group" and message['chat']['type'] != "supergroup":
+            try:
+                bot.delete_message(chat_id=message['chat']['id'], message_id=message.message_id)
+            except:
+                print("message to delete is not found")
+            bot.send_message(text="Команду /suicide можна використовувати лише під час гри.",
+                             chat_id=message['from_user']['id'])
+        elif not is_game_starts and (message['chat']['type'] == "group" or message['chat']['type'] == "supergroup"):
+            try:
+                bot.delete_message(chat_id=message['chat']['id'], message_id=message.message_id)
+            except:
+                print("message to delete is not found")
+            bot.send_message(text="Команду /suicide можна використовувати лише в особистих повідомленнях і під час гри."
+                             , chat_id=message['from_user']['id'])
+
+
+# Функція тестувальник функції suicide_command
+def tester_suicide():
+    global is_game_starts
+    global chat_id
+    global live_person
+    chat_id = -387174137
+    message_request_chat = {'from_user':
+                                {'id': 489842482, 'first_name': 'Андрій',
+                                 'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'},
+                            'chat': {
+                                'id': -387174137, 'type': 'group'}}
+    message_request_private = {'from_user':
+                                   {'id': 489842482, 'first_name': 'Андрій',
+                                    'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'},
+                               'chat': {'id': 489842482, 'type': 'private'}}
+    live_person = [{'id': 489842482, 'first_name': 'Андрій',
+                    'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'}]
+    suicide_command(message_request_chat)
+    suicide_command(message_request_private)
+    is_game_starts = True
+    suicide_command(message_request_chat)
+    suicide_command(message_request_private)
+
+    live_person = [{'id': 489842482, 'first_name': 'Андрій', 'username': None, 'last_name': 'Чалюк'}]
+    message_request_private = {'from_user':
+                                   {'id': 489842482, 'first_name': 'Андрій',
+                                    'username': None, 'last_name': 'Чалюк'},
+                               'chat': {'id': 489842482, 'type': 'private'}}
+    suicide_command(message_request_private)
+
+    live_person = [{'id': 489842482, 'first_name': 'Андрій', 'username': None, 'last_name': None}]
+    message_request_private = {'from_user':
+                                   {'id': 489842482, 'first_name': 'Андрій',
+                                    'username': None, 'last_name': None},
+                               'chat': {'id': 489842482, 'type': 'private'}}
+    suicide_command(message_request_private)
+
+    live_person = [{'id': 489842482, 'first_name': None, 'username': None, 'last_name': "Чалюк"}]
+    message_request_private = {'from_user':
+                                   {'id': 489842482, 'first_name': None,
+                                    'username': None, 'last_name': "Чалюк"},
+                               'chat': {'id': 489842482, 'type': 'private'}}
+    suicide_command(message_request_private)
+
+    live_person = [{'id': 489842482, 'first_name': None, 'username': None, 'last_name': None}]
+    message_request_private = {'from_user':
+                                   {'id': 489842482, 'first_name': None,
+                                    'username': None, 'last_name': None},
+                               'chat': {'id': 489842482, 'type': 'private'}}
+    suicide_command(message_request_private)
+
+    is_game_starts = False
+    chat_id = 0
+    live_person = []
+
+
 # Створення інлайнової (під повідомленням)
 # клавіатури з кнопкою Enter
 keyboard = telebot.types.InlineKeyboardMarkup()
@@ -229,13 +431,15 @@ keyboard.row(
 # Команда, яка спрацьовує при виклику команди /start_new_game
 # Розпочинає нову гру у чатах і суперчатах
 @bot.message_handler(commands=['start_new_game'])
-def exchange_command(message):
+def start_command(message):
     global chat_id
     chat_id = message.chat.id
+    print(message)
     # Якщо повыдомлення відправленно в групі чи супергрупі
-    if message.chat.type == "group" or message.chat.type == "supergroup":
+    if (message.chat.type == "group" or message.chat.type == "supergroup") and not is_game_starts:
         t = threading.Timer(time_that_start_new_game, lambda: start_(message))
         t.start()
+        bot.delete_message(chat_id=chat_id, message_id=message.message_id)
         global res
         try:
             res = bot.send_message(chat_id=message.chat.id, text='Зареєстровані гравці :',
@@ -244,10 +448,13 @@ def exchange_command(message):
             bot.pin_chat_message(chat_id=message.chat.id, message_id=res.message_id, disable_notification=False)
         except:
             bot.send_message(chat_id=message.chat.id, text="У бота недостатньо прав для запінювання повідомлень"
-                                                           " (надайте їх йому)")
+                                                           " (надайте їх йому).")
     # Якщщщо повідомлння відправленно в привітному повідомленні чи каналі
+    elif message.chat.type != "group" or message.chat.type != "supergroup":
+        bot.send_message(chat_id=message.chat.id, text="Ця команда доступна лише в групових чатах.")
     else:
-        bot.send_message(chat_id=message.chat.id, text="Ця команда доступна лише в групових чатах")
+        bot.delete_message(chat_id=chat_id, message_id=message.message_id)
+        bot.send_message(chat_id=message.chat.id, text="Зачекайтеся закінчення поточної гри.")
 
 
 # Викликається при натисканні на кнопку
@@ -323,6 +530,551 @@ def iq_callback(query):
     for i in live_person:
         if data.startswith(str(i.id)):
             voted(query, i)
+
+
+# Відкриває спеціальну карту
+def open_special(type_str, query):
+    global some_counter
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    try:
+        print(query)
+        print(query.message.chat)
+        # Видалити відкриту курту з масивів невідкритих карт
+        if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
+                (len(list_of_list_of_round1[query.from_user.id]) == 2 and
+                 types[0] not in list_of_list_of_round1[query.from_user.id]):
+            # Якщо невідкрито 3 карти або відкрито 2 і відкритою картою є професія
+            # Інших варіантів існування карт в 1 турі просто немає.
+            some_variable = list_of_list_of_round1[query.from_user.id]
+            del some_variable[len(some_variable) - 1 - list_for_round1.index(type_str) % 2]
+            # Видаляємо з переприсвоєного масиву перших раундів щойно відкрит карту
+            list_of_list_of_round1[query.from_user.id] = some_variable
+            some_variable2 = list_of_list_for_round2[query.from_user.id]
+            del some_variable2[len(some_variable2) - 1 - list_for_round1.index(type_str) % 2]
+            # Видаляємо з переприсвоєного масиву всіх раундів щойно відкриту карту
+            list_of_list_for_round2[query.from_user.id] = some_variable2
+            some_counter += 1
+        # Відкрита лише карта у поточному раунді
+        if len(list_of_list_of_round1[query.from_user.id]) == 2:
+            keyboard_1.row(
+                telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
+                                                   callback_data=str(list_of_list_of_round1[query.from_user.id][0]) + "1")
+            )
+            print(list_of_list_of_round1[query.from_user.id])
+            # Замінити кнопку на кнопку з процесією
+            bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                                  chat_id=query.message.chat.id,
+                                  reply_markup=keyboard_1)
+            bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                             str(request[query.from_user.id][list_for_round2.index(type_str)]))
+        # Вже була відкрита одна карта спеціальних умов і відкривається ще одна карта у поточному раунді
+        elif len(list_of_list_of_round1[query.from_user.id]) == 1:
+            bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                                  chat_id=query.message.chat.id, reply_markup=None)
+            bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                             str(request[query.from_user.id][list_for_round2.index(type_str)]))
+    except:
+        # Видалити відкриту курту з масивів невідкритих карт
+        if len(list_of_list_of_round1[query['from_user']['id']]) == 3 or \
+                (len(list_of_list_of_round1[query['from_user']['id']]) == 2 and
+                 types[0] not in list_of_list_of_round1[query['from_user']['id']]):
+            # Якщо невідкрито 3 карти або відкрито 2 і відкритою картою є професія
+            # Інших варіантів існування карт в 1 турі просто немає.
+            some_variable = list_of_list_of_round1[query['from_user']['id']]
+            del some_variable[len(some_variable) - 1 - list_for_round1.index(type_str) % 2]
+            # Видаляємо з переприсвоєного масиву перших раундів щойно відкрит карту
+            list_of_list_of_round1[query['from_user']['id']] = some_variable
+            some_variable2 = list_of_list_for_round2[query['from_user']['id']]
+            del some_variable2[len(some_variable2) - 1 - list_for_round1.index(type_str) % 2]
+            # Видаляємо з переприсвоєного масиву всіх раундів щойно відкриту карту
+            list_of_list_for_round2[query['from_user']['id']] = some_variable2
+            some_counter += 1
+        # Відкрита лише карта у поточному раунді
+        if len(list_of_list_of_round1[query['from_user']['id']]) == 2:
+            keyboard_1.row(
+                telebot.types.InlineKeyboardButton(list_of_list_of_round1[query['from_user']['id']][0],
+                                                   callback_data=str(
+                                                       list_of_list_of_round1[query['from_user']['id']][0]) + "1")
+            )
+            # Замінити кнопку на кнопку з процесією
+            try:
+                bot.edit_message_text(text=query['message']['text'], message_id=query['message']['message_id'],
+                                      chat_id=query['message']['chat']['id'],
+                                      reply_markup=keyboard_1)
+                bot.send_message(chat_id, "@" + query['from_user']['username'] + " - " +
+                                 str(request[query['from_user']['id']][list_for_round2.index(type_str)]))
+            except:
+                print("Відкрита лише карта у поточному раунді")
+        # Вже була відкрита одна карта спеціальних умов і відкривається ще одна карта у поточному раунді
+        elif len(list_of_list_of_round1[query['from_user']['id']]) == 1:
+            try:
+                bot.edit_message_text(text=query['message']['text'], message_id=query['message']['message_id'],
+                                      chat_id=query['message']['chat']['id'], reply_markup=None)
+                bot.send_message(chat_id, "@" + query['from_user']['username'] + " - " +
+                                 str(request[query['from_user.id']][list_for_round2.index(type_str)]))
+            except:
+                print("Відкрита лише карта у поточному раунді")
+        else:
+            print("Не можливо. ")
+
+
+def open_special_tester():
+    global list_of_list_of_round1
+    global list_of_list_for_round2
+    list_of_list_of_round1[489842482] = list_for_round1.copy()
+    list_of_list_for_round2[489842482] = list_for_round2.copy()
+    query = {'from_user':
+                 {'id': 489842482, 'first_name': 'Андрій', 'username': 'TheBestPersonInTheUniverse',
+                  'last_name': 'Чалюк'},
+             'message':
+                 {'content_type': 'text', 'message_id': 5755, 'date': 1601055233,
+                  'chat':
+                     {'id': 489842482, 'type': 'private', 'username': 'TheBestPersonInTheUniverse',
+                      'first_name': 'Андрій', 'last_name': 'Чалюк'},
+                  'text': 'Відкрити карту іншим гравцям (раунд 1)'}}
+    # Видалить спец карту 1
+    open_special(types[8], query)
+    print(list_of_list_for_round2)
+    print(list_of_list_of_round1)
+
+    # Не спрацює бо вже була видалена 1 карта
+    open_special(types[9], query)
+    print(list_of_list_for_round2)
+    print(list_of_list_of_round1)
+
+    list_of_list_of_round1[489842482] = list_for_round1.copy()
+    list_of_list_for_round2[489842482] = list_for_round2.copy()
+    print(list_of_list_of_round1)
+
+    # Видалить спец карту 1
+    open_special(types[9], query)
+    print(list_of_list_for_round2)
+    print(list_of_list_of_round1)
+
+    # Не спрацює бо вже була видалена 1 карта
+    open_special(types[8], query)
+    print(list_of_list_for_round2)
+    print(list_of_list_of_round1)
+
+    list_of_list_for_round2 = {}
+    list_of_list_of_round1 = {}
+
+
+# ________________________________________________________________
+# ПРАЦЮЄ 50/50 (працює, але тест писати не буду)
+# Функція, яка відкриває професію
+def get_prof_callback(query):
+    global timer_message_id
+    global job_counter
+    global round_counter
+    global some_counter
+    global timer
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    # Видаляє з масивів використані карти
+    if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
+            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
+             types[0] in list_of_list_of_round1[query.from_user.id]):
+        # Спрацює якщо не була відкрита жодна карта, або була відкрита спецкарта
+        some_variable = list_of_list_of_round1[query.from_user.id]
+        del some_variable[0]
+        list_of_list_of_round1[query.from_user.id] = some_variable
+        some_variable2 = list_of_list_for_round2[query.from_user.id]
+        del some_variable2[0]
+        list_of_list_for_round2[query.from_user.id] = some_variable2
+        some_counter += 1
+    # Відкрита лише карта професії
+    if len(list_of_list_of_round1[query.from_user.id]) == 2:
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0] + "1"))
+        )
+        keyboard_1.row(
+            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][1],
+                                               callback_data=str(list_of_list_of_round1[query.from_user.id][1] + "1"))
+        )
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id,
+                              reply_markup=keyboard_1)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][0]))
+        job_counter += 1
+        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
+        timer.start()
+    # Відкрита одна спеціальна карта і карта професій
+    elif len(list_of_list_of_round1[query.from_user.id]) == 1:
+        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
+                              chat_id=query.message.chat.id, reply_markup=None)
+        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
+                         str(request[query.from_user.id][0]))
+        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
+        timer.start()
+        job_counter += 1
+    # Створюється таймер після обговорення
+    timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
+    timer_message_id = timer_message.message_id
+    timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
+    # Всі відкрили свої професії
+    if job_counter == len(active_users):
+        bot.send_message(chat_id, "Дискусія: \n"
+                                  "бла \n "
+                                  "бла \n "
+                                  "бла \n ")
+
+
+# Голосування попереднє в особистих повідомленнях
+def vote():
+    try:
+        # bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
+        #                      " а хто лише споживатиме ресурси.", chat_id=chat_id)
+        for j in live_person:
+            keyboard_1 = telebot.types.InlineKeyboardMarkup()
+            for i in live_person:
+                if i.id != j.id:
+                    if i.username and i.first_name and i.last_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(
+                                '@' + i.username + "(" + i.first_name + " " + i.last_name + ")",
+                                callback_data=str(i.id))
+                        )
+                    elif i.username and i.first_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton('@' + i.username + "(" + i.first_name + ")",
+                                                               callback_data=str(i.id))
+                        )
+                    elif i.username and i.last_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton('@' + i.username + "(" + i.last_name + ")",
+                                                               callback_data=str(i.id))
+                        )
+                    elif i.username:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton('@' + i.username,
+                                                               callback_data=str(i.id))
+                        )
+                    elif i.first_name and i.last_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i.first_name + " " + i.last_name,
+                                                               callback_data=str(i.id))
+                        )
+                    elif i.first_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i.first_name,
+                                                               callback_data=str(i.id))
+                        )
+                    elif i.last_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i.last_name,
+                                                               callback_data=str(i.id))
+                        )
+                    else:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton("anonymous",
+                                                               callback_data=str(i.id))
+                        )
+            bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
+                             chat_id=j.id, reply_markup=keyboard_1)
+    except:
+        bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
+                              " а хто лише споживатиме ресурси.", chat_id=chat_id)
+        for j in live_person:
+            keyboard_1 = telebot.types.InlineKeyboardMarkup()
+            for i in live_person:
+                if i['id'] != j['id']:
+                    print(j)
+                    print(i)
+                    print("next")
+                    if i['username'] and i['first_name'] and i['last_name']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(
+                                '@' + i['username'] + "(" + i['first_name'] + " " + i['last_name'] + ")",
+                                callback_data=str(i['id']))
+                        )
+                    elif i['username'] and i['first_name']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton('@' + i['username'] + "(" + i['first_name'] + ")",
+                                                               callback_data=str(i['id']))
+                        )
+                    elif i['username'] and i['last_name']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton('@' + i['username'] + "(" + i['last_name'] + ")",
+                                                               callback_data=str(i['id']))
+                        )
+                    elif i['username']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton('@' + i.username,
+                                                               callback_data=str(i['id']))
+                        )
+                    elif i['first_name'] and i['last_name']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i['first_name'] + " " + i['last_name'],
+                                                               callback_data=str(i['id']))
+                        )
+                    elif i['first_name']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i['first_name'],
+                                                               callback_data=str(i['id']))
+                        )
+                    elif i['last_name']:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i['last_name'],
+                                                               callback_data=str(i['id']))
+                        )
+                    else:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton("anonymous (" + i + i['id'] + ")",
+                                                               callback_data=str(i['id']))
+                        )
+            bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
+                             chat_id=j['id'], reply_markup=keyboard_1)
+
+
+def vote_tester():
+    global live_person
+    global chat_id
+    chat_id = -1001351860013 # -387174137
+    live_person = [{'id': 489842482, 'first_name': 'Андрій',
+                    'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'},
+                   {'id': 383628308, 'first_name': 'Borsuk', 'username': 'The_coin_master', 'last_name':None}
+                   ]
+    vote()
+
+
+# Обробка проголосованого в особистиих повідомленнях.
+def voted(query, user_against):
+    global vote_results
+    global kick_out_username
+    global kick_out_ids
+    global vote_couter_at_private
+    vote_couter_at_private += 1
+    # print(query)
+
+    # У гравця, який проголосував є нік
+    if query.from_user.username and query.from_user.username.strip() != "":
+        # У гравця, проти якого проголосували є нік
+        if user_against.username and user_against.username.strip() != "":
+            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.username,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+        elif user_against.last_name and user_against.first_name and \
+                user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
+            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.first_name +
+                                  " " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+        elif user_against.last_name and user_against.last_name.strip() != "":
+            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+        elif user_against.first_name and user_against.first_name.strip() != "":
+            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.first_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+        # (доробити, бо хз, що тут придувати щоб його тегнути)
+        else:
+            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + str(user_against.id),
+                             chat_id=chat_id)
+
+    # ______________________________________________________________________________________
+    # У гравця який проголосував немає ніка
+    elif query.from_user.last_name and query.from_user.first_name and\
+            query.from_user.last_name.strip() != "" and query.from_user.first_name.strip() != "":
+        # У гравця, проти якого проголосували є нік
+        if user_against.username and user_against.username.strip() != "":
+            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                  " проголосував проти @" + user_against.username,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+        elif user_against.last_name and user_against.first_name and \
+                user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
+            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                  " проголосував проти " + user_against.first_name +
+                                  " " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+        elif user_against.last_name and user_against.last_name.strip() != "":
+            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                  " проголосував проти " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+        elif user_against.first_name and user_against.first_name.strip() != "":
+            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                  " проголосував проти " + user_against.first_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+        # (доробити, бо хз, що тут придувати щоб його тегнути)
+        else:
+            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                  " проголосував проти " + str(user_against.id),
+                             chat_id=chat_id)
+
+    # ______________________________________________________________________________________
+    # У гравця, який проголосував немає ніка і ім'я
+    elif query.from_user.last_name and query.from_user.last_name.strip() != "":
+        # У гравця, проти якого проголосували є нік
+        if user_against.username and user_against.username.strip() != "":
+            bot.send_message(text=query.from_user.last_name +
+                                  " проголосував проти @" + user_against.username,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+        elif user_against.last_name and user_against.first_name and \
+                user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
+            bot.send_message(text=query.from_user.last_name +
+                                  " проголосував проти " + user_against.first_name +
+                                  " " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+        elif user_against.last_name and user_against.last_name.strip() != "":
+            bot.send_message(text=query.from_user.last_name +
+                                  " проголосував проти " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+        elif user_against.first_name and user_against.first_name.strip() != "":
+            bot.send_message(text=query.from_user.last_name +
+                                  " проголосував проти " + user_against.first_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+        # (доробити, бо хз, що тут придувати щоб його тегнути)
+        else:
+            bot.send_message(text=query.from_user.last_name +
+                                  " проголосував проти " + str(user_against.id),
+                             chat_id=chat_id)
+
+    # ______________________________________________________________________________________
+    # У гравця який проголосував немає ніка i прізвища
+    elif query.from_user.last_name and query.from_user.last_name.strip() != "":
+        # У гравця, проти якого проголосували є нік
+        if user_against.username and user_against.username.strip() != "":
+            bot.send_message(text=query.from_user.first_name +
+                                  " проголосував проти @" + user_against.username,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+        elif user_against.last_name and user_against.first_name and \
+                user_against.last_name.strip() and user_against.first_name.strip() != "":
+            bot.send_message(text=query.from_user.first_name +
+                                  " проголосував проти " + user_against.first_name +
+                                  " " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+        elif user_against.last_name and user_against.last_name.strip() != "":
+            bot.send_message(text=query.from_user.first_name +
+                                  " проголосував проти " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+        elif user_against.first_name and user_against.first_name.strip() != "":
+            bot.send_message(text=query.from_user.first_name +
+                                  " проголосував проти " + user_against.first_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+        # (доробити, бо хз, що тут придувати щоб його тегнути)
+        else:
+            bot.send_message(text=query.from_user.first_name +
+                                  " проголосував проти " + str(user_against.id),
+                             chat_id=chat_id)
+
+    # ______________________________________________________________________________________
+    # У гравця який проголосував немає ніка, ім'я і прізвища
+    else:
+        # У гравця, проти якого проголосували є нік
+        if user_against.username and user_against.username.strip() != "":
+            bot.send_message(text=str(query.from_user.id) +
+                                  " проголосував проти @" + user_against.username,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+        elif user_against.last_name and user_against.first_name and\
+                user_against.last_name.stip() != "" and user_against.first_name.strip() != "":
+            bot.send_message(text=str(query.from_user.id) +
+                                  " проголосував проти " + user_against.first_name +
+                                  " " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+        elif user_against.last_name and user_against.last_name.strip() != "":
+            bot.send_message(text=str(query.from_user.id) +
+                                  " проголосував проти " + user_against.last_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+        elif user_against.first_name and user_against.first_name.strip() != "":
+            bot.send_message(text=str(query.from_user.id) +
+                                  " проголосував проти " + user_against.first_name,
+                             chat_id=chat_id)
+
+        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+        # (доробити, бо хз, що тут придувати щоб його тегнути)
+        else:
+            bot.send_message(text=str(query.from_user.id) +
+                                  " проголосував проти " + str(user_against.id),
+                             chat_id=chat_id)
+
+    # Додати в масив результатів голосування голос проти поточного тогог гравця,
+    # проти якого було зроблено голос.
+    if user_against.id in vote_results.keys():
+        vote_results[user_against.id] += 1
+    else:
+        vote_results[user_against.id] = 1
+
+    print("vote_results (поточні результати голосування): ")
+    print(vote_results)
+
+    # Видалить голосування з приватних повідомлень
+    bot.delete_message(chat_id=query.from_user.id, message_id=query.message.message_id)
+    if player_that_say >= len(active_users):
+        kick_out_ids = get_max_users_username(vote_results)
+        username_of_players = []
+        # Знайти ніки гравців по ідентифікаторах
+        for i in live_person:
+            if i.id in kick_out_ids:
+                if i.username:
+                    username_of_players.append("@" + i.username)
+                elif i.first_name and i.last_name:
+                    username_of_players.append(i.first_name + " " + i.last_name)
+                elif i.first_name:
+                    username_of_players.append(i.first_name)
+                elif i.last_name:
+                    username_of_players.append(i.last_name)
+                else:
+                    username_of_players.append("anonymous")
+        kick_out_username = username_of_players
+        username_str = ""
+        for i in kick_out_username:
+            username_str += i + " "
+        if len(kick_out_username) == 1 and vote_couter_at_private == len(live_person):
+            bot.send_message(text="Гравець " + username_str + "на думку більшості є непотрібним. \n" +
+                                  "Проте у нього ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
+                                  " секунд він може пояснити свою необхідність", chat_id=chat_id)
+
+        elif len(kick_out_username) != 1 and vote_couter_at_private == len(live_person):
+            bot.send_message(text="Гравеці " + username_str + "на думку більшості є непотрібними. \n" +
+                                  "Проте у них ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
+                                  " секунд вони можуть пояснити свою необхідність.", chat_id=chat_id)
+        else:
+            print("Ще не всі проголосували.")
+        t = threading.Timer(timer_for_dis_after, lambda: create_poll_vote())
+        t.start()
+
+
+def voted_tester():
+
+# _______________________________________________________________
+# ДО ЦЬОГО МОМЕНТУ ВСЕ ПРОВАЛІДОВАНО І ЗРОБЛЕНО ТЕСТИ ЯКЩО ПОТРІБНО
+# _______________________________________________________________
 
 
 # Перевіряємо чи може ця людина проголосувати
@@ -430,225 +1182,6 @@ def check_for_vote(query, command):
         get_result_of_vote("players")
 
 
-# Обробка проголосованого
-def voted(query, user_against):
-    global vote_results
-    global kick_out_username
-    global kick_out_ids
-
-    print(query)
-
-    # У гравця, який проголосував є нік
-    if query.from_user.username:
-        # У гравця, проти якого проголосували є нік
-        if user_against.username:
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name:
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.first_name +
-                                  " @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name:
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name:
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + str(user_against.id),
-                             chat_id=chat_id)
-
-    # ______________________________________________________________________________________
-    # У гравця який проголосував немає ніка
-    elif query.from_user.last_name and query.from_user.first_name:
-        # У гравця, проти якого проголосували є нік
-        if user_against.username:
-            bot.send_message(text="@" + query.from_user.first_name + " @" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name:
-            bot.send_message(text="@" + query.from_user.first_name + " @" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.first_name +
-                                  " @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name:
-            bot.send_message(text="@" + query.from_user.first_name + " @" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name:
-            bot.send_message(text="@" + query.from_user.first_name + " @" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text="@" + query.from_user.first_name + " @" + query.from_user.last_name +
-                                  " проголосував проти @" + str(user_against.id),
-                             chat_id=chat_id)
-
-    # ______________________________________________________________________________________
-    # У гравця, який проголосував немає ніка і ім'я
-    elif query.from_user.last_name:
-        # У гравця, проти якого проголосували є нік
-        if user_against.username:
-            bot.send_message(text="@" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name:
-            bot.send_message(text="@" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.first_name +
-                                  " @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name:
-            bot.send_message(text="@" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name:
-            bot.send_message(text="@" + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text="@" + query.from_user.last_name +
-                                  " проголосував проти @" + str(user_against.id),
-                             chat_id=chat_id)
-
-    # ______________________________________________________________________________________
-    # У гравця який проголосував немає ніка i прізвища
-    elif query.from_user.last_name:
-        # У гравця, проти якого проголосували є нік
-        if user_against.username:
-            bot.send_message(text="@" + query.from_user.first_name +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name:
-            bot.send_message(text="@" + query.from_user.first_name +
-                                  " проголосував проти @" + user_against.first_name +
-                                  " @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name:
-            bot.send_message(text="@" + query.from_user.first_name +
-                                  " проголосував проти @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name:
-            bot.send_message(text="@" + query.from_user.first_name +
-                                  " проголосував проти @" + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text="@" + query.from_user.first_name +
-                                  " проголосував проти @" + str(user_against.id),
-                             chat_id=chat_id)
-
-    # ______________________________________________________________________________________
-    # У гравця який проголосував немає ніка, ім'я і прізвища
-    else:
-        # У гравця, проти якого проголосували є нік
-        if user_against.username:
-            bot.send_message(text="@" + str(query.from_user.id) +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name:
-            bot.send_message(text="@" + str(query.from_user.id) +
-                                  " проголосував проти @" + user_against.first_name +
-                                  " @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name:
-            bot.send_message(text="@" + str(query.from_user.id) +
-                                  " проголосував проти @" + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name:
-            bot.send_message(text="@" + str(query.from_user.id) +
-                                  " проголосував проти @" + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text="@" + str(query.from_user.id) +
-                                  " проголосував проти @" + str(user_against.id),
-                             chat_id=chat_id)
-
-    if user_against.id in vote_results.keys():
-        vote_results[user_against.id] += 1
-    else:
-        vote_results[user_against.id] = 1
-
-    print(vote_results)
-
-    # Видалить голосування з приватних повідомлень
-    bot.delete_message(chat_id=query.from_user.id, message_id=query.message.message_id)
-    if player_that_say >= len(active_users):
-        kick_out_ids = get_max_users_username(vote_results)
-        username_of_players = []
-        # Знайти ніки гравців по ідентифікаторах
-        for i in live_person:
-            if i.id in kick_out_ids:
-                if i.username:
-                    username_of_players.append("@" + i.username)
-                elif i.first_name and i.last_name:
-                    username_of_players.append(i.first_name + " " + i.last_name)
-                elif i.first_name:
-                    username_of_players.append(i.first_name)
-                elif i.last_name:
-                    username_of_players.append(i.last_name)
-                else:
-                    username_of_players.append("anonymous")
-        kick_out_username = username_of_players
-        username_str = ""
-        for i in kick_out_username:
-            username_str += i + " "
-        if len(kick_out_username) == 1:
-            bot.send_message(text="Гравець " + username_str + "на думку більшості є непотрібним. \n" +
-                                  "Проте у нього ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
-                                  " секунд він може пояснити свою необхідність", chat_id=chat_id)
-
-        else:
-            bot.send_message(text="Гравеці " + username_str + "на думку більшості є непотрібними. \n" +
-                                  "Проте у них ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
-                                  " секунд вони можуть пояснити свою необхідність.", chat_id=chat_id)
-        t = threading.Timer(timer_for_dis_after, lambda: create_poll_vote())
-        t.start()
-
-
 # Отримати результати голосування і виконати відповідну дію (видалити гравця, написати відповідне повідомлення)
 def get_result_of_vote(string_from):
     global timer
@@ -662,7 +1195,7 @@ def get_result_of_vote(string_from):
         bot.send_message(text="Час вичерпано!!!", chat_id=chat_id)
     if len(list_of_person_that_vote_save) > len(list_of_person_that_vote_kick):
         bot.send_message(text="Гравець " + kick_out_username[0] + " зміг переконати інших у своїй потрібності,"
-                         " а тому він залишається у бункері. Сподіваюсь ви не пошкодуєте. ",
+                                                                  " а тому він залишається у бункері. Сподіваюсь ви не пошкодуєте. ",
                          chat_id=chat_id)
     elif len(list_of_person_that_vote_save) < len(list_of_person_that_vote_kick):
         bot.send_message(text="Гравецю " + kick_out_username[0] + " довелося покинути бункер." + random_die,
@@ -711,6 +1244,8 @@ def create_poll_vote():
     global job_counter
     global is_first_opening_in_round_begins_from_2
     global timer
+    global vote_couter_at_private
+    vote_couter_at_private = 0
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     keyboard_1.row(
         telebot.types.InlineKeyboardButton('Вигнати - 0', callback_data='Вигнати')
@@ -750,42 +1285,6 @@ def get_max_users_username(vote_results_):
             id_of_players.append(i)
 
     return id_of_players
-
-
-# Відкриває спеціальну карту
-def open_special(type_str, query):
-    global some_counter
-    keyboard_1 = telebot.types.InlineKeyboardMarkup()
-    # Видалити відкриту курту з масивів невідкритих карт
-    if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
-            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
-             types[0] not in list_of_list_of_round1[query.from_user.id]):
-        some_variable = list_of_list_of_round1[query.from_user.id]
-        del some_variable[list_for_round1.index(type_str) - some_counter]
-        list_of_list_of_round1[query.from_user.id] = some_variable
-        some_variable2 = list_of_list_for_round2[query.from_user.id]
-        del some_variable2[len(some_variable2) - 1 - list_for_round1.index(type_str) % 2]
-        list_of_list_for_round2[query.from_user.id] = some_variable2
-        some_counter += 1
-    # Відкрита лише карта у поточному раунді
-    if len(list_of_list_of_round1[query.from_user.id]) == 2:
-        keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0]) + "1")
-        )
-        print(list_of_list_of_round1[query.from_user.id])
-        # Замінити кнопку на кнопку з процесією
-        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
-                              chat_id=query.message.chat.id,
-                              reply_markup=keyboard_1)
-        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][list_for_round2.index(type_str)]))
-    # Вже була відкрита одна карта спеціальних умов і відкривається ще одна карта у поточному раунді
-    elif len(list_of_list_of_round1[query.from_user.id]) == 1:
-        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
-                              chat_id=query.message.chat.id, reply_markup=None)
-        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][list_for_round2.index(type_str)]))
 
 
 # Створює форму для раунда (2 і більше) в особистих повідомленнях
@@ -853,64 +1352,6 @@ def get_round_begins_from_two(type_str, query):
                                   "бла \n ")
 
 
-# Функція, яка відкриває професію
-def get_prof_callback(query):
-    global timer_message_id
-    global job_counter
-    global round_counter
-    global some_counter
-    global timer
-    keyboard_1 = telebot.types.InlineKeyboardMarkup()
-    # Видаляє з масивів використані карти
-    if len(list_of_list_of_round1[query.from_user.id]) == 3 or \
-            (len(list_of_list_of_round1[query.from_user.id]) == 2 and
-             types[0] in list_of_list_of_round1[query.from_user.id]):
-        some_variable = list_of_list_of_round1[query.from_user.id]
-        del some_variable[0]
-        list_of_list_of_round1[query.from_user.id] = some_variable
-        some_variable2 = list_of_list_for_round2[query.from_user.id]
-        del some_variable2[0]
-        list_of_list_for_round2[query.from_user.id] = some_variable2
-        some_counter += 1
-    # Відкрита лише карта професії
-    if len(list_of_list_of_round1[query.from_user.id]) == 2:
-        keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][0] + "1"))
-        )
-        keyboard_1.row(
-            telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][1],
-                                               callback_data=str(list_of_list_of_round1[query.from_user.id][1] + "1"))
-        )
-        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
-                              chat_id=query.message.chat.id,
-                              reply_markup=keyboard_1)
-        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][0]))
-        job_counter += 1
-        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
-        timer.start()
-    # Відкрита одна спеціальна карта і карта професій
-    elif len(list_of_list_of_round1[query.from_user.id]) == 1:
-        bot.edit_message_text(text=query.message.text, message_id=query.message.message_id,
-                              chat_id=query.message.chat.id, reply_markup=None)
-        bot.send_message(chat_id, "@" + query.from_user.username + " - " +
-                         str(request[query.from_user.id][0]))
-        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
-        timer.start()
-        job_counter += 1
-    # Створюється таймер після обговорення
-    timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
-    timer_message_id = timer_message.message_id
-    timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
-    # Всі відкрили свої професії
-    if job_counter == len(active_users):
-        bot.send_message(chat_id, "Дискусія: \n"
-                                  "бла \n "
-                                  "бла \n "
-                                  "бла \n ")
-
-
 # Відправити дані для наступного раунда до останнього гравця
 # Розпочати наступний раунд
 def start_next_round():
@@ -934,58 +1375,6 @@ def start_next_round():
         bot.send_message(chat_id=active_users[i].id,
                          text="Відкриває карти і пояснює свою необхідність гравець - @"
                               + active_users[player_that_say].username)
-
-
-# Голосування попереднє в особистих повідомленнях
-def vote():
-    bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
-                          " а хто лише споживатиме ресурси.", chat_id=chat_id)
-    for i in live_person:
-        keyboard_1 = telebot.types.InlineKeyboardMarkup()
-        for j in live_person:
-            if i != j:
-                if i.username and i.first_name and i.last_name:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton('@' + i.username + "(" + i.first_name + " " + i.last_name + ")",
-                                                           callback_data=str(i.id))
-                    )
-                elif i.username and i.first_name:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton('@' + i.username + "(" + i.first_name + ")",
-                                                           callback_data=str(i.id))
-                    )
-                elif i.username and i.last_name:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton('@' + i.username + "(" + i.last_name + ")",
-                                                           callback_data=str(i.id))
-                    )
-                elif i.username:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton('@' + i.username,
-                                                           callback_data=str(i.id))
-                    )
-                elif i.first_name and i.last_name:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton(i.first_name + " " + i.last_name,
-                                                           callback_data=str(i.id))
-                    )
-                elif i.first_name:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton(i.first_name,
-                                                           callback_data=str(i.id))
-                    )
-                elif i.last_name:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton(i.last_name,
-                                                           callback_data=str(i.id))
-                    )
-                else:
-                    keyboard_1.row(
-                        telebot.types.InlineKeyboardButton("anonymous",
-                                                           callback_data=str(i.id))
-                    )
-        bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
-                         chat_id=i.id, reply_markup=keyboard_1)
 
 
 # Видалити повідомлення з вибором характеристик у попереднього гравця,
@@ -1142,7 +1531,9 @@ def add_time(query):
 # Обробляє напискання на реєстрацію на гру
 # Записує у повідомлення реєстрації нікнейм або ім'я або anonymous
 def get_ex_callback(query):
-    global res, active_users, active_users_id
+    global res
+    global active_users
+    global active_users_id
     bot.answer_callback_query(query.id)
     if query.from_user.username.strip() != "" and query.from_user.id not in active_users_id:
         res.text = res.text + "\n" + "      @" + query.from_user.username
@@ -1189,6 +1580,9 @@ def start_(message):
     global person
     global live_person
     global number_of_players_that_win
+    global is_game_starts
+    # гра почалася
+    is_game_starts = True
     # ініціалізує список невідкритих властивостей для першого раунду
     for i in range(0, len(active_users)):
         some_variable = list_for_round1.copy()
@@ -1271,17 +1665,17 @@ def start_(message):
         for i in range(len(active_users)):
             bot.send_message(chat_id=active_users[i].id,
                              text=types[0] + ": " + pers_cards[i][0] + ", " + str(pers_cards[i][1]) + "\n" + "\n" +
-                             types[1] + ": " + pers_cards[i][2] + ", " + str(pers_cards[i][3]) + "\n" + "\n" +
-                             types[2] + ": " + pers_cards[i][4] + "\n" + "\n" +
-                             types[3] + ": " + pers_cards[i][5] + ", " + pers_cards[i][6] + "\n" + "\n" +
-                             types[4] + ": " + pers_cards[i][7] + "\n" + "\n" +
-                             types[5] + ": " + pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][
-                                 10] + "\n" + "\n" +
-                             types[6] + ": " + pers_cards[i][11] + "\n" + "\n" +
-                             types[7] + ": " + pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(
+                                  types[1] + ": " + pers_cards[i][2] + ", " + str(pers_cards[i][3]) + "\n" + "\n" +
+                                  types[2] + ": " + pers_cards[i][4] + "\n" + "\n" +
+                                  types[3] + ": " + pers_cards[i][5] + ", " + pers_cards[i][6] + "\n" + "\n" +
+                                  types[4] + ": " + pers_cards[i][7] + "\n" + "\n" +
+                                  types[5] + ": " + pers_cards[i][8] + ", " + pers_cards[i][9] + ", " + pers_cards[i][
+                                      10] + "\n" + "\n" +
+                                  types[6] + ": " + pers_cards[i][11] + "\n" + "\n" +
+                                  types[7] + ": " + pers_cards[i][12] + ", " + str(pers_cards[i][13]) + ", " + str(
                                  pers_cards[i][14]) + "\n" + "\n" +
-                             types[8] + ": " + pers_cards[i][15] + "\n" + "\n" +
-                             types[9] + ": " + pers_cards[i][16])
+                                  types[8] + ": " + pers_cards[i][15] + "\n" + "\n" +
+                                  types[9] + ": " + pers_cards[i][16])
             # записати в основний список масив характеристик
             array_data = [pers_cards[i][0] + ", " + str(pers_cards[i][1]),
                           pers_cards[i][2] + ", " + str(pers_cards[i][3]), pers_cards[i][4],
@@ -1463,14 +1857,14 @@ def start(message):
 # (як груповий так і особистий)
 # Рудимент (доробити) зараз просто виводить це вовідомлення
 # і дає можливість відповісти на нього з консолі
-@bot.message_handler(content_types=['text'])
-def send_text(message):
-    print(message.text)
-    bot.send_message(message.chat.id, input())
-    #    if message.text == 'Привет':
-    #        bot.send_message(message.chat.id, 'Привет, мой создатель')
-    #    elif message.text == 'Пока':
-    #        bot.send_message(message.chat.id, 'Прощай, создатель')
+# @bot.message_handler(content_types=['text'])
+# def send_text(message):
+#     print(message.text)
+#     bot.send_message(message.chat.id, input())
+#     #    if message.text == 'Привет':
+#     #        bot.send_message(message.chat.id, 'Привет, мой создатель')
+#     #    elif message.text == 'Пока':
+#     #        bot.send_message(message.chat.id, 'Прощай, создатель')
 
 
 # Команда, яка спрацьовує при відправленні стікера у чат з ботом
@@ -1507,6 +1901,10 @@ def geo_location(message):
     print(message)
     bot.send_message(message.chat.id, 'Це дє?')
 
+
+# tester_suicide()
+# open_special_tester()
+# vote_tester()
 
 if __name__ == "__main__":
     bot.polling()
