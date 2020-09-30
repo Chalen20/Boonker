@@ -1,6 +1,6 @@
 # coding:utf-8
-import telebot
 import config
+import telebot
 import random
 import threading
 import Character
@@ -89,6 +89,9 @@ live_person = []
 # (give_say_to_next_person, start_)
 person = 0
 
+# Змінна, яка описує чи ще може голосувати гравець
+can_vote = True
+
 # непонятна змінна, але десь використовується
 some_counter = 0
 
@@ -113,6 +116,10 @@ vote_results = {}
 # Обмеження ставить телеграм
 timer_to_vote_in_poll = 50
 
+# Час голосування в приватних повідомленнях
+# (після цього часу підбиваються підсумки голосування)
+timer_to_vote_in_private = 50
+
 # Людина для вигнаття
 kick_out_username = []
 
@@ -126,7 +133,13 @@ list_of_person_that_vote_save = []
 # Кількість гравців, що проголосували
 vote_counter = 0
 
+# Кількість голосів в приватних повідомленнях
 vote_couter_at_private = 0
+
+# Чи не відбувалися переголосування в приватних повідомленнях
+# Якщо відбувалися, то голосування закінчено, якщо не відбувалися, то переголосовуємо за тих гравців,
+# у яких найбільша кількість голосів у попередньому раунді
+is_second_vote_in_private = True
 
 # Можливі закінчення повідомлення при вигнанні гравця з бункера
 # Використовується у функції генерації речення (зроблено для того, щоб час змінювався, якщо задати строго в масиві,
@@ -518,7 +531,8 @@ def iq_callback(query):
     elif data.startswith("add_time"):
         add_time(query)
 
-    # Викликається при натискані на кнопку Вигнати під час голосуваня в чаті.
+    # Викликається при натискані на кнопку
+    # ти під час голосуваня в чаті.
     elif data.startswith("Вигнати"):
         check_for_vote(query, "Вигнати")
 
@@ -558,7 +572,8 @@ def open_special(type_str, query):
         if len(list_of_list_of_round1[query.from_user.id]) == 2:
             keyboard_1.row(
                 telebot.types.InlineKeyboardButton(list_of_list_of_round1[query.from_user.id][0],
-                                                   callback_data=str(list_of_list_of_round1[query.from_user.id][0]) + "1")
+                                                   callback_data=str(
+                                                       list_of_list_of_round1[query.from_user.id][0]) + "1")
             )
             print(list_of_list_of_round1[query.from_user.id])
             # Замінити кнопку на кнопку з процесією
@@ -629,8 +644,8 @@ def open_special_tester():
              'message':
                  {'content_type': 'text', 'message_id': 5755, 'date': 1601055233,
                   'chat':
-                     {'id': 489842482, 'type': 'private', 'username': 'TheBestPersonInTheUniverse',
-                      'first_name': 'Андрій', 'last_name': 'Чалюк'},
+                      {'id': 489842482, 'type': 'private', 'username': 'TheBestPersonInTheUniverse',
+                       'first_name': 'Андрій', 'last_name': 'Чалюк'},
                   'text': 'Відкрити карту іншим гравцям (раунд 1)'}}
     # Видалить спец карту 1
     open_special(types[8], query)
@@ -723,9 +738,11 @@ def get_prof_callback(query):
 
 # Голосування попереднє в особистих повідомленнях
 def vote():
+    global timer
     try:
         # bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
         #                      " а хто лише споживатиме ресурси.", chat_id=chat_id)
+        messages_with_vote = []
         for j in live_person:
             keyboard_1 = telebot.types.InlineKeyboardMarkup()
             for i in live_person:
@@ -771,8 +788,9 @@ def vote():
                             telebot.types.InlineKeyboardButton("anonymous",
                                                                callback_data=str(i.id))
                         )
-            bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
-                             chat_id=j.id, reply_markup=keyboard_1)
+            mes = bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
+                                   chat_id=j.id, reply_markup=keyboard_1)
+            messages_with_vote.append(mes)
     except:
         bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
                               " а хто лише споживатиме ресурси.", chat_id=chat_id)
@@ -826,15 +844,17 @@ def vote():
                         )
             bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
                              chat_id=j['id'], reply_markup=keyboard_1)
+    timer = threading.Timer(timer_to_vote_in_private, lambda: results_in_private(messages_with_vote))
+    timer.start()
 
 
 def vote_tester():
     global live_person
     global chat_id
-    chat_id = -1001351860013 # -387174137
+    chat_id = -1001351860013  # -387174137
     live_person = [{'id': 489842482, 'first_name': 'Андрій',
                     'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'},
-                   {'id': 383628308, 'first_name': 'Borsuk', 'username': 'The_coin_master', 'last_name':None}
+                   {'id': 383628308, 'first_name': 'Borsuk', 'username': 'The_coin_master', 'last_name': None}
                    ]
     vote()
 
@@ -845,233 +865,409 @@ def voted(query, user_against):
     global kick_out_username
     global kick_out_ids
     global vote_couter_at_private
-    vote_couter_at_private += 1
-    # print(query)
+    global timer
+    global can_vote
 
-    # У гравця, який проголосував є нік
-    if query.from_user.username and query.from_user.username.strip() != "":
-        # У гравця, проти якого проголосували є нік
-        if user_against.username and user_against.username.strip() != "":
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
+    if can_vote:
+        vote_couter_at_private += 1
+        # print(query)
 
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name and \
-                user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.first_name +
-                                  " " + user_against.last_name,
-                             chat_id=chat_id)
+        # У гравця, який проголосував є нік
+        if query.from_user.username and query.from_user.username.strip() != "":
+            # У гравця, проти якого проголосували є нік
+            if user_against.username and user_against.username.strip() != "":
+                bot.send_message(text="@" + query.from_user.username + " проголосував проти @" + user_against.username,
+                                 chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name and user_against.last_name.strip() != "":
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.last_name,
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+            elif user_against.last_name and user_against.first_name and \
+                    user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
+                bot.send_message(
+                    text="@" + query.from_user.username + " проголосував проти " + user_against.first_name +
+                         " " + user_against.last_name,
+                    chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name and user_against.first_name.strip() != "":
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.first_name,
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+            elif user_against.last_name and user_against.last_name.strip() != "":
+                bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.last_name,
+                                 chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
+            # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+            elif user_against.first_name and user_against.first_name.strip() != "":
+                bot.send_message(text="@" + query.from_user.username + " проголосував проти " + user_against.first_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+            # (доробити, бо хз, що тут придувати щоб його тегнути)
+            else:
+                bot.send_message(text="@" + query.from_user.username + " проголосував проти " + str(user_against.id),
+                                 chat_id=chat_id)
+
+        # ______________________________________________________________________________________
+        # У гравця який проголосував немає ніка
+        elif query.from_user.last_name and query.from_user.first_name and \
+                query.from_user.last_name.strip() != "" and query.from_user.first_name.strip() != "":
+            # У гравця, проти якого проголосували є нік
+            if user_against.username and user_against.username.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                      " проголосував проти @" + user_against.username,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+            elif user_against.last_name and user_against.first_name and \
+                    user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                      " проголосував проти " + user_against.first_name +
+                                      " " + user_against.last_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+            elif user_against.last_name and user_against.last_name.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                      " проголосував проти " + user_against.last_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+            elif user_against.first_name and user_against.first_name.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                      " проголосував проти " + user_against.first_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+            # (доробити, бо хз, що тут придувати щоб його тегнути)
+            else:
+                bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
+                                      " проголосував проти " + str(user_against.id),
+                                 chat_id=chat_id)
+
+        # ______________________________________________________________________________________
+        # У гравця, який проголосував немає ніка і ім'я
+        elif query.from_user.last_name and query.from_user.last_name.strip() != "":
+            # У гравця, проти якого проголосували є нік
+            if user_against.username and user_against.username.strip() != "":
+                bot.send_message(text=query.from_user.last_name + " проголосував проти @" + user_against.username,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+            elif user_against.last_name and user_against.first_name and \
+                    user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
+                bot.send_message(text=query.from_user.last_name + " проголосував проти " + user_against.first_name +
+                                      " " + user_against.last_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+            elif user_against.last_name and user_against.last_name.strip() != "":
+                bot.send_message(text=query.from_user.last_name + " проголосував проти " + user_against.last_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+            elif user_against.first_name and user_against.first_name.strip() != "":
+                bot.send_message(text=query.from_user.last_name + " проголосував проти " + user_against.first_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+            # (доробити, бо хз, що тут придувати щоб його тегнути)
+            else:
+                bot.send_message(text=query.from_user.last_name + " проголосував проти " + str(user_against.id),
+                                 chat_id=chat_id)
+
+        # ______________________________________________________________________________________
+        # У гравця який проголосував немає ніка i прізвища
+        elif query.from_user.last_name and query.from_user.last_name.strip() != "":
+            # У гравця, проти якого проголосували є нік
+            if user_against.username and user_against.username.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " проголосував проти @" + user_against.username,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+            elif user_against.last_name and user_against.first_name and \
+                    user_against.last_name.strip() and user_against.first_name.strip() != "":
+                bot.send_message(
+                    text=query.from_user.first_name + " проголосував проти " + user_against.first_name + " "
+                         + user_against.last_name,
+                    chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+            elif user_against.last_name and user_against.last_name.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " проголосував проти " + user_against.last_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+            elif user_against.first_name and user_against.first_name.strip() != "":
+                bot.send_message(text=query.from_user.first_name + " проголосував проти " + user_against.first_name,
+                                 chat_id=chat_id)
+
+            # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+            # (доробити, бо хз, що тут придувати щоб його тегнути)
+            else:
+                bot.send_message(text=query.from_user.first_name + " проголосував проти " + str(user_against.id),
+                                 chat_id=chat_id)
+
+        # ______________________________________________________________________________________
+        # У гравця який проголосував немає ніка, ім'я і прізвища
         else:
-            bot.send_message(text="@" + query.from_user.username + " проголосував проти " + str(user_against.id),
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували є нік
+            if user_against.username and user_against.username.strip() != "":
+                bot.send_message(text=str(query.from_user.id) + " проголосував проти @" + user_against.username,
+                                 chat_id=chat_id)
 
-    # ______________________________________________________________________________________
-    # У гравця який проголосував немає ніка
-    elif query.from_user.last_name and query.from_user.first_name and\
-            query.from_user.last_name.strip() != "" and query.from_user.first_name.strip() != "":
-        # У гравця, проти якого проголосували є нік
-        if user_against.username and user_against.username.strip() != "":
-            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
+            elif user_against.last_name and user_against.first_name and \
+                    user_against.last_name.stip() != "" and user_against.first_name.strip() != "":
+                bot.send_message(text=str(query.from_user.id) + " проголосував проти " + user_against.first_name +
+                                      " " + user_against.last_name,
+                                 chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name and \
-                user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
-            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
-                                  " проголосував проти " + user_against.first_name +
-                                  " " + user_against.last_name,
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
+            elif user_against.last_name and user_against.last_name.strip() != "":
+                bot.send_message(text=str(query.from_user.id) + " проголосував проти " + user_against.last_name,
+                                 chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name and user_against.last_name.strip() != "":
-            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
-                                  " проголосував проти " + user_against.last_name,
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
+            elif user_against.first_name and user_against.first_name.strip() != "":
+                bot.send_message(text=str(query.from_user.id) + " проголосував проти " + user_against.first_name,
+                                 chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name and user_against.first_name.strip() != "":
-            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
-                                  " проголосував проти " + user_against.first_name,
-                             chat_id=chat_id)
+            # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
+            # (доробити, бо хз, що тут придувати щоб його тегнути)
+            else:
+                bot.send_message(text=str(query.from_user.id) + " проголосував проти " + str(user_against.id),
+                                 chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
+        # Додати в масив результатів голосування голос проти поточного тогог гравця,
+        # проти якого було зроблено голос.
+        if user_against.id in vote_results.keys():
+            vote_results[user_against.id] += 1
         else:
-            bot.send_message(text=query.from_user.first_name + " " + query.from_user.last_name +
-                                  " проголосував проти " + str(user_against.id),
-                             chat_id=chat_id)
+            vote_results[user_against.id] = 1
 
-    # ______________________________________________________________________________________
-    # У гравця, який проголосував немає ніка і ім'я
-    elif query.from_user.last_name and query.from_user.last_name.strip() != "":
-        # У гравця, проти якого проголосували є нік
-        if user_against.username and user_against.username.strip() != "":
-            bot.send_message(text=query.from_user.last_name +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
+        print("vote_results (поточні результати голосування): ")
+        print(vote_results)
 
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name and \
-                user_against.last_name.strip() != "" and user_against.first_name.strip() != "":
-            bot.send_message(text=query.from_user.last_name +
-                                  " проголосував проти " + user_against.first_name +
-                                  " " + user_against.last_name,
-                             chat_id=chat_id)
+        # Видалить голосування з приватних повідомлень
+        bot.delete_message(chat_id=query.from_user.id, message_id=query.message.message_id)
+        # Якщо всі вже проголосували
+        if vote_couter_at_private == len(live_person):
+            # Мсив ідентифікаторів гравців з найбільшою кількість голосів проти них
+            kick_out_ids = get_max_users_username(vote_results)
+            # Масив ніків або інших розпізнавальних знаків гравців, які програли голосування
+            username_of_players = []
+            # Знайти ніки гравців по ідентифікаторах
+            for i in live_person:
+                if i.id in kick_out_ids:
+                    if i.username:
+                        username_of_players.append("@" + i.username)
+                    elif i.first_name and i.last_name:
+                        username_of_players.append(i.first_name + " " + i.last_name)
+                    elif i.first_name:
+                        username_of_players.append(i.first_name)
+                    elif i.last_name:
+                        username_of_players.append(i.last_name)
+                    else:
+                        username_of_players.append("anonymous")
+            kick_out_username = username_of_players
+            # Строка ніків гравців, які програли гололсування
+            username_str = ""
+            for i in kick_out_username:
+                username_str += i + " "
+            # Якщо гравець, у якого найбільша кільксть гравців, 1
+            if len(kick_out_username) == 1 and vote_couter_at_private == len(live_person):
+                bot.send_message(text="Гравець " + username_str + "на думку більшості є непотрібним. \n" +
+                                      "Проте у нього ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
+                                      " секунд він може пояснити свою необхідність", chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name and user_against.last_name.strip() != "":
-            bot.send_message(text=query.from_user.last_name +
-                                  " проголосував проти " + user_against.last_name,
-                             chat_id=chat_id)
+            # Якщо гравець, у якого найбільша кільксть гравців, більше 1
+            elif len(kick_out_username) != 1 and vote_couter_at_private == len(live_person):
+                bot.send_message(text="Гравеці " + username_str + "на думку більшості є непотрібними. \n" +
+                                      "Проте у них ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
+                                      " секунд вони можуть пояснити свою необхідність.", chat_id=chat_id)
 
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name and user_against.first_name.strip() != "":
-            bot.send_message(text=query.from_user.last_name +
-                                  " проголосував проти " + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text=query.from_user.last_name +
-                                  " проголосував проти " + str(user_against.id),
-                             chat_id=chat_id)
-
-    # ______________________________________________________________________________________
-    # У гравця який проголосував немає ніка i прізвища
-    elif query.from_user.last_name and query.from_user.last_name.strip() != "":
-        # У гравця, проти якого проголосували є нік
-        if user_against.username and user_against.username.strip() != "":
-            bot.send_message(text=query.from_user.first_name +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name and \
-                user_against.last_name.strip() and user_against.first_name.strip() != "":
-            bot.send_message(text=query.from_user.first_name +
-                                  " проголосував проти " + user_against.first_name +
-                                  " " + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name and user_against.last_name.strip() != "":
-            bot.send_message(text=query.from_user.first_name +
-                                  " проголосував проти " + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name and user_against.first_name.strip() != "":
-            bot.send_message(text=query.from_user.first_name +
-                                  " проголосував проти " + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text=query.from_user.first_name +
-                                  " проголосував проти " + str(user_against.id),
-                             chat_id=chat_id)
-
-    # ______________________________________________________________________________________
-    # У гравця який проголосував немає ніка, ім'я і прізвища
+            # Якщо голосування ще не закінчилося (хз коли таке може бути)
+            else:
+                print("Ще не всі проголосували.")
+                print(vote_couter_at_private)
+            t = threading.Timer(timer_for_dis_after, lambda: create_poll_vote("players"))
+            t.start()
     else:
-        # У гравця, проти якого проголосували є нік
-        if user_against.username and user_against.username.strip() != "":
-            bot.send_message(text=str(query.from_user.id) +
-                                  " проголосував проти @" + user_against.username,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, але є ім'я і прізвище
-        elif user_against.last_name and user_against.first_name and\
-                user_against.last_name.stip() != "" and user_against.first_name.strip() != "":
-            bot.send_message(text=str(query.from_user.id) +
-                                  " проголосував проти " + user_against.first_name +
-                                  " " + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і ім'я, але є прізвище
-        elif user_against.last_name and user_against.last_name.strip() != "":
-            bot.send_message(text=str(query.from_user.id) +
-                                  " проголосував проти " + user_against.last_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка і прізвища, іле є ім'я
-        elif user_against.first_name and user_against.first_name.strip() != "":
-            bot.send_message(text=str(query.from_user.id) +
-                                  " проголосував проти " + user_against.first_name,
-                             chat_id=chat_id)
-
-        # У гравця, проти якого проголосували немає ніка, прізвища і ім'я
-        # (доробити, бо хз, що тут придувати щоб його тегнути)
-        else:
-            bot.send_message(text=str(query.from_user.id) +
-                                  " проголосував проти " + str(user_against.id),
-                             chat_id=chat_id)
-
-    # Додати в масив результатів голосування голос проти поточного тогог гравця,
-    # проти якого було зроблено голос.
-    if user_against.id in vote_results.keys():
-        vote_results[user_against.id] += 1
-    else:
-        vote_results[user_against.id] = 1
-
-    print("vote_results (поточні результати голосування): ")
-    print(vote_results)
-
-    # Видалить голосування з приватних повідомлень
-    bot.delete_message(chat_id=query.from_user.id, message_id=query.message.message_id)
-    if player_that_say >= len(active_users):
-        kick_out_ids = get_max_users_username(vote_results)
-        username_of_players = []
-        # Знайти ніки гравців по ідентифікаторах
-        for i in live_person:
-            if i.id in kick_out_ids:
-                if i.username:
-                    username_of_players.append("@" + i.username)
-                elif i.first_name and i.last_name:
-                    username_of_players.append(i.first_name + " " + i.last_name)
-                elif i.first_name:
-                    username_of_players.append(i.first_name)
-                elif i.last_name:
-                    username_of_players.append(i.last_name)
-                else:
-                    username_of_players.append("anonymous")
-        kick_out_username = username_of_players
-        username_str = ""
-        for i in kick_out_username:
-            username_str += i + " "
-        if len(kick_out_username) == 1 and vote_couter_at_private == len(live_person):
-            bot.send_message(text="Гравець " + username_str + "на думку більшості є непотрібним. \n" +
-                                  "Проте у нього ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
-                                  " секунд він може пояснити свою необхідність", chat_id=chat_id)
-
-        elif len(kick_out_username) != 1 and vote_couter_at_private == len(live_person):
-            bot.send_message(text="Гравеці " + username_str + "на думку більшості є непотрібними. \n" +
-                                  "Проте у них ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
-                                  " секунд вони можуть пояснити свою необхідність.", chat_id=chat_id)
-        else:
-            print("Ще не всі проголосували.")
-        t = threading.Timer(timer_for_dis_after, lambda: create_poll_vote())
-        t.start()
+        bot.send_message(chat_id=query.message.chat.id, text="Голосування вже закінченно")
 
 
 def voted_tester():
     pass
+
+
+# Функція, яка підбиває підсумки голосування і знаходить претендентів на виліт
+# Після чого вона дає можливість виправдатися і
+# викликає функцію. яка стовює голосувалку в чаті
+def results_in_private(messages_):
+    global can_vote
+    global kick_out_ids
+    global kick_out_username
+    can_vote = False
+    print(messages_)
+    print(messages_[0])
+    for i in messages_:
+        try:
+            bot.delete_message(chat_id=i.chat.id, message_id=i.message_id)
+        except:
+            print("this person is voted")
+    # Мсив ідентифікаторів гравців з найбільшою кількість голосів проти них
+    kick_out_ids = get_max_users_username(vote_results)
+    # Масив ніків або інших розпізнавальних знаків гравців, які програли голосування
+    username_of_players = []
+    # Знайти ніки гравців по ідентифікаторах
+    for i in live_person:
+        if i.id in kick_out_ids:
+            if i.username:
+                username_of_players.append("@" + i.username)
+            elif i.first_name and i.last_name:
+                username_of_players.append(i.first_name + " " + i.last_name)
+            elif i.first_name:
+                username_of_players.append(i.first_name)
+            elif i.last_name:
+                username_of_players.append(i.last_name)
+            else:
+                username_of_players.append("anonymous")
+    kick_out_username = username_of_players
+    # Строка ніків гравців, які програли гололсування
+    username_str = ""
+    for i in kick_out_username:
+        username_str += i + " "
+    # Якщо гравець, у якого найбільша кільксть гравців, 1
+    if len(kick_out_username) == 1 and vote_couter_at_private == len(live_person):
+        bot.send_message(text="Гравець " + username_str + "на думку більшості є непотрібним. \n" +
+                              "Проте у нього ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
+                              " секунд він може пояснити свою необхідність", chat_id=chat_id)
+
+    # Якщо гравець, у якого найбільша кільксть гравців, більше 1
+    elif len(kick_out_username) != 1 and vote_couter_at_private == len(live_person):
+        bot.send_message(text="Гравеці " + username_str + "на думку більшості є непотрібними. \n" +
+                              "Проте у них ще є шанс виправдатися. За наступні " + str(timer_for_dis_after) +
+                              " секунд вони можуть пояснити свою необхідність.", chat_id=chat_id)
+    t = threading.Timer(timer_for_dis_after, lambda: create_poll_vote("timer"))
+    t.start()
+
+
+# Створити голосування в групы фінальне
+def create_poll_vote(from_):
+    # Це якийсь брєд, я не можу обробляти натискання (що найменше потрібно його робити не анонімним)
+    # але чекнути результатия можу лише після того як закінчиться час і обробити те, що проголосував
+    # хтось хто не грає чи чи взагалі не знаходиться в групі чи вже мертвий чи сам гравець якого виганяють,
+    # я не можу, а тому краще за допомогою звичайних повідомлень з кнопками.
+    #     if len(username) == 1:
+    #         poll = bot.send_poll(chat_id=chat_id,
+    #                              question="Чи заслуговує " + username[0] + " жити у відродженому суспільстві",
+    #                              options=["Вигнати", "Залишити"], is_anonymous=False, allows_multiple_answers=False,
+    #                              correct_option_id=None,
+    #                              open_period=timer_to_vote_in_poll)
+    #
+    #         while not poll.poll.is_closed:
+    #             pass
+    #         print(poll)
+    #         get_data_from_poll(poll)
+    #
+    #
+    # def get_data_from_poll(poll):
+    #     if poll.poll.total_voter_couter() > len(live_person) - 1:
+    #         bot.send_message(text="Кількість голосів більша, ніж потрібно", chat_id=chat_id)
+    global round_counter
+    global player_that_say
+    global job_counter
+    global is_first_opening_in_round_begins_from_2
+    global timer
+    global vote_couter_at_private
+    global vote_results
+    global kick_out_username
+    global kick_out_ids
+    global can_vote
+    global is_second_vote_in_private
+    # якщо проголосували всі гравці, виключаємо таймер переходу.
+    if from_ == "players":
+        timer.cancel()
+    # Обнуляємо кількість голосів
+    vote_couter_at_private = 0
+    # Кнопочки Вигнати і Залишити в груповому чаті
+    keyboard_1 = telebot.types.InlineKeyboardMarkup()
+    keyboard_1.row(
+        telebot.types.InlineKeyboardButton('Вигнати - 0', callback_data='Вигнати')
+    )
+    keyboard_1.row(
+        telebot.types.InlineKeyboardButton('Залишити - 0', callback_data='Залишити')
+    )
+    # Якщо кандидат на вибуття 1
+    if len(kick_out_username) == 1:
+        bot.send_message(text="Чи заслуговує " + kick_out_username[0] + " жити у відродженому суспільстві?",
+                         chat_id=chat_id, reply_markup=keyboard_1)
+        # Підбиття результатів голосування в чаті
+        timer = threading.Timer(timer_to_vote_in_poll, lambda: get_result_of_vote("timer"))
+        timer.start()
+    # Якщо кандидатів більше 1 то переголосовуємо за них в приватних повідомленнях
+    else:
+        # Якщо це перше переголосуваня
+        if is_second_vote_in_private:
+            is_second_vote_in_private = False
+            # Нові кнопочки
+            keyboard_1 = telebot.types.InlineKeyboardMarkup()
+            # Створюємо клавіатурку з ніками гравців,
+            # за яких було найбільше проголосовано в минулому голосуванні
+            for i in live_person:
+                if i.id in kick_out_ids:
+                    if i.username:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton("@" + i.username, callback_data=str(i.id))
+                        )
+                    elif i.first_name and i.last_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i.first_name + " " + i.last_name, callback_data=str(i.id))
+                        )
+                    elif i.first_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i.first_name, callback_data=str(i.id))
+                        )
+                    elif i.last_name:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton(i.last_name, callback_data=str(i.id))
+                        )
+                    else:
+                        keyboard_1.row(
+                            telebot.types.InlineKeyboardButton("anonymous", callback_data=str(i.id))
+                        )
+            # Масив мовідомлень з голосуванням
+            messages_with_vote = []
+            # Відправляємо усім гравцям (крім тих за кого голосують) голосувалки
+            for i in live_person:
+                # хз чи не треба відправляти усім гравцям
+                # (бо при циклічному голосуванні ніхто їх не отримає)
+                # if i.id != kick_out_ids:
+                    mes = bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
+                                           chat_id=i.id, reply_markup=keyboard_1)
+                    messages_with_vote.append(mes)
+            bot.send_message(text="Бункерці не змогли визначити, хто з гравців є корисним, а хто ні."
+                                  " Але у них й досі є шанс це визначити", chat_id=chat_id)
+            vote_results = {}
+            kick_out_username = []
+            kick_out_ids = []
+            vote_couter_at_private = 0
+            can_vote = True
+
+            timer = threading.Timer(timer_to_vote_in_private, lambda: results_in_private(messages_with_vote))
+            timer.start()
+        else:
+            vote_results = {}
+            kick_out_username = []
+            kick_out_ids = []
+            vote_couter_at_private = 0
+            can_vote = True
+
+            bot.send_message(text="Бункерці не змогли визначити, хто з гравців є корисним, а хто ні."
+                                  " Що ж дізнаємося трохи більше про всіх гравців", chat_id=chat_id)
+            round_counter += 1
+            bot.send_message(chat_id=chat_id, text="Розпочинається раунд " + str(round_counter))
+            player_that_say = 1
+            job_counter = 0
+            start_next_round()
+            is_first_opening_in_round_begins_from_2 = True
+
 
 # _______________________________________________________________
 # ДО ЦЬОГО МОМЕНТУ ВСЕ ПРОВАЛІДОВАНО І ЗРОБЛЕНО ТЕСТИ ЯКЩО ПОТРІБНО
@@ -1169,17 +1365,17 @@ def check_for_vote(query, command):
         # і до цього він вже обрав цю відповідь
         elif command == "Залишити" and query.from_user.id in list_of_person_that_vote_save:
             bot.send_message(text="Ви вже проголосували за те, щоб гравець " + kick_out_username[0] + " залишився."
-                                                                                                      " Ви можете змінити свій вибір. ",
+                                  " Ви можете змінити свій вибір. ",
                              chat_id=query.from_user.id)
 
         # Гравець натиснув на кнопку Вигнати
         # і до цього він вже обрав цю відповідь
         elif command == "Вигнати" and query.from_user.id in list_of_person_that_vote_kick:
             bot.send_message(text="Ви вже проголосували за те, щоб гравець " + kick_out_username[0] + " покинув бункер."
-                                                                                                      " Ви можете змінити свій вибір. ",
+                                  " Ви можете змінити свій вибір. ",
                              chat_id=query.from_user.id)
 
-    if vote_counter >= len(live_person) - 1:
+    if vote_counter == len(live_person) - 1:
         get_result_of_vote("players")
 
 
@@ -1196,7 +1392,7 @@ def get_result_of_vote(string_from):
         bot.send_message(text="Час вичерпано!!!", chat_id=chat_id)
     if len(list_of_person_that_vote_save) > len(list_of_person_that_vote_kick):
         bot.send_message(text="Гравець " + kick_out_username[0] + " зміг переконати інших у своїй потрібності,"
-                                                                  " а тому він залишається у бункері. Сподіваюсь ви не пошкодуєте. ",
+                              " а тому він залишається у бункері. Сподіваюсь ви не пошкодуєте. ",
                          chat_id=chat_id)
     elif len(list_of_person_that_vote_save) < len(list_of_person_that_vote_kick):
         bot.send_message(text="Гравецю " + kick_out_username[0] + " довелося покинути бункер." + random_die,
@@ -1205,7 +1401,6 @@ def get_result_of_vote(string_from):
             if i.id == kick_out_ids[0]:
                 live_person.remove(i)
                 break
-
         print(live_person)
 
     else:
@@ -1216,59 +1411,6 @@ def get_result_of_vote(string_from):
     job_counter = 0
     start_next_round()
     is_first_opening_in_round_begins_from_2 = True
-
-
-# Створити голосування в групы фінальне
-def create_poll_vote():
-    # Це якийсь брєд, я не можу обробляти натискання (що найменше потрібно його робити не анонімним)
-    # але чекнути результатия можу лише після того як закінчиться час і обробити те, що проголосував
-    # хтось хто не грає чи чи взагалі не знаходиться в групі чи вже мертвий чи сам гравець якого виганяють,
-    # я не можу, а тому краще за допомогою звичайних повідомлень з кнопками.
-    #     if len(username) == 1:
-    #         poll = bot.send_poll(chat_id=chat_id,
-    #                              question="Чи заслуговує " + username[0] + " жити у відродженому суспільстві",
-    #                              options=["Вигнати", "Залишити"], is_anonymous=False, allows_multiple_answers=False,
-    #                              correct_option_id=None,
-    #                              open_period=timer_to_vote_in_poll)
-    #
-    #         while not poll.poll.is_closed:
-    #             pass
-    #         print(poll)
-    #         get_data_from_poll(poll)
-    #
-    #
-    # def get_data_from_poll(poll):
-    #     if poll.poll.total_voter_couter() > len(live_person) - 1:
-    #         bot.send_message(text="Кількість голосів більша, ніж потрібно", chat_id=chat_id)
-    global round_counter
-    global player_that_say
-    global job_counter
-    global is_first_opening_in_round_begins_from_2
-    global timer
-    global vote_couter_at_private
-    vote_couter_at_private = 0
-    keyboard_1 = telebot.types.InlineKeyboardMarkup()
-    keyboard_1.row(
-        telebot.types.InlineKeyboardButton('Вигнати - 0', callback_data='Вигнати')
-    )
-    keyboard_1.row(
-        telebot.types.InlineKeyboardButton('Залишити - 0', callback_data='Залишити')
-    )
-    if len(kick_out_username) == 1:
-        bot.send_message(text="Чи заслуговує " + kick_out_username[0] + " жити у відродженому суспільстві?",
-                         chat_id=chat_id, reply_markup=keyboard_1)
-        timer = threading.Timer(timer_to_vote_in_poll, lambda: get_result_of_vote("timer"))
-        timer.start()
-    else:
-        bot.send_message(text="Бункерці не змогли визначити, хто з гравців є корисним, а хто ні."
-                              " Що ж дізнаємося трохи більше про всіх гравців",
-                         chat_id=chat_id)
-        round_counter += 1
-        bot.send_message(chat_id=chat_id, text="Розпочинається раунд " + str(round_counter))
-        player_that_say = 1
-        job_counter = 0
-        start_next_round()
-        is_first_opening_in_round_begins_from_2 = True
 
 
 # Знайти ніки гравців з найбільшою кількістю голосів проти них

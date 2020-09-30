@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding:utf-8
 
 TOKEN = "1372423994:AAGfhzkKfX-D5gbWf_AyF01NQk-Xo5p10F8"
 TIMEZONE = 'Europe/Kiev'
