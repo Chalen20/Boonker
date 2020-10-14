@@ -45,7 +45,7 @@ active_users_id = []
 min_users = 0
 
 # час затримки для реєстрації гравців
-time_that_start_new_game = 30.0
+time_that_start_new_game = 10.0
 
 # список додаткового часу для кожного гравця
 list_of_add_time = {}
@@ -59,8 +59,11 @@ request = {}
 # кількість відкритих професій
 job_counter = 0
 
-# час на 1 раунд для 1 гравця
+# час на 1 раунд для одного гравця
 time_per_round = 20
+
+# Масив з часом для розмов гравців
+list_of_time_per_round = {}
 
 # гравець, який зараз вибирає карти
 player_that_say = 0
@@ -783,7 +786,7 @@ def get_prof_callback(query):
         bot.send_message(chat_id, "@" + query.from_user.username + " - " +
                          str(request[query.from_user.id][0]))
         job_counter += 1
-        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
+        timer = threading.Timer(list_of_time_per_round[query.from_user.id], lambda: give_say_to_next_person(query, 1))
         timer.start()
     # Відкрита одна спеціальна карта і карта професій
     elif len(list_of_list_of_round1[query.from_user.id]) == 1:
@@ -791,13 +794,13 @@ def get_prof_callback(query):
                               chat_id=query.message.chat.id, reply_markup=None)
         bot.send_message(chat_id, "@" + query.from_user.username + " - " +
                          str(request[query.from_user.id][0]))
-        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
+        timer = threading.Timer(list_of_time_per_round[query.from_user.id], lambda: give_say_to_next_person(query, 1))
         timer.start()
         job_counter += 1
     # Створюється таймер після обговорення
     timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
     timer_message_id = timer_message.message_id
-    timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
+    timer_in_button(query, list_of_time_per_round[query.from_user.id], timer_message.message_id, timer_message)
     # Всі відкрили свої професії
     if job_counter == len(active_users):
         bot.send_message(chat_id, "Дискусія: \n"
@@ -1555,11 +1558,11 @@ def get_round_begins_from_two(type_str, query):
                      str(request[query.from_user.id][list_for_round2.index(type_str)]))
     if type_str != list_for_round2[8] and type_str != list_for_round2[9]:
         job_counter += 1
-        timer = threading.Timer(time_per_round, lambda: give_say_to_next_person(query, 1))
+        timer = threading.Timer(list_of_time_per_round[query.from_user.id], lambda: give_say_to_next_person(query, 1))
         timer.start()
         timer_message = bot.send_message(text="Таймер до кінця раунду", chat_id=query.message.chat.id)
         timer_message_id = timer_message.message_id
-        timer_in_button(query, time_per_round, timer_message.message_id, timer_message)
+        timer_in_button(query, list_of_time_per_round[query.from_user.id], timer_message.message_id, timer_message)
     if job_counter == len(live_person):
         bot.send_message(chat_id, "Дискусія: \n"
                                   "бла \n "
@@ -1598,7 +1601,6 @@ def give_say_to_next_person(query, from_func):
     # time.sleep(3)
     global person
     global player_that_say
-    global some_counter
     global timer
     global round_counter
     global job_counter
@@ -1684,6 +1686,10 @@ def timer_in_button(query, time_number, message_id, timer_message):
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     keyboard_1.row(telebot.types.InlineKeyboardButton("Достроково закінчити обговорення", callback_data="add_time"))
     keyboard_1.row(telebot.types.InlineKeyboardButton(str(time_number), callback_data="timer"))
+
+
+
+
     try:
         bot.edit_message_text(text=timer_message.text, chat_id=query.message.chat.id, reply_markup=keyboard_1,
                               message_id=message_id)
@@ -1719,6 +1725,8 @@ def add_time(query):
     global timer_message_id
     list_of_add_time[query.from_user.id] += time_value
     print(list_of_add_time)
+    print(list_of_time_per_round)
+    list_of_time_per_round[query.from_user.id] += list_of_add_time[query.from_user.id]
     #  удалєніє сообщенія з таймером
     try:
         print(query)
@@ -1809,6 +1817,10 @@ def start_(message):
     for i in range(0, len(active_users)):
         list_of_add_time[active_users[i].id] = 0
     live_person = active_users
+
+    for i in range(0, len(active_users)):
+        list_of_time_per_round[active_users[i].id] = time_per_round
+
     try:
         # видаляє повідомлення реєстрації
         bot.delete_message(message.chat.id, res.message_id)
