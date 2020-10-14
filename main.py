@@ -92,9 +92,6 @@ person = 0
 # Змінна, яка описує чи ще може голосувати гравець
 can_vote = True
 
-# непонятна змінна, але десь використовується
-some_counter = 0
-
 # тимчасова змінна, яка використовується для передачі часу
 # виклику між функціями (виключення таймера переходу)
 timer = 0
@@ -217,6 +214,12 @@ die_of_player_that_leave_bunker = [[" Гравець оселився у гус�
 # Функція, яка конвертує набір строку і випадкове число у одну строку
 # Функція проста, тести до неї писати думаю не треба.
 def convert_to_(str1, number, str2):
+    """
+    :param str1: строка, початок меседжа
+    :param number: число, випадкове число що відповідає заданому коду
+    :param str2: строка, кінець меседжа
+    :return: строка, готовий меседж
+    """
     random_period = 0
     if number == 1:
         random_period = str(random.randint(random.randint(5, 10), random.randint(11, 49)))
@@ -241,8 +244,11 @@ random_die = ""
 # Функція, яка створює нову випадкову смерть з рандомним часом життя
 # Функція без тестів
 def new_random_die():
+    """
+    :return: строка, рандомна смерть, яка присвоюється змінній random_die
+    """
+    # випадкова смерть з запропонованих
     global random_die
-
     random_property = random.randint(
         random.randint(0, math.floor(len(die_of_player_that_leave_bunker) / 2)),
         random.randint(math.floor(len(die_of_player_that_leave_bunker) / 2) + 1,
@@ -262,6 +268,10 @@ def new_random_die():
 # Друкує стартове повідомлення
 @bot.message_handler(commands=["start"])
 def start(message):
+    """
+    :param message: об'єкт вхідного повідмлення тобто /start
+    :return:
+    """
     bot.send_message(message.chat.id, """Це бот для гри у "Бункер",\n/help - список можливих команд;
 /rules - правила гри.""")
 
@@ -270,7 +280,11 @@ def start(message):
 # або натискання на напис /help
 # Виводить повідомлення з описом можливих команд
 @bot.message_handler(commands=["help"])
-def start(message):
+def help_start(message):
+    """
+    :param message:  об'єкт вхідного повідмлення тобто /help
+    :return:
+    """
     bot.send_message(message.chat.id, "/start - початок використання \n"
                                       "/help - допомога, список можливих команд \n"
                                       "/rules - правила гри \n"
@@ -283,43 +297,65 @@ def start(message):
 # Якщо гра почалася, убиває гравця.
 @bot.message_handler(commands=["suicide"])
 def suicide_command(message):
+    """
+    :param message: об'єкт вхідного повідмлення тобто /suicide
+    :return:
+    """
+    # тимчасова змінна для передачі стартового повідомлення до
+    # інших функцій (get_ex_callback, start_)
     global res
     # print(message)
     # Для використання, як бота тобто відправки /suicide
-
     try:
-        if is_game_starts and message.chat.type != "group" and message.chat.type != "supergroup":
-            bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-            if message.from_user.username and message.from_user.username.strip() != "":
-                bot.send_message(text="Гравець @" + message.from_user.username + " покінчив життя самогубством"
-                                                                                 " (добровільно покинув бункер)",
-                                 chat_id=chat_id)
-            elif message.from_user.first_name and message.from_user.last_name and \
-                    message.from_user.first_name.strip() != "" and message.from_user.last_name.strip() != "":
-                bot.send_message(text="Гравець " + message.from_user.first_name + " " + message.from_user.last_name +
-                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
-            elif message.from_user.first_name and message.from_user.first_name.strip() != "":
-                bot.send_message(text="Гравець " + message.from_user.first_name +
-                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
-            elif message.from_user.last_name and message.from_user.last_name.strip() != "":
-                bot.send_message(text="Гравець " + message.from_user.last_name +
-                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
-            else:
-                bot.send_message(text="Гравець " + str(message.from_user.id) +
-                                      " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
-            for i in range(0, len(live_person)):
-                if live_person[i].id == message.from_user.id:
-                    live_person.pop(i)
+        if message.from_user in live_person:
+            # Якщо гра почалась,(вже відпраленні ролі) і команда відправленнв не у групу чи супергрупу
+            if is_game_starts and message.chat.type != "group" and message.chat.type != "supergroup"\
+                    and message.chat.type == 'private':
+                # Видаляємо повідомлення-команду
+                bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+                # У людини, яка віправила команду є нік
+                if message.from_user.username and message.from_user.username.strip() != "":
+                    bot.send_message(text="Гравець @" + message.from_user.username + " покінчив життя самогубством"
+                                          " (добровільно покинув бункер)", chat_id=chat_id)
+                # У людини, яка відправила команду є ім'я і прізвище
+                elif message.from_user.first_name and message.from_user.last_name and \
+                        message.from_user.first_name.strip() != "" and message.from_user.last_name.strip() != "":
+                    bot.send_message(text="Гравець " + message.from_user.first_name + " " + message.from_user.last_name +
+                                          " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+                # У людини, яка відправила команду є лише ім'я
+                elif message.from_user.first_name and message.from_user.first_name.strip() != "":
+                    bot.send_message(text="Гравець " + message.from_user.first_name +
+                                          " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+                # У людини, яка відправила команду є лише прізвище
+                elif message.from_user.last_name and message.from_user.last_name.strip() != "":
+                    bot.send_message(text="Гравець " + message.from_user.last_name +
+                                          " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+                # Немає нічого з вище перечисленого
+                else:
+                    bot.send_message(text="Гравець " + str(message.from_user.id) +
+                                          " покінчив життя самогубством (добровільно покинув бункер)", chat_id=chat_id)
+                # Перебираємо живих гравців і видаляємо гравця, який викликав команду
+                for i in range(0, len(live_person)):
+                    if live_person[i].id == message.from_user.id:
+                        live_person.pop(i)
 
-        elif is_game_starts and (message.chat.type == "group" or message.chat.type == "supergroup"):
-            bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-            bot.send_message(text="Команду /suicide можна використовувати лише в особистих повідомленнях.",
-                             chat_id=message.from_user.id)
+            # Якщо гра почалась, але команду відправлено в групу чи супергрупу
+            elif is_game_starts and (message.chat.type == "group" or message.chat.type == "supergroup"):
+                # Видалити команду-повідомлення
+                bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+                bot.send_message(text="Команду /suicide можна використовувати лише в особистих повідомленнях.",
+                                 chat_id=message.from_user.id)
+
+        # Якщо гра не почалась і відпраленно в особисті повідомлення
         elif not is_game_starts and message.chat.type != "group" and message.chat.type != "supergroup":
+            # Видалити команду-повідомлення
             bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
             bot.send_message(text="Команду /suicide можна використовувати лише під час гри.",
                              chat_id=message.from_user.id)
+
+        # Якщо гра не почалась і відпраленно в групу чи супергрупу
         elif not is_game_starts and (message.chat.type == "group" or message.chat.type == "supergroup"):
+            # Видалити команду-повідомлення
             bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
             bot.send_message(
                 text="Команду /suicide можна використовувати лише в особистих повідомленнях і під час гри.",
@@ -378,11 +414,16 @@ def suicide_command(message):
 
 
 # Функція тестувальник функції suicide_command
-def tester_suicide():
+def tester_suicide(chat_id_=-387174137):
+    # Булеан чи гра вже почалась
     global is_game_starts
+    # Ідентиікатор чату
     global chat_id
+    # Масив живих гравців
     global live_person
-    chat_id = -387174137
+    chat_id = chat_id_
+
+    # імпровізований об'єкт запиту
     message_request_chat = {'from_user':
                                 {'id': 489842482, 'first_name': 'Андрій',
                                  'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'},
@@ -392,10 +433,18 @@ def tester_suicide():
                                    {'id': 489842482, 'first_name': 'Андрій',
                                     'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'},
                                'chat': {'id': 489842482, 'type': 'private'}}
+
+    # імпровізований масив живих гравців
     live_person = [{'id': 489842482, 'first_name': 'Андрій',
                     'username': 'TheBestPersonInTheUniverse', 'last_name': 'Чалюк'}]
+
+    # Викликаємо функцію суїсайду з не початою грою в чат
     suicide_command(message_request_chat)
+
+    # Викликаємо функцію суїсайду з не початою грою в приватні повідомлення
     suicide_command(message_request_private)
+
+    # |-|--|-| з початою грою
     is_game_starts = True
     suicide_command(message_request_chat)
     suicide_command(message_request_private)
@@ -428,6 +477,7 @@ def tester_suicide():
                                'chat': {'id': 489842482, 'type': 'private'}}
     suicide_command(message_request_private)
 
+    # Повертаємо початкове значення глобальним змінним
     is_game_starts = False
     chat_id = 0
     live_person = []
@@ -445,14 +495,21 @@ keyboard.row(
 # Розпочинає нову гру у чатах і суперчатах
 @bot.message_handler(commands=['start_new_game'])
 def start_command(message):
+    """
+    :param message: об'єкт вхідного повідомлення тобто /start_new_game
+    :return:
+    """
+    # ідентифікатор чату, в якому розпочалась гра
     global chat_id
     chat_id = message.chat.id
-    print(message)
-    # Якщо повыдомлення відправленно в групі чи супергрупі
+    # print(message)
+    # Якщо повідомлення відправленно в групі чи супергрупі
     if (message.chat.type == "group" or message.chat.type == "supergroup") and not is_game_starts:
         t = threading.Timer(time_that_start_new_game, lambda: start_(message))
         t.start()
         bot.delete_message(chat_id=chat_id, message_id=message.message_id)
+        # тимчасова змінна для передачі стартового повідомлення до
+        # інших функцій (get_ex_callback, start_)
         global res
         try:
             res = bot.send_message(chat_id=message.chat.id, text='Зареєстровані гравці :',
@@ -462,10 +519,11 @@ def start_command(message):
         except:
             bot.send_message(chat_id=message.chat.id, text="У бота недостатньо прав для запінювання повідомлень"
                                                            " (надайте їх йому).")
-    # Якщщщо повідомлння відправленно в привітному повідомленні чи каналі
+    # Якщо повідомлння відправленно в приватному повідомленні чи каналі
     elif message.chat.type != "group" or message.chat.type != "supergroup":
         bot.send_message(chat_id=message.chat.id, text="Ця команда доступна лише в групових чатах.")
-    else:
+    # Гра вже відбувається і ще не закінчилась
+    elif is_game_starts:
         bot.delete_message(chat_id=chat_id, message_id=message.message_id)
         bot.send_message(chat_id=message.chat.id, text="Зачекайтеся закінчення поточної гри.")
 
@@ -473,6 +531,10 @@ def start_command(message):
 # Викликається при натисканні на кнопку
 @bot.callback_query_handler(func=lambda call: True)
 def iq_callback(query):
+    """
+    :param query: об'єкт запиту (при натисканні на кнопочку)
+    :return:
+    """
     data = query.data
 
     # Викликається при натисканні на кнопку Enter
@@ -548,7 +610,6 @@ def iq_callback(query):
 
 # Відкриває спеціальну карту
 def open_special(type_str, query):
-    global some_counter
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     try:
         print(query)
@@ -567,7 +628,6 @@ def open_special(type_str, query):
             del some_variable2[len(some_variable2) - 1 - list_for_round1.index(type_str) % 2]
             # Видаляємо з переприсвоєного масиву всіх раундів щойно відкриту карту
             list_of_list_for_round2[query.from_user.id] = some_variable2
-            some_counter += 1
         # Відкрита лише карта у поточному раунді
         if len(list_of_list_of_round1[query.from_user.id]) == 2:
             keyboard_1.row(
@@ -603,7 +663,6 @@ def open_special(type_str, query):
             del some_variable2[len(some_variable2) - 1 - list_for_round1.index(type_str) % 2]
             # Видаляємо з переприсвоєного масиву всіх раундів щойно відкриту карту
             list_of_list_for_round2[query['from_user']['id']] = some_variable2
-            some_counter += 1
         # Відкрита лише карта у поточному раунді
         if len(list_of_list_of_round1[query['from_user']['id']]) == 2:
             keyboard_1.row(
@@ -634,8 +693,12 @@ def open_special(type_str, query):
 
 
 def open_special_tester():
+    # список невідкритих характеристик людей в 1 раунді
     global list_of_list_of_round1
+    # список невідкритих характеристик людей в 2 раунді
     global list_of_list_for_round2
+
+    # Присвоюємо всі карти, невідкритими
     list_of_list_of_round1[489842482] = list_for_round1.copy()
     list_of_list_for_round2[489842482] = list_for_round2.copy()
     query = {'from_user':
@@ -679,10 +742,18 @@ def open_special_tester():
 # ПРАЦЮЄ 50/50 (працює, але тест писати не буду)
 # Функція, яка відкриває професію
 def get_prof_callback(query):
+    """
+    :param query: об'єкт запиту при натисканні на кнопку професії
+    :return:
+    """
+    # ідентифікатор повідомлення з таймером
     global timer_message_id
+    # кількість відкритих професій
     global job_counter
+    # номер поточного раунда
     global round_counter
-    global some_counter
+    # тимчасова змінна, яка використовується для передачі часу
+    # виклику між функціями (виключення таймера переходу)
     global timer
     keyboard_1 = telebot.types.InlineKeyboardMarkup()
     # Видаляє з масивів використані карти
@@ -696,7 +767,6 @@ def get_prof_callback(query):
         some_variable2 = list_of_list_for_round2[query.from_user.id]
         del some_variable2[0]
         list_of_list_for_round2[query.from_user.id] = some_variable2
-        some_counter += 1
     # Відкрита лише карта професії
     if len(list_of_list_of_round1[query.from_user.id]) == 2:
         keyboard_1.row(
@@ -739,6 +809,7 @@ def get_prof_callback(query):
 # Голосування попереднє в особистих повідомленнях
 def vote():
     global timer
+    # Для бота
     try:
         # bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
         #                      " а хто лише споживатиме ресурси.", chat_id=chat_id)
@@ -791,6 +862,7 @@ def vote():
             mes = bot.send_message(text="Оберіть гравця непотрібного для відрождення життя",
                                    chat_id=j.id, reply_markup=keyboard_1)
             messages_with_vote.append(mes)
+    # Для тестування 
     except:
         bot.send_message(text="Настав час визначити, хто є корисним для відновлення життя на Землі,"
                               " а хто лише споживатиме ресурси.", chat_id=chat_id)
@@ -1535,7 +1607,6 @@ def give_say_to_next_person(query, from_func):
         timer.cancel()
         print("Cancel")
     print("round_counter " + str(round_counter))
-    some_counter = 0
     if round_counter == 1:
         if player_that_say < len(active_users):
             # Створити кнопки
@@ -1845,8 +1916,9 @@ def start_(message):
                                                               + active_users[player_that_say].username)
         player_that_say += 1
     else:
-        bot.send_message(message.chat.id, "На жаль, не можливо провести гру з такою кількістю гравців((\n"
-                                          "Мінімальна кількість гравців - " + str(min_users)) + " ."
+        bot.send_message(chat_id=message.chat.id, text="На жаль, не можливо провести гру з такою кількістю гравців((\n"
+                                                       "Мінімальна кількість гравців - " + str(min_users) + " .",
+                         reply_to_message_id=message.messge_id)
     try:
         # відкріпити повідомлення з реєстрацією
         # (видалилося воно на початку цього методу)
@@ -1872,14 +1944,16 @@ def start_(message):
 # Зупиняє бота і закінчує поточну гру (доробити)
 @bot.message_handler(commands=["off"])
 def start(message):
-    bot.send_message(message.chat.id, "А може не треба?")
+    bot.send_message(chat_id=message.chat.id, text="Вимкнення. А може не треба?",
+                     reply_to_message_id=message.message_id)
 
 
 # Команда, яка спрацьовує при виклику команди /settings
 # Вмикає меню налаштувань бота
 @bot.message_handler(commands=["settings"])
 def start(message):
-    bot.send_message(message.chat.id, "А може не треба?")
+    bot.send_message(chat_id=message.chat.id, text="Тут повинні бути налаштування",
+                     reply_to_message_id=message.message_id)
 
 
 # Команда, яка спрацьовує при виклику команди /rules
@@ -1887,8 +1961,8 @@ def start(message):
 @bot.message_handler(commands=["rules"])
 def start(message):
     bot.send_message(
-        message.chat.id,
-        """ "Бункер" - це дискусійна  карточна гра з постапокалістиним сюжетом.\n
+        chat_id=message.chat.id,
+        text=""" "Бункер" - це дискусійна  карточна гра з постапокалістиним сюжетом.\n
 📌 Сюжет: \n
 На Землі відбулася катастрофа. Частина людей знаходиться в спеціальному бункері й кожен мріє залишитися в
 ньому і вижити. Але кількість місць обмежена: у бункері залишиться лише половина, інші повинні його покинути. \n
@@ -1993,7 +2067,7 @@ def start(message):
 Гравці зробили неправильний вибір і залишилися без лікаря. Вибувші гравці відкривають свої карти і оцінюють правильність
 рішень за всю гру.
 Карточка "Спеціальної умови" може бути відкрита гравцем на будь-якому етапі, але лише 1 за етап. 
-""")
+""", reply_to_message_id=message.message_id)
 
 
 # Команда, яка спрацьовує при написанні тексту у чат з ботом
@@ -2015,12 +2089,12 @@ def start(message):
 # Рудимент (доробити)
 @bot.message_handler(content_types=['sticker'])
 def sticker(message):
+    print(message)
     random_number = random.randint(0, 1)
     if random_number == 1:
-        bot.send_message(message.chat.id, 'Нащо це?')
+        bot.send_message(chat_id=message.chat.id, text='Нащо це?', reply_to_message_id=message.message_id)
     elif random_number == 0:
-        bot.send_message(message.chat.id, 'Давай без цього?')
-    print(message)
+        bot.send_message(chat_id=message.chat.id, text='Давай без цього', reply_to_message_id=message.message_id)
 
 
 # Команда, яка спрацьовує при відправленні фото у чат з ботом
@@ -2030,9 +2104,9 @@ def sticker(message):
 def photo(message):
     random_number = random.randint(0, 1)
     if random_number == 1:
-        bot.send_message(message.chat.id, 'Какой красавчик, але це не точно')
+        bot.send_message(chat_id=message.chat.id, text='Можна було і краще', reply_to_message_id=message.message_id)
     elif random_number == 0:
-        bot.send_message(message.chat.id, 'Какой красавчик))')
+        bot.send_message(chat_id=message.chat.id, text='Як красиво))', reply_to_message_id=message.message_id)
     print(message)
 
 
@@ -2042,12 +2116,13 @@ def photo(message):
 @bot.message_handler(content_types=['location'])
 def geo_location(message):
     print(message)
-    bot.send_message(message.chat.id, 'Це дє?')
-
+    bot.send_message(chat_id=message.chat.id, text='Зустріч для утворення команди заборонена?',
+                     reply_to_message_id=message.message_id)
 
 # tester_suicide()
 # open_special_tester()
 # vote_tester()
+
 
 if __name__ == "__main__":
     bot.polling()
