@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Boonker.iml" filepath="$PROJECT_DIR$/.idea/Boonker.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/Bot/.idea/Bot.iml" filepath="$USER_HOME$/PycharmProjects/Bot/.idea/Bot.iml" />
+      <module fileurl="file://$USER_HOME$/Documents/GitHub/bremind_bot/.idea/bremind_bot.iml" filepath="$USER_HOME$/Documents/GitHub/bremind_bot/.idea/bremind_bot.iml" />
     </modules>
   </component>
 </project>
